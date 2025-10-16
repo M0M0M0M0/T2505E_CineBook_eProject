@@ -1,0 +1,51 @@
+/* MovieCardList.css
+   - Đặt cùng src/pages/Movies/components/MovieCardList.jsx
+   - Class chính: movie-card-list, movie-card-unique, movie-card-unique-poster, movie-card-unique-title etc.
+*/
+
+.movie-card-list {
+  width: 92%;
+  max-width: 1200px;
+  margin: 18px auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 18px;
+}
+
+.movie-card-unique {
+  background: #0f0f0f;
+  border: 1px solid #1d1d1d;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.movie-card-unique:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+}
+.movie-card-unique-poster {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  display: block;
+}
+.movie-card-unique-title {
+  margin: 10px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.movie-card-unique-meta {
+  margin: 0 10px 12px;
+  color: #bdbdbd;
+  font-size: 13px;
+}
+.movie-card-unique-link {
+  display: inline-block;
+  margin: 0 10px 14px;
+  padding: 8px 12px;
+  background: #ffd27a;
+  border-radius: 8px;
+  color: #111;
+  font-weight: 700;
+  text-decoration: none;
+}

@@ -1,0 +1,143 @@
+/* src/components/Footer.css
+   - Place next to Footer.jsx
+   - Prefix: footer-cb, fc-*
+   - Simple, responsive, easy to customize
+*/
+
+/* Base */
+.footer-cb {
+  background: linear-gradient(180deg,#050505 0%, #090909 100%);
+  color: #dcdcdc;
+  font-size: 14px;
+  margin-top: 28px;
+}
+
+/* Newsletter row */
+.footer-cb-newsletter {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  padding: 18px 0;
+}
+.footer-cb-inner { width: 92%; max-width: 1200px; margin: 0 auto; }
+
+/* newsletter layout */
+.fc-news-left { display: flex; gap: 12px; align-items: center; }
+.fc-logo-box { display:flex; align-items:center; gap:8px; }
+.fc-logo-text { color: #ffd27a; font-weight: 800; font-size: 18px; }
+.fc-news-text .fc-small { color: #bdbdbd; font-size: 13px; }
+.fc-news-form { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.fc-news-input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #0b0b0b;
+  border: 1px solid #222;
+  color: #fff;
+  min-width: 220px;
+}
+.fc-news-cta {
+  background: #ffd27a;
+  color: #0b0b0b;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+
+/* Links grid */
+.footer-cb-links { padding: 22px 0; }
+.fc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; align-items: start; }
+
+.fc-col-title {
+  color: #ffd27a;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+.fc-list { list-style: none; padding: 0; margin: 0; }
+.fc-list li { margin-bottom: 8px; }
+.fc-link { color: #d6d6d6; text-decoration: none; }
+.fc-link:hover { color: #ffd27a; text-decoration: underline; }
+
+/* Contact & social */
+.fc-contact-line { color: #cfcfcf; margin-bottom: 6px; font-size: 13px; }
+.fc-social { display:flex; gap:8px; margin-top: 8px; }
+.fc-social-link {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:34px; height:34px;
+  border-radius:6px;
+  background:#0e0e0e;
+  color:#fff;
+  font-weight:700;
+  text-decoration:none;
+  border:1px solid rgba(255,255,255,0.03);
+}
+.fc-social-link:hover { background:#1b1b1b; color:#ffd27a; }
+
+/* Bottom row */
+.footer-cb-bottom {
+  border-top: 1px solid rgba(255,255,255,0.03);
+  padding: 12px 0;
+}
+.fc-bottom-row { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.fc-small-link { color:#bfbfbf; margin-left: 12px; text-decoration:none; font-size:13px; }
+.fc-small-link:hover { color:#ffd27a; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .fc-grid { grid-template-columns: repeat(2, 1fr); }
+  .fc-news-form { margin: 12px 0 0 0; width: 100%; }
+  .footer-cb-inner { width: 94%; }
+  .fc-bottom-row { flex-direction: column; align-items:flex-start; gap:8px; }
+}
+@media (max-width: 520px) {
+  .fc-grid { grid-template-columns: 1fr; }
+  .fc-news-left { flex-direction: column; align-items:flex-start; gap:8px; }
+  .fc-news-form { width: 100%; display:flex; gap:8px; }
+  .fc-news-input { flex:1; min-width: 0; }
+}
+
+/* ===== Fix khoảng trắng & giữ footer dính đáy ===== */
+
+/* reset nhẹ trong phạm vi footer */
+footer.footer-cb {
+  margin-top: 0 !important;
+  flex-shrink: 0;
+}
+
+/* nếu main có margin collapse thì ép nó co lại */
+.app-main {
+  padding-bottom: 1px; /* ngăn margin collapse giữa main và footer */
+  overflow: auto;
+}
+
+/* đảm bảo body và root chiếm đủ chiều cao */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #0b0b0b;
+}
+
+/* bố cục flex cho toàn bộ ứng dụng (đặt ở cấp App container) */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-main {
+  flex: 1 0 auto;
+}
+
+/* footer cuối cùng dính đáy */
+.footer-cb {
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
+/* nếu có hr hoặc div rỗng giữa main và footer */
+.app-main > hr,
+.app-main hr {
+  display: none !important;
+}

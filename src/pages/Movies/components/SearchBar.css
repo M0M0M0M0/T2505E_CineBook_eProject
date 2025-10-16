@@ -1,0 +1,22 @@
+/* SearchBar.css
+   - Đặt cùng SearchBar.jsx
+   - Styles nhẹ cho input trong theme trắng
+*/
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.search-bar-input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  color: #111;
+  font-size: 14px;
+  outline: none;
+}
+.search-bar-input::placeholder { color: #9ca3af; }
