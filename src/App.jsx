@@ -16,6 +16,7 @@ function App() {
     <BrowserRouter>
       <Header />
       <Dashboard />
+      <Home/>
     </BrowserRouter>
   )
 }
