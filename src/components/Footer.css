@@ -23,7 +23,7 @@
 .fc-news-left { display: flex; gap: 12px; align-items: center; }
 .fc-logo-box { display:flex; align-items:center; gap:8px; }
 .fc-logo-text { color: #ffd27a; font-weight: 800; font-size: 18px; }
-.fc-news-text .fc-small { color: #bdbdbd; font-size: 13px; }
+.fc-news-text .fc-small { color: #dfdada; font-size: 13px; }
 .fc-news-form { margin-left: auto; display: flex; gap: 8px; align-items: center; }
 .fc-news-input {
   padding: 10px 12px;

@@ -379,7 +379,7 @@ const handleSelectShowtime = () => {
   return (
     <div className="d-flex bg-light">
       {/* Sidebar */}
-      <aside className="bg-white shadow-sm p-4 position-fixed" style={{ width: "250px"}}>
+      <aside className="bg-white shadow-sm p-4" style={{ width: "250px"}}>
         <h2 className="fw-bold text-danger mb-4">🎟️ FlickTickets</h2>
         <nav className="d-flex flex-column gap-2">
           {menuItems.map((item, i) => (
@@ -401,7 +401,7 @@ const handleSelectShowtime = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-grow-1 p-4" style={{ marginLeft: "240px" }}>
+      <main className="flex-grow-1 p-4" >
         {/* Header */}
         <div className="d-flex justify-content-between align-items-center mb-4">
           
