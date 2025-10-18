@@ -8,7 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Footer from './components/Footer.jsx'
 import Movies from './pages/Movies/Movies.jsx'
 import MovieDetail from './pages/MovieDetail/MovieDetail.jsx'   
-import Home from './pages/Homepage/Home.jsx'
+
 
 
 
