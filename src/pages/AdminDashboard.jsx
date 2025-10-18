@@ -142,6 +142,64 @@ export default function Dashboard() {
     // Thêm theaters khác...
   ];
 
+  // Dữ liệu mẫu
+const cities = ["Hà Nội", "TP. Hồ Chí Minh"];
+const theaters2 = [
+  { id: 1, name: "CGV Vincom", city: "Hà Nội" },
+  { id: 2, name: "BHD Bitexco", city: "TP. Hồ Chí Minh" },
+];
+const movies2 = [
+  { id: 1, title: "Avengers: Endgame" },
+  { id: 2, title: "Inception" },
+];
+const showtimes = [
+  {
+    title: "Avengers: Endgame",
+    city: "Hà Nội",
+    theater: "CGV Vincom",
+    date: "2025-10-18",
+    time: "18:30",
+    room: 3,
+    price: 120000,
+    status: "Available",
+    statusColor: "success",
+    sold: 45,
+    totalTicket: 100,
+  },
+  {
+    title: "Inception",
+    city: "TP. Hồ Chí Minh",
+    theater: "BHD Bitexco",
+    date: "2025-10-19",
+    time: "20:00",
+    room: 2,
+    price: 100000,
+    status: "Full",
+    statusColor: "danger",
+    sold: 100,
+    totalTicket: 100,
+  },
+];
+
+// State
+const [selectedCity, setSelectedCity] = useState("");
+const [selectedTheater, setSelectedTheater] = useState("");
+const [selectedMovie, setSelectedMovie] = useState("");
+const [filteredShowtimes, setFilteredShowtimes] = useState([]);
+const [selectedShowtimeData, setSelectedShowtimeData] = useState(null);
+
+
+// Xử lý khi nhấn Select
+const handleSelectShowtime = () => {
+  const filtered = showtimes.filter(
+    (s) =>
+      s.city === selectedCity &&
+      s.theater === selectedTheater &&
+      s.title === selectedMovie
+  );
+  setFilteredShowtimes(filtered);
+};
+
   // State cho theater
   const [editTheater, setEditTheater] = useState(null);
   const [isAddTheater, setIsAddTheater] = useState(false);
@@ -154,13 +212,6 @@ export default function Dashboard() {
   });
   const [theaterError, setTheaterError] = useState("");
 
-  // Xóa state showLoading
-  // const [showLoading, setShowLoading] = useState(false);
-  
-  // Xóa hàm showLoadingScreen
-  // const showLoadingScreen = (cb) => {...}
-
-  // Sửa lại các hàm xử lý không dùng loading
   const handleMenuClick = (name) => {
     if (name === activeMenu) return;
     setActiveMenu(name);
@@ -326,9 +377,9 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="d-flex vh-100 bg-light">
+    <div className="d-flex bg-light">
       {/* Sidebar */}
-      <aside className="bg-white shadow-sm p-4" style={{ width: "250px" }}>
+      <aside className="bg-white shadow-sm p-4 position-fixed" style={{ width: "250px"}}>
         <h2 className="fw-bold text-danger mb-4">🎟️ FlickTickets</h2>
         <nav className="d-flex flex-column gap-2">
           {menuItems.map((item, i) => (
@@ -350,7 +401,7 @@ export default function Dashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-grow-1 p-4 overflow-auto">
+      <main className="flex-grow-1 p-4" style={{ marginLeft: "240px" }}>
         {/* Header */}
         <div className="d-flex justify-content-between align-items-center mb-4">
           
@@ -532,8 +583,8 @@ export default function Dashboard() {
                     <tbody>
                       {movies.map((movie, idx) => (
                         <tr key={idx}>
-                          <td style={{ width: 80 }}>  {/* Thêm width cố định */}
-                            <div style={{ width: 48, height: 72 }}>  {/* Thêm div bọc ngoài với kích thước cố định */}
+                          <td style={{ width: 80 }}> 
+                            <div style={{ width: 48, height: 72 }}>  
                               <img
                                 src={movie.poster}
                                 alt={movie.title}
@@ -888,61 +939,123 @@ export default function Dashboard() {
         )}
 
         {activeMenu === "Showtimes" && (
-          <div>
-          <h2>Showtimes Management</h2>
-    <form>
-      <div className="mb-3">
-        <label className="form-label">Movie</label>
-        <select className="form-control" name="movieId" onChange={handleShowtimeChange} value={showtimeForm.movieId}>
-          {movies.map(movie => (
-            <option key={movie.id} value={movie.id}>{movie.title}</option>
-          ))}
-        </select>
-      </div>
-      <div className="mb-3">
-        <label className="form-label">Theater</label>
-        <select className="form-control" name="theaterId" onChange={handleShowtimeChange} value={showtimeForm.theaterId}>
-          {theaters.map(theater => (
-            <option key={theater.id} value={theater.id}>{theater.name}</option>
-          ))}
-        </select>
-      </div>
-      <div className="mb-3">
-        <label className="form-label">Date</label>
-        <input type="date" className="form-control" name="date" onChange={handleShowtimeChange} value={showtimeForm.date} />
-      </div>
-      <div className="mb-3">
-        <label className="form-label">Time</label>
-        <input type="time" className="form-control" name="time" onChange={handleShowtimeChange} value={showtimeForm.time} />
-      </div>
-      <div className="mb-3">
-        <label className="form-label">Room</label>
-        <input type="number" className="form-control" name="room" onChange={handleShowtimeChange} value={showtimeForm.room} />
-      </div>
-      <div className="mb-3">
-        <label className="form-label">Price</label>
-        <input type="number" className="form-control" name="price" onChange={handleShowtimeChange} value={showtimeForm.price} />
-      </div>
-      {showtimeError && (
-        <div className="alert alert-danger py-2">{showtimeError}</div>
-      )}
-      <div className="d-flex gap-2">
-        <button type="submit" className="btn btn-success">
-          Save
-        </button>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => {
-            setShowtime(null);
-          }}
+  <div className="bg-white rounded shadow-sm p-4" style={{ minHeight: 500 }}>
+    <AnimatePresence mode="wait">
+      {selectedShowtimeData === null && (
+        <motion.div
+          key="showtime-table"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.2 }}
         >
-          Cancel
-        </button>
-      </div>
-    </form>
+          {/* --- Bộ lọc chọn City, Theater, Movie --- */}
+          <div className="d-flex align-items-center gap-3 mb-4">
+            <select
+              className="form-select w-auto"
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+            >
+              <option value="">Select City</option>
+              {cities.map((city, idx) => (
+                <option key={idx} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="form-select w-auto"
+              value={selectedTheater}
+              onChange={(e) => setSelectedTheater(e.target.value)}
+            >
+              <option value="">Select Theater</option>
+              {theaters2
+                .filter((t) => !selectedCity || t.city === selectedCity)
+                .map((t) => (
+                  <option key={t.id} value={t.name}>
+                    {t.name}
+                  </option>
+                ))}
+            </select>
+
+            <select
+              className="form-select w-auto"
+              value={selectedMovie}
+              onChange={(e) => setSelectedMovie(e.target.value)}
+            >
+              <option value="">Select Movie</option>
+              {movies2.map((m) => (
+                <option key={m.id} value={m.title}>
+                  {m.title}
+                </option>
+              ))}
+            </select>
+
+            <button
+              className="btn btn-primary"
+              onClick={handleSelectShowtime}
+              disabled={!selectedCity || !selectedTheater || !selectedMovie}
+            >
+              Select
+            </button>
+          </div>
+
+          {/* --- Bảng danh sách showtime --- */}
+          {filteredShowtimes.length > 0 ? (
+            <table className="table table-hover align-middle">
+              <thead className="table-light">
+                <tr>
+                  <th>Title</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Room</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Tickets</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredShowtimes.map((s, idx) => (
+                  <tr key={idx}>
+                    <td className="fw-semibold">{s.title}</td>
+                    <td>{s.date}</td>
+                    <td>{s.time}</td>
+                    <td>{s.room}</td>
+                    <td>${s.price}</td>
+                    <td>
+                      <span className={`badge bg-${s.statusColor}`}>
+                        {s.status}
+                      </span>
+                    </td>
+                    <td>
+                      {s.sold}/{s.totalTicket}
+                    </td>
+                    <td>
+                      <button className="btn btn-sm btn-light me-1" title="Edit">
+                        <Pencil size={16} />
+                      </button>
+                      <button className="btn btn-sm btn-light me-1" title="View Detail">
+                        <Eye size={16} />
+                      </button>
+                      <button className="btn btn-sm btn-light" title="Delete">
+                        <XIcon size={16} color="#dc3545" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p className="text-muted mt-4">No showtimes available for the selected options.</p>
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>
   </div>
 )}
+
 
         {activeMenu === "Analytics" && (
           <div>
