@@ -1,21 +1,14 @@
 import { useState } from 'react'
 import { BrowserRouter, Route, Routes  } from 'react-router-dom'
 import './App.css'
+import './assets/css/News&Offers.css'
 import Dashboard from './pages/AdminDashboard.jsx'
-import Header from './components/Header.jsx'
-import Home from './pages/Homepage/Home.jsx'
-import "bootstrap/dist/css/bootstrap.min.css";
-import Footer from './components/Footer.jsx'
-import Movies from './pages/Movies/Movies.jsx'
-import MovieDetail from './pages/MovieDetail/MovieDetail.jsx'   
-
-
 
 
 function App() {
   const [count, setCount] = useState(0)
-
   return (
+<<<<<<< HEAD
     <BrowserRouter>
       <Header />
 
@@ -31,6 +24,11 @@ function App() {
 
 
     </BrowserRouter>
+=======
+    <>
+      <Dashboard />
+    </>
+>>>>>>> 0451760292b2e375624843bed48bc6795c8f5b08
   )
 }
 
