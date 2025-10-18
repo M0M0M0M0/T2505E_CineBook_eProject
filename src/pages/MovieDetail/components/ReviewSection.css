@@ -1,0 +1,26 @@
+/* ReviewSection.css - đặt cùng component
+*/
+
+.review-section { margin-top: 20px; background: #080808; padding: 12px; border-radius: 8px; }
+.review-sort { display: flex; gap: 8px; margin-bottom: 12px; }
+.review-list { list-style: none; padding: 0; margin: 0; color: #ddd; }
+.review-list li { padding: 10px 0; border-bottom: 1px solid #141414; }
+.review-form textarea {
+  width: 100%;
+  min-height: 96px;
+  padding: 8px;
+  border-radius: 8px;
+  background: #0f0f0f;
+  border: 1px solid #222;
+  color: #fff;
+}
+.review-submit-button {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #ffd27a;
+  color: #111;
+  border-radius: 8px;
+  border: none;
+  font-weight: 700;
+}
+.review-login-warning { color: #eaa; }

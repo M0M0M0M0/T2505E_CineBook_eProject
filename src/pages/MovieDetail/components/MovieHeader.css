@@ -1,0 +1,17 @@
+/* MovieHeader.css
+   - Đặt cùng src/pages/MovieDetail/components/MovieHeader.jsx
+   - Các class đồng bộ với MovieDetail.css
+*/
+
+.movie-header {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.movie-header-poster {
+  width: 240px;
+  border-radius: 8px;
+}
+.movie-header-info { flex: 1; }
+.movie-header-title { font-size: 26px; margin: 6px 0; color: #ffd27a; }
+.movie-header-genre, .movie-header-rating { color: #cfcfcf; margin: 6px 0; }

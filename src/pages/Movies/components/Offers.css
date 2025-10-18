@@ -1,0 +1,17 @@
+/* Offers.css
+   - Đặt cùng src/pages/Movies/components/Offers.jsx
+   - Class: offers-section, offers-title, offers-list, offer-item
+*/
+
+.offers-section {
+  width: 92%;
+  max-width: 1200px;
+  margin: 28px auto;
+  background: #0b0b0b;
+  border: 1px solid #1b1b1b;
+  padding: 14px;
+  border-radius: 10px;
+}
+.offers-title { margin: 0 0 10px; font-size: 18px; color: #ffd27a; }
+.offers-list { margin: 0; padding-left: 18px; color: #d5d5d5; }
+.offer-item { margin-bottom: 6px; }

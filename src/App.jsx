@@ -1,10 +1,8 @@
 import { useState } from 'react'
+import { BrowserRouter, Route, Routes  } from 'react-router-dom'
 import './App.css'
 import './assets/css/News&Offers.css'
 import Dashboard from './pages/AdminDashboard.jsx'
-import Offers from './pages/News&Offers.jsx'
-import Theaters from './pages/TheaterPage.jsx'
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 function App() {
@@ -12,10 +10,7 @@ function App() {
   return (
     <>
       <Dashboard />
-      <Offers />
-      <Theaters />
     </>
-
   )
 }
 

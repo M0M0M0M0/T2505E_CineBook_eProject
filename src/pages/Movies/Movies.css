@@ -1,0 +1,189 @@
+/* ===========================================================
+   Movies.css
+   - Đặt cùng thư mục với src/pages/Movies/Movies.jsx
+   - Theme sáng: nền trắng, chữ tối
+   - Căn giữa SearchBar + FilterPanel
+   - Đảm bảo ảnh không tràn khung
+   =========================================================== */
+
+/* Toàn trang */
+.movies-page-container {
+  background: #ffffff;
+  color: #0b0b0b;
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  min-height: calc(100vh - 140px);
+  padding: 28px 0 60px;
+  box-sizing: border-box;
+}
+
+/* Container chính căn giữa nội dung */
+.movies-page-container .container {
+  width: 92%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ================= Banner ================= */
+.hero-banner {
+  text-align: center;
+  padding: 60px 0 40px;
+  background: linear-gradient(to bottom, #fafafa, #fff);
+}
+.hero-banner h1 {
+  font-size: 2.5rem;
+  color: #111;
+  margin-bottom: 10px;
+}
+.hero-banner p {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* ================= Controls (search + filter) ================= */
+.movies-controls {
+  width: 92%;
+  max-width: 1200px;
+  margin: 18px auto 30px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center; /* ✅ căn giữa */
+  gap: 16px;
+}
+
+/* SearchBar */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 1 480px;
+  min-width: 240px;
+}
+.search-bar input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #111;
+  font-size: 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* FilterPanel */
+.filter-panel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.filter-panel select {
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #111;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ================= Movie Card ================= */
+.movie-card-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 22px;
+  width: 92%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.movie-card {
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+.movie-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* ✅ Ảnh phim */
+.movie-card img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover; /* giữ tỉ lệ, cắt vừa khung */
+  display: block;
+}
+
+/* Thông tin phim */
+.movie-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0b0b0b;
+  margin: 10px 12px 4px;
+}
+.movie-card p {
+  color: #6b7280;
+  font-size: 13px;
+  margin: 0 12px 12px;
+}
+
+/* Link chi tiết */
+.movie-card a {
+  margin: 0 12px 14px;
+  display: inline-block;
+  text-decoration: none;
+  color: #fff;
+  background: #0d6efd;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+.movie-card a:hover {
+  background: #0b5ed7;
+}
+
+/* ================= Offers ================= */
+.offers-section {
+  margin: 40px auto 0;
+  width: 92%;
+  max-width: 800px;
+  background: #f8fafc;
+  border: 1px solid #ececec;
+  padding: 18px 20px;
+  border-radius: 10px;
+}
+.offers-section h3 {
+  color: #0d6efd;
+  font-size: 17px;
+  margin-bottom: 10px;
+}
+.offers-section ul {
+  list-style: disc;
+  padding-left: 24px;
+  color: #374151;
+}
+
+/* ================= Responsive ================= */
+@media (max-width: 980px) {
+  .movies-controls {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .search-bar {
+    width: 100%;
+    max-width: 400px;
+  }
+  .filter-panel {
+    justify-content: center;
+    width: 100%;
+  }
+  .movie-card img {
+    height: 220px;
+  }
+}
