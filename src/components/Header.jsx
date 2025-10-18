@@ -62,13 +62,13 @@ export default function Header() {
               onMouseEnter={() => handleOpenDropdown("movies")}
               onMouseLeave={() => handleCloseDropdownDelayed()}
             >
-              <button
+              <button 
                 className="dropdown-toggle-cb"
                 aria-haspopup="true"
                 aria-expanded={openDropdown === "movies"}
                 onClick={() => setOpenDropdown(openDropdown === "movies" ? null : "movies")}
               >
-                Movies
+                <Link to="/movies" className="nav-link-cb">Movies</Link>
               </button>
 
               <ul

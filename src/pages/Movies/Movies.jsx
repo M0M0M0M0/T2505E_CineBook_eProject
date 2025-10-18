@@ -54,7 +54,7 @@ function Movies() {
   }, [searchTerm, selectedGenre, selectedCity, movies]);
 
   return (
-    <div className="movies-page-container">
+    <div className="movies-page-container bg-dark">
       {/* Banner tiêu đề */}
       <HeroBanner title="Movies" subtitle="Enjoy our latest films" />
 
