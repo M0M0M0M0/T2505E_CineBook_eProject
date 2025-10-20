@@ -107,7 +107,7 @@ export default function Header() {
               </ul>
             </li>
 
-            <li className="nav-item-cb"><Link to="/news" className="nav-link-cb">News & Offers</Link></li>
+            <li className="nav-item-cb"><Link to="/offers" className="nav-link-cb">News & Offers</Link></li>
             <li className="nav-item-cb"><Link to="/my-tickets" className="nav-link-cb">My Tickets</Link></li>
             <li className="nav-item-cb"><Link to="/about" className="nav-link-cb">About</Link></li>
             <li className="nav-item-cb"><Link to="/admin" className="nav-link-cb">Admin Dashboard</Link></li>

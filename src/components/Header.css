@@ -9,7 +9,7 @@
 .header-cb {
   background: linear-gradient(180deg,#070707 0%, #0b0b0b 100%);
   border-bottom: 1px solid #1b1b1b;
-  position: sticky;
+  /* position: sticky; */
   top: 0;
   z-index: 1200;
   width: 100%;
