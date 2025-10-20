@@ -25,29 +25,29 @@ export default function Footer() {
   return (
     <footer className="footer-cb">
       {/* 1) Newsletter / quick CTA (optional) */}
-      <div class="footer-cb-newsletter py-4">
-        <div class="footer-cb-inner container d-flex align-items-center justify-content-between">
-          <div class="fc-news-left d-flex align-items-center gap-3">
-            <div class="fc-logo-box">
-              <div class="fc-logo-text fw-bold fs-4 ">CineBook</div>
+      <div className="footer-cb-newsletter py-4">
+        <div className="footer-cb-inner container d-flex align-items-center justify-content-between">
+          <div className="fc-news-left d-flex align-items-center gap-3">
+            <div className="fc-logo-box">
+              <div className="fc-logo-text fw-bold fs-4 ">CineBook</div>
             </div>
-            <div class="fc-news-text">
+            <div className="fc-news-text">
               <strong>Stay in touch</strong>
-              <div class="fc-small">
+              <div className="fc-small">
                 Get updates on new releases & offers
               </div>
             </div>
           </div>
 
-          <form class="fc-news-form d-flex align-items-center gap-2">
+          <form className="fc-news-form d-flex align-items-center gap-2">
             <input
               type="email"
-              class="form-control"
+              className="form-control"
               placeholder="Your email address"
               aria-label="Email"
               style={{ maxWidth: "250px" }}
             />
-            <button type="submit" class="btn btn-danger">
+            <button type="submit" className="btn btn-danger">
               Subscribe
             </button>
           </form>

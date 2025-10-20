@@ -2,7 +2,7 @@ import { useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import "./assets/css/News&Offers.css";
-import Dashboard from "./pages/AdminDashboard.jsx";
+import Dashboard from "./pages/AdminDashboard/AdminDashboard.jsx";
 import Home from "./pages/Homepage/Home.jsx";
 import Movies from "./pages/Movies/Movies.jsx";
 import MovieDetail from "./pages/MovieDetail/MovieDetail.jsx";
