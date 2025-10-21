@@ -109,6 +109,7 @@ export default function Header() {
 
             <li className="nav-item-cb"><Link to="/offers" className="nav-link-cb">News & Offers</Link></li>
             <li className="nav-item-cb"><Link to="/my-tickets" className="nav-link-cb">My Tickets</Link></li>
+            <li className="nav-item-cb"><Link to="/profile" className="nav-link-cb">Profile</Link></li>
             <li className="nav-item-cb"><Link to="/about" className="nav-link-cb">About</Link></li>
             <li className="nav-item-cb"><Link to="/admin" className="nav-link-cb">Admin Dashboard</Link></li>
           </ul>
@@ -157,6 +158,7 @@ export default function Header() {
           <li className="mobile-nav-item-cb"><Link to="/theaters" onClick={() => setMobileOpen(false)}>Theaters</Link></li>
           <li className="mobile-nav-item-cb"><Link to="/news" onClick={() => setMobileOpen(false)}>News & Offers</Link></li>
           <li className="mobile-nav-item-cb"><Link to="/my-tickets" onClick={() => setMobileOpen(false)}>My Tickets</Link></li>
+          <li className="mobile-nav-item-cb"><Link to="/profile" onClick={() => setMobileOpen(false)}>Profile</Link></li>
           <li className="mobile-nav-item-cb"><Link to="/about" onClick={() => setMobileOpen(false)}>About</Link></li>
           <li className="mobile-nav-item-cb auth-mobile-cb">
             <Link to="/login" onClick={() => setMobileOpen(false)}>Login</Link>

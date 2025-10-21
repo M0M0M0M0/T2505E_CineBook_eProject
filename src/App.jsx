@@ -10,6 +10,12 @@ import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
 import Offers from "./pages/News&Offers.jsx";
 import Theaters from "./pages/TheaterPage.jsx";
+import MyTickets from "./pages/MyTickets";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import UserDashboard from "./pages/UserDashboard";
+import ProfilePage from "./pages/ProfilePage";
+import BookingPage from "./pages/BookingPage";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -25,6 +31,12 @@ function App() {
         <Route path="/admin" element={<Dashboard />} />
         <Route path="/offers" element={<Offers />} />
         <Route path="/theaters" element={<Theaters/> }/>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/my-tickets" element={<UserDashboard />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/booking" element={<BookingPage />} />
+
       {/* <Movies /> */}
       </Routes>
       <Footer />
