@@ -9,6 +9,7 @@ import MovieDetail from "./pages/MovieDetail/MovieDetail.jsx";
 import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
 import Offers from "./pages/News&Offers.jsx";
+import Theaters from "./pages/TheaterPage.jsx";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -23,8 +24,9 @@ function App() {
         <Route path="/movies/:id" element={<MovieDetail />} />
         <Route path="/admin" element={<Dashboard />} />
         <Route path="/offers" element={<Offers />} />
-      </Routes>
+        <Route path="/theaters" element={<Theaters/> }/>
       {/* <Movies /> */}
+      </Routes>
       <Footer />
     </BrowserRouter>
   );
