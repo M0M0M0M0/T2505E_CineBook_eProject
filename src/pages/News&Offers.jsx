@@ -142,7 +142,7 @@ const OfferCard = ({ offer, onClick }) => {
         <img 
           src={offer.image} 
           alt={offer.title} 
-          className="offer-card-image group-hover:scale-110 transition-transform duration-500"
+          className="offer-card-image "
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"/>
       </div>
@@ -150,58 +150,6 @@ const OfferCard = ({ offer, onClick }) => {
         <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors">{offer.title}</h3>
         <p className="text-gray-600 text-sm leading-relaxed">{offer.summary}</p>
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"/>
-      </div>
-    </div>
-  );
-};
-
-// Component cho cửa sổ Pop-up (Modal)
-const OfferModal = ({ offer, onClose }) => {
-  // Ngăn việc click vào content của modal làm đóng modal
-  const handleModalContentClick = (e) => {
-    e.stopPropagation();
-  };
-  
-  // Xử lý đóng modal khi nhấn phím Escape
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [onClose]);
-
-  return (
-    <div 
-      className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-    >
-      <div 
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative animate-fade-in-up"
-        onClick={handleModalContentClick}
-      >
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-800 transition-colors z-10"
-          aria-label="Đóng"
-        >
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-        </button>
-        
-        <div className="p-6 md:p-8">
-            <div className="md:grid md:grid-cols-2 md:gap-8 items-start">
-                <img src={offer.image} alt={offer.title} className="w-full h-auto object-contain rounded-lg shadow-md mb-6 md:mb-0"/>
-                <div className="prose max-w-none">
-                    <h2 className="text-3xl font-extrabold text-gray-900 mb-1">{offer.details.fullTitle}</h2>
-                    <p className="text-sm text-gray-500 mb-4">{offer.details.date}</p>
-                    <div dangerouslySetInnerHTML={{ __html: offer.details.content }} />
-                </div>
-            </div>
-        </div>
       </div>
     </div>
   );
@@ -246,20 +194,19 @@ export default function Offers() {
         <Modal.Body className="px-6">
           {selectedOffer && (
             <div className="space-y-6">
-              <div className="relative rounded-lg overflow-hidden shadow-lg">
+              <div className="relative rounded-lg overflow-hidden " style={{ maxHeight: '400px'}}>
                 <img
                   src={selectedOffer.image}
                   alt={selectedOffer.title}
-                  className="w-full h-80 object-contain transform hover:scale-105 transition-transform duration-500"
+                  className="w-full h-80 object-contain"
                 />
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                  <p className="text-white text-sm font-medium">{selectedOffer.details.date}</p>
-                </div>
+                
               </div>
               <div 
                 className="prose max-w-none prose-blue prose-lg prose-img:rounded-lg prose-headings:text-blue-600"
                 dangerouslySetInnerHTML={{ __html: selectedOffer.details.content }}
               />
+              <p className=" text-sm font-medium">*{selectedOffer.details.date}</p>
             </div>
           )}
         </Modal.Body>
