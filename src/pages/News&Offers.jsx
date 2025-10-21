@@ -194,11 +194,11 @@ export default function Offers() {
         <Modal.Body className="px-6">
           {selectedOffer && (
             <div className="space-y-6">
-              <div className="relative rounded-lg overflow-hidden " style={{ maxHeight: '400px'}}>
-                <img
+              <div className="relative rounded-lg overflow-hidden ">
+                <img 
                   src={selectedOffer.image}
                   alt={selectedOffer.title}
-                  className="w-full h-80 object-contain"
+                  className="w-full h-80 object-scale-down"
                 />
                 
               </div>
@@ -206,7 +206,7 @@ export default function Offers() {
                 className="prose max-w-none prose-blue prose-lg prose-img:rounded-lg prose-headings:text-blue-600"
                 dangerouslySetInnerHTML={{ __html: selectedOffer.details.content }}
               />
-              <p className=" text-sm font-medium">*{selectedOffer.details.date}</p>
+              <p className=" text-[20px]"><strong>*{selectedOffer.details.date}</strong></p>
             </div>
           )}
         </Modal.Body>
