@@ -10,7 +10,7 @@ import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
 import Offers from "./pages/News&Offers.jsx";
 import Theaters from "./pages/TheaterPage.jsx";
-import MyTickets from "./pages/MyTickets";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import UserDashboard from "./pages/UserDashboard";

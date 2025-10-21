@@ -93,7 +93,7 @@ export default function Header() {
                 aria-expanded={openDropdown === "theaters"}
                 onClick={() => setOpenDropdown(openDropdown === "theaters" ? null : "theaters")}
               >
-                <Link to="/theaters">Theaters</Link>
+                <Link to="/theaters" className="nav-link-cb">Theaters</Link>
               </button>
 
               <ul
