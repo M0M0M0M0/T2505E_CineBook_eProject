@@ -1,17 +1,20 @@
-import React from 'react';
-import './HeroBanner.css';
+import React from "react";
+import "./../../Movies/Movies.css";
 
-function HeroBanner({ title, subtitle }) {
+export default function HeroBanner({ title, subtitle }) {
   return (
-    <div className="hero-banner">
-      {/* Ảnh nền của banner (có thể dùng CSS hoặc thẻ img) */}
-      <div className="hero-banner-bg" />
-      <div className="hero-banner-content">
-        <h1 className="hero-banner-title">{title}</h1>
-        <p className="hero-banner-subtitle">{subtitle}</p>
+    <div
+      className="hero-banner"
+      style={{
+        backgroundImage: `url(${new URL("../../../assets/images/herobanner-sky1.jpg", import.meta.url).href})`,
+      }}
+    >
+      <div className="hero-overlay">
+        <div className="hero-content">
+          <h1>{title}</h1>
+          <p>{subtitle}</p>
+        </div>
       </div>
     </div>
   );
 }
-
-export default HeroBanner;

@@ -1,87 +1,109 @@
-// MovieDetail.jsx
-// Place: src/pages/MovieDetail/MovieDetail.jsx
-// Note: import JSON from src/assets/json/movies.json
-import React, { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import moviesData from "../../assets/json/movies.json";
-
-import MovieHeader from "./components/MovieHeader";
-import SynopsisSection from "./components/SynopsisSection";
-import TrailerModal from "./components/TrailerModal";
-import CastCrewList from "./components/CastCrewList";
-import ReviewSection from "./components/ReviewSection";
-
 import "./MovieDetail.css";
+import CastCrewList from "./components/CastCrewList";
 
 export default function MovieDetail() {
   const { id } = useParams();
+  const [movie, setMovie] = useState(null);
+  const [showTrailer, setShowTrailer] = useState(false);
 
-  // Find movie by id (compare as string so both '1' and 1 match)
-  const movie = moviesData.find((m) => String(m.id) === String(id));
+  useEffect(() => {
+    const found = moviesData.find((m) => m.id === Number(id));
 
-  // If not found
-  if (!movie) {
+    if (found) {
+      // 🔧 Nếu trailer có dạng "watch?v=" thì tự chuyển sang "embed/"
+      const trailerUrl = found.trailer?.includes("watch?v=")
+        ? found.trailer.replace("watch?v=", "embed/")
+        : found.trailer;
+
+      // ✅ Gán lại vào state với đường dẫn ảnh & trailer đã xử lý
+      setMovie({
+        ...found,
+        poster: new URL(`../../assets/images/${found.poster}`, import.meta.url).href,
+        bgImage: new URL(`../../assets/images/${found.bgImage}`, import.meta.url).href,
+        trailer: trailerUrl,
+      });
+    }
+  }, [id]);
+
+
+  if (!movie)
     return (
-      <div className="movie-detail-page movie-detail-notfound">
-        <div className="movie-detail-inner container">
-          <h2>Movie not found</h2>
-          <p>Không tìm thấy phim với id = {id}</p>
-          <Link to="/movies" className="md-back-link">Quay lại Movies</Link>
-        </div>
+      <div
+        className="movie-detail-page"
+        style={{
+          color: "#fff",
+          textAlign: "center",
+          padding: "60px",
+          background: "#000",
+        }}
+      >
+        Loading movie details...
       </div>
     );
-  }
 
-  // Resolve poster path (JSON stores just filename, e.g. "tga1.jpg")
-  // MovieDetail.jsx is in src/pages/MovieDetail -> go to src/assets/images by ../../assets/images
-  const posterUrl = new URL(`../../assets/images/${movie.poster}`, import.meta.url).href;
-
-  // Show trailer modal state handled inside TrailerModal toggles (we'll show trigger in header)
   return (
-    <div className="movie-detail-page">
-      <div className="movie-detail-inner container">
-        <MovieHeader
-          poster={posterUrl}
-          title={movie.title}
-          genre={movie.genre}
-          rating={movie.rating}
-          trailer={movie.trailer} // optional
-        />
+    <div
+      className="movie-detail-page"
+      style={{
+        backgroundImage: `url(${movie.bgImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="movie-detail-overlay">
+        <div className="movie-detail-inner container">
+          <div className="movie-detail-header">
+            {/* ✅ Đổi poster -> movie.poster */}
+            <img src={movie.poster} alt={movie.title} className="md-poster" />
 
-        <div className="md-main-grid">
-          <div className="md-left-col">
-            <SynopsisSection text={movie.synopsis} />
-            <div style={{ marginTop: 18 }}>
+            <div className="md-info">
+              <h2 className="md-title">{movie.title}</h2>
+              <p className="md-meta">
+                {movie.genre.join(", ")} | ⭐ {movie.rating} | ⏱ {movie.duration}
+              </p>
+              <p className="md-synopsis">{movie.synopsis}</p>
+
               <CastCrewList cast={movie.cast || []} crew={movie.crew || []} />
+
+              <div className="md-actions">
+                <a href="#" className="md-book-now">
+                  🎟 Book Now
+                </a>
+                <button
+                  className="md-trailer-inline"
+                  onClick={() => setShowTrailer(true)}
+                >
+                  ▶ Watch Trailer
+                </button>
+              </div>
             </div>
           </div>
 
-          <aside className="md-right-col">
-            <div className="md-book-card">
-              <div className="md-price">Rating: <strong>{movie.rating ?? "N/A"}</strong></div>
-              <Link to="#" className="md-book-btn">Book Now</Link>
-              {movie.trailer && (
-                <TrailerModalTrigger videoUrl={movie.trailer} />
-              )}
+          {/* ✅ Trailer hiển thị trong modal */}
+          {showTrailer && movie.trailer && (
+            <div className="trailer-modal-overlay" onClick={() => setShowTrailer(false)}>
+              <div
+                className="trailer-modal-content"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={movie.trailer}
+                  title="Trailer"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
             </div>
-
-            <div className="md-reviews-wrap">
-              <ReviewSection movieId={movie.id} initialReviews={movie.reviews || []} />
-            </div>
-          </aside>
+          )}
         </div>
       </div>
     </div>
-  );
-}
-
-/* Small internal helper to open trailer modal from right column (kept local to this file) */
-function TrailerModalTrigger({ videoUrl }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <>
-      <button className="md-trailer-btn" onClick={() => setOpen(true)}>Watch Trailer</button>
-      {open && <TrailerModal videoUrl={videoUrl} onClose={() => setOpen(false)} />}
-    </>
   );
 }

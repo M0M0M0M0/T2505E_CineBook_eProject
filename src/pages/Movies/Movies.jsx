@@ -79,7 +79,7 @@ function Movies() {
       <MovieCardList movies={filteredMovies} />
 
       {/* Ưu đãi đặc biệt */}
-      <Offers />
+      {/* <Offers /> */}
     </div>
   );
 }

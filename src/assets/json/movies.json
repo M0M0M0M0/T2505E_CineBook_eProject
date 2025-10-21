@@ -2,43 +2,41 @@
   {
     "id": 1,
     "title": "The Great Adventure",
-    "poster": "tga1.jpg",
-    "genre": "Action, Adventure",
+    "genre": ["Action", "Adventure"],
     "rating": 4.5,
-    "synopsis": "An intrepid group of explorers set off across harsh landscapes to recover a lost artifact. When rival factions and nature itself stand in their way, bonds are tested and heroes are made.",
+    "duration": "2h 10m",
+    "city": "Hanoi",
+    "poster": "tga1.jpg",
+    "bgImage": "tga-bg.jpg",
     "trailer": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "synopsis": "A team of explorers sets out on a perilous journey to uncover a lost civilization hidden deep in the Arctic.",
     "cast": [
-      { "name": "Alex Ranger", "role": "Lead Explorer", "photo": "alex-tga.jpg" },
-      { "name": "Mia Storm", "role": "Cartographer", "photo": "mia-tga.jpg" }
+      { "name": "Chris Damon", "role": "Lead Explorer", "photo": "alex-tga.jpg" },
+      { "name": "Lara Mills", "role": "Navigator", "photo": "mia-tga.jpg" }
     ],
     "crew": [
-      { "name": "Jordan Vale", "job": "Director" },
-      { "name": "S. Harper", "job": "Producer" }
-    ],
-    "reviews": [
-      { "id": 1001, "user": "Alice", "text": "Edge-of-seat pacing and great chemistry.", "rating": 5, "date": "2025-01-15T10:00:00Z" },
-      { "id": 1002, "user": "Bob", "text": "Visuals are stunning, plot a bit familiar.", "rating": 4, "date": "2025-01-10T09:30:00Z" }
+      { "name": "John T. Kelly", "job": "Director" },
+      { "name": "Emma Stone", "job": "Producer" }
     ]
   },
   {
     "id": 2,
     "title": "Romantic Sunset",
+    "genre": ["Romance", "Drama"],
+    "rating": 4.2,
+    "duration": "1h 45m",
+    "city": "Ho Chi Minh",
     "poster": "rs1.jpg",
-    "genre": "Romance, Drama",
-    "rating": 4.0,
-    "synopsis": "Two strangers meet at a seaside town and find their lives intertwined over one unforgettable summer — a gentle story about choices, second chances, and quiet courage.",
+    "bgImage": "rs-bg.jpg",
     "trailer": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "synopsis": "Two strangers meet at a seaside resort and find themselves entangled in a love story that changes their lives forever.",
     "cast": [
-      { "name": "Lena Hart", "role": "Emma", "photo": "lh-rs.jpg" },
-      { "name": "Noah Reed", "role": "Ethan", "photo": "nr-rs.jpg" }
+      { "name": "Emily Carter", "role": "Lead Actress", "photo": "lh-rs.jpg" },
+      { "name": "Noah Reed", "role": "Lead Actor", "photo": "nr-rs.jpg" }
     ],
     "crew": [
-      { "name": "C. Morgan", "job": "Director" },
-      { "name": "P. Lin", "job": "Screenwriter" }
-    ],
-    "reviews": [
-      { "id": 2001, "user": "Carmen", "text": "Heartwarming and beautifully acted.", "rating": 5, "date": "2025-02-02T14:20:00Z" },
-      { "id": 2002, "user": "David", "text": "Slow in parts but the ending is worth it.", "rating": 4, "date": "2025-01-28T08:45:00Z" }
+      { "name": "Sophia Lane", "job": "Director" },
+      { "name": "Mark Allen", "job": "Producer" }
     ]
   }
 ]
