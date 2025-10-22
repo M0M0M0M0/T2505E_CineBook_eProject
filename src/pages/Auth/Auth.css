@@ -70,3 +70,46 @@
   text-decoration: underline;
   color: #fff;
 }
+
+.auth-link.small {
+  font-size: 0.9rem;
+  color: #ffcc00;
+  text-decoration: none;
+}
+
+.auth-link.small:hover {
+  text-decoration: underline;
+  color: #fff;
+}
+/* ---------- Popup message animation ---------- */
+.message-popup {
+  margin-top: 15px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-align: center;
+  animation: fadeSlide 0.6s ease forwards;
+}
+
+.message-popup.success {
+  background-color: rgba(0, 255, 153, 0.1);
+  color: #00ff99;
+  border: 1px solid #00ff99;
+}
+
+.message-popup.error {
+  background-color: rgba(255, 102, 102, 0.1);
+  color: #ff6666;
+  border: 1px solid #ff6666;
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

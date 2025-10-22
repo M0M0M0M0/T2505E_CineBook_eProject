@@ -15,6 +15,7 @@ import Register from "./pages/Auth/Register.jsx";
 import UserDashboard from "./pages/UserPage/UserDashboard";
 import ProfilePage from "./pages/ProfilePage/ProfilePage.jsx";
 import BookingPage from "./pages/BookingPage/BookingPage.jsx";
+import ForgotPassword from "./pages/Auth/ForgotPassword";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -35,6 +36,8 @@ function App() {
         <Route path="/my-tickets" element={<UserDashboard />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/booking" element={<BookingPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
 
       {/* <Movies /> */}
       </Routes>

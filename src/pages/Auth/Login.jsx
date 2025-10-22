@@ -27,6 +27,10 @@ export default function Login() {
               placeholder="Enter your password"
             />
           </div>
+          <div className="forgot-password">
+            <Link to="/forgot-password">Forgot your password?</Link>
+          </div>
+
 
           <button type="submit" className="btn btn-warning w-100 auth-btn">
             Login
