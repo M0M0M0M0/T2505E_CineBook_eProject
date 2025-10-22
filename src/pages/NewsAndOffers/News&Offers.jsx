@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../assets/css/News&Offers.css';
-import '../assets/css/modal.css';
+import './News&Offers.css';
+import './modal.css';
 
 // Import images
-import u23Image from '../assets/img/u23.jpg';
-import summerDealsImage from '../assets/img/summer-deals.jpg';
-import chocolatePopcornImage from '../assets/img/chocolate-popcorn.jpg';
-import backToSchoolImage from '../assets/img/back-to-school.jpg';
-import womanDayImage from '../assets/img/woman-day.jpg';
+import u23Image from '../../assets/img/u23.jpg';
+import summerDealsImage from '../../assets/img/summer-deals.jpg';
+import chocolatePopcornImage from '../../assets/img/chocolate-popcorn.jpg';
+import backToSchoolImage from '../../assets/img/back-to-school.jpg';
+import womanDayImage from '../../assets/img/woman-day.jpg';
 
 // Dữ liệu mẫu cho các chương trình khuyến mãi
 // Bạn có thể thay thế bằng dữ liệu thật từ API

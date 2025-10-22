@@ -1,21 +1,20 @@
 import { useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
-import "./assets/css/News&Offers.css";
 import Dashboard from "./pages/AdminDashboard/AdminDashboard.jsx";
 import Home from "./pages/Homepage/Home.jsx";
 import Movies from "./pages/Movies/Movies.jsx";
 import MovieDetail from "./pages/MovieDetail/MovieDetail.jsx";
 import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
-import Offers from "./pages/News&Offers.jsx";
-import Theaters from "./pages/TheaterPage.jsx";
+import Offers from "./pages/NewsAndOffers/News&Offers.jsx";
+import Theaters from "./pages/TheaterPage/TheaterPage.jsx";
 
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import UserDashboard from "./pages/UserDashboard";
-import ProfilePage from "./pages/ProfilePage";
-import BookingPage from "./pages/BookingPage";
+import Login from "./pages/Auth/Login.jsx";
+import Register from "./pages/Auth/Register.jsx";
+import UserDashboard from "./pages/UserPage/UserDashboard";
+import ProfilePage from "./pages/ProfilePage/ProfilePage.jsx";
+import BookingPage from "./pages/BookingPage/BookingPage.jsx";
 
 function App() {
   const [count, setCount] = useState(0);
