@@ -3,7 +3,7 @@
   color: #f5f5f5;
   min-height: calc(100vh - 160px);
   font-family: "Inter", sans-serif;
-  padding: 40px 0;
+
 }
 
 /* HERO BANNER */
@@ -41,13 +41,13 @@
 /* CONTROLS */
 .movies-controls {
   display: flex;
-  justify-content: center;    /* Căn giữa theo chiều ngang */
+  justify-content: center; /* Căn giữa theo chiều ngang */
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
   margin: 28px auto;
   width: 100%;
-  max-width: 900px;           /* Giới hạn chiều rộng tổng */
+  max-width: 900px; /* Giới hạn chiều rộng tổng */
   text-align: center;
   box-sizing: border-box;
 }

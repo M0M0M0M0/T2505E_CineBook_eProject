@@ -55,6 +55,9 @@
 .nav-item-cb a  {
   text-decoration: none;
 }
+nav ul {
+  list-style: none;
+}
 .nav-link-cb, .dropdown-toggle-cb {
   color: #f5f5f5;
   padding: 8px 10px;
