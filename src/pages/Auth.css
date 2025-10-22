@@ -7,6 +7,16 @@
   justify-content: center;
   align-items: center;
 }
+.auth-form label {
+  color: #ccc;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+.auth-form input::placeholder {
+  color: #ccc;
+  font-weight: 500;
+  opacity: 0.3;
+}
 
 .auth-card {
   background-color: rgba(20, 20, 20, 0.9);
