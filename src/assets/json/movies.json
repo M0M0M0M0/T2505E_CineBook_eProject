@@ -2,41 +2,63 @@
   {
     "id": 1,
     "title": "The Great Adventure",
-    "genre": ["Action", "Adventure"],
+    "genre": [
+      "Action",
+      "Adventure"
+    ],
     "rating": 4.5,
     "duration": "2h 10m",
+    "language": "English",
+    "ageRating": "T13",
+    "releaseDate": "17/10/2025",
     "city": "Hanoi",
     "poster": "tga1.jpg",
     "bgImage": "tga-bg.jpg",
     "trailer": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     "synopsis": "A team of explorers sets out on a perilous journey to uncover a lost civilization hidden deep in the Arctic.",
     "cast": [
-      { "name": "Chris Damon", "role": "Lead Explorer", "photo": "alex-tga.jpg" },
-      { "name": "Lara Mills", "role": "Navigator", "photo": "mia-tga.jpg" }
+      {
+        "name": "Chris Damon",
+        "role": "Lead Explorer",
+        "photo": "alex-tga.jpg"
+      },
+      {
+        "name": "Lara Mills",
+        "role": "Navigator",
+        "photo": "mia-tga.jpg"
+      }
     ],
-    "crew": [
-      { "name": "John T. Kelly", "job": "Director" },
-      { "name": "Emma Stone", "job": "Producer" }
-    ]
+    "director": "Arne Sucksdorff"
   },
   {
     "id": 2,
     "title": "Romantic Sunset",
-    "genre": ["Romance", "Drama"],
+    "genre": [
+      "Romance",
+      "Drama"
+    ],
     "rating": 4.2,
     "duration": "1h 45m",
+    "language": "English",
+    "ageRating": "T13",
+    "releaseDate": "17/10/2025",
     "city": "Ho Chi Minh",
     "poster": "rs1.jpg",
     "bgImage": "rs-bg.jpg",
     "trailer": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     "synopsis": "Two strangers meet at a seaside resort and find themselves entangled in a love story that changes their lives forever.",
     "cast": [
-      { "name": "Emily Carter", "role": "Lead Actress", "photo": "lh-rs.jpg" },
-      { "name": "Noah Reed", "role": "Lead Actor", "photo": "nr-rs.jpg" }
+      {
+        "name": "Emily Carter",
+        "role": "Lead Actress",
+        "photo": "lh-rs.jpg"
+      },
+      {
+        "name": "Noah Reed",
+        "role": "Lead Actor",
+        "photo": "nr-rs.jpg"
+      }
     ],
-    "crew": [
-      { "name": "Sophia Lane", "job": "Director" },
-      { "name": "Mark Allen", "job": "Producer" }
-    ]
+    "director": "Richard Linklater"
   }
 ]

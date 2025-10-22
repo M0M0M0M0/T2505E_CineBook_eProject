@@ -57,17 +57,37 @@ export default function MovieDetail() {
       <div className="movie-detail-overlay">
         <div className="movie-detail-inner container">
           <div className="movie-detail-header">
-            {/* ✅ Đổi poster -> movie.poster */}
             <img src={movie.poster} alt={movie.title} className="md-poster" />
 
             <div className="md-info">
               <h2 className="md-title">{movie.title}</h2>
-              <p className="md-meta">
-                {movie.genre.join(", ")} | ⭐ {movie.rating} | ⏱ {movie.duration}
-              </p>
-              <p className="md-synopsis">{movie.synopsis}</p>
 
-              <CastCrewList cast={movie.cast || []} crew={movie.crew || []} />
+              <p className="md-meta">
+                {movie.genre?.join(", ")} {movie.genre ? " | " : ""}
+                ⭐ {movie.rating} {movie.duration ? " | ⏱ " + movie.duration : ""}
+              </p>
+
+              {/* ✅ Các thông tin chi tiết nằm ngay bên dưới meta */}
+              <div className="md-extra-info">
+                <p>
+                  <strong>Director:</strong> {movie.director || "N/A"}
+                </p>
+                <p>
+                  <strong>Actors:</strong>{" "}
+                  {Array.isArray(movie.cast)
+                    ? movie.cast.map((c) => (c.name ? c.name : c)).join(", ")
+                    : movie.cast || "N/A"}
+                </p>
+                <p>
+                  <strong>Language:</strong> {movie.language || "N/A"}
+                </p>
+                <p>
+                  <strong>Age Rating:</strong> {movie.ageRating || "N/A"}
+                </p>
+                <p>
+                  <strong>Release Date:</strong> {movie.releaseDate || "N/A"}
+                </p>
+              </div>
 
               <div className="md-actions">
                 <a href="#" className="md-book-now">
@@ -82,6 +102,13 @@ export default function MovieDetail() {
               </div>
             </div>
           </div>
+
+          {/* ✅ Phần tóm tắt (synopsis) nằm riêng xuống dưới */}
+          <div className="md-synopsis-section">
+            <h4>Synopsis</h4>
+            <p className="md-synopsis">{movie.synopsis}</p>
+          </div>
+
 
           {/* ✅ Trailer hiển thị trong modal */}
           {showTrailer && movie.trailer && (

@@ -6,7 +6,7 @@ export default function HeroBanner({ title, subtitle }) {
     <div
       className="hero-banner"
       style={{
-        backgroundImage: `url(${new URL("../../../assets/images/herobanner-sky1.jpg", import.meta.url).href})`,
+        backgroundImage: `url(${new URL("../../../assets/images/herobanner-sky2.jpg", import.meta.url).href})`,
       }}
     >
       <div className="hero-overlay">

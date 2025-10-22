@@ -31,20 +31,35 @@
 /* HEADER */
 .movie-detail-header {
   display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  align-items: flex-start;
+  flex-wrap: nowrap;           /* Giữ ảnh và text cùng 1 dòng */
+  gap: 24px;
+  align-items: flex-start;     /* Căn đỉnh */
+  justify-content: flex-start; /* Căn trái */
   margin-bottom: 20px;
 }
 
+@media (max-width: 768px) {
+  .movie-detail-header {
+    flex-wrap: wrap;           /* Cho mobile xuống dòng */
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+
+/* Poster linh hoạt hơn để tránh tụt */
 .md-poster {
   width: 260px;
-  height: 380px;
+  max-height: 380px;
+  height: auto;               /* để ảnh co giãn theo tỷ lệ */
+  aspect-ratio: 2 / 3;        /* đảm bảo giữ tỉ lệ đứng */
   object-fit: cover;
   border-radius: 10px;
   border: 1px solid #333;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  align-self: flex-start;     /* ép ảnh luôn bám trên cùng */
 }
+
 
 .md-title {
   font-size: 32px;
@@ -164,7 +179,8 @@
 
 /* ✅ make trailer wider, proportional */
 .trailer-modal-content {
-  width: min(95%, 1080px);
+  /* width: min(95%, 1080px); */
+  width: min(98%, 1200px);
   aspect-ratio: 16 / 9;
   background: #000;
   border-radius: 12px;
@@ -203,4 +219,62 @@
     height: auto;
     aspect-ratio: 16 / 9;
   }
+}
+
+/* Extra details section */
+.md-details {
+  margin-bottom: 18px;
+  line-height: 1.6;
+  color: #ddd;
+}
+
+.md-details p {
+  margin: 4px 0;
+}
+
+.md-details strong {
+  color: #ffd54f;
+}
+
+/* Synopsis area */
+.md-synopsis-section {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid #333;
+}
+
+.md-synopsis-section h4 {
+  font-size: 18px;
+  color: #ffd54f;
+  margin-bottom: 10px;
+}
+
+/* Thông tin chi tiết nhỏ bên phải poster */
+.md-extra-info {
+  margin-bottom: 16px;
+  line-height: 1.6;
+  color: #ddd;
+}
+.md-extra-info p {
+  margin: 4px 0;
+}
+.md-extra-info strong {
+  color: #ffd54f;
+}
+
+/* ✅ Phần tóm tắt xuống dưới riêng biệt */
+.md-synopsis-section {
+  margin-top: 30px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.md-synopsis-section h4 {
+  font-size: 18px;
+  color: #ffd54f;
+  margin-bottom: 10px;
+}
+.md-synopsis {
+  color: #eee;
+  line-height: 1.7;
+  max-width: 900px;
 }
