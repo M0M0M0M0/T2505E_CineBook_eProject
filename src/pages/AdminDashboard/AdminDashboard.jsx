@@ -419,7 +419,7 @@ export default function Dashboard() {
     <div className="d-flex bg-light">
       {/* Sidebar */}
       <aside className="bg-white shadow-sm p-4" style={{ width: "250px" }}>
-        <h2 className="fw-bold text-danger mb-4">🎟️ FlickTickets</h2>
+        <h2 className="fw-bold text-danger mb-4">CineBook</h2>
         <nav className="d-flex flex-column gap-2">
           {menuItems.map((item, i) => (
             <div
