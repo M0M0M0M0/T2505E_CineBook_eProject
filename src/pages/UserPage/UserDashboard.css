@@ -92,3 +92,55 @@
   font-weight: 600;
   border: none;
 }
+
+.fade-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.ticket-detail-modal {
+  max-width: 850px;
+  width: 90%;
+  max-height: 85vh;
+}
+
+.scrollable-modal {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Nút đóng rõ ràng */
+.btn-close-white {
+  filter: invert(1);
+}
+
+/* Ẩn scrollbar xấu */
+.scrollable-modal::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollable-modal::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 3px;
+}
+

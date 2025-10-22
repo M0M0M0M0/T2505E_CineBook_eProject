@@ -12,7 +12,7 @@ import Theaters from "./pages/TheaterPage/TheaterPage.jsx";
 
 import Login from "./pages/Auth/Login.jsx";
 import Register from "./pages/Auth/Register.jsx";
-import UserDashboard from "./pages/UserPage/UserDashboard";
+import UserDashboard from "./pages/UserPage/UserDashboard.jsx";
 import ProfilePage from "./pages/ProfilePage/ProfilePage.jsx";
 import BookingPage from "./pages/BookingPage/BookingPage.jsx";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
