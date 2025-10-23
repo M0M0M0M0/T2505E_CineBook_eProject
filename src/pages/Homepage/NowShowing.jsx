@@ -43,18 +43,19 @@ const NowShowing = () => {
                     style={{
                       objectFit: "cover",
                       transition: "transform 0.3s ease",
+                      transform: "scale(1.01)",
                     }}
                     onMouseOver={(e) =>
                       (e.currentTarget.style.transform = "scale(1.03)")
                     }
                     onMouseOut={(e) =>
-                      (e.currentTarget.style.transform = "scale(1)")
+                      (e.currentTarget.style.transform = "scale(1.01)")
                     }
                   />
                 </div>
 
                 {/* Movie Info */}
-                <div className="bg-dark text-light px-3 py-2 border-top border-secondary-subtle border-top">
+                <div className="bg-dark text-light px-3 py-2">
                   {/* Rating & Votes */}
                   <div className="d-flex justify-content-between align-items-center mb-1">
                     <span className="fw-semibold">⭐ {movie.rating}/10</span>
