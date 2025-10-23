@@ -168,7 +168,7 @@ export default function Offers() {
   };
 
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen font-sans">
+    <div className=" min-h-screen font-sans">
       <div className="container mx-auto px-4 py-12">
         <h1 className="page-title text-4xl font-bold text-center text-white mb-8">
           ƯU ĐÃI ĐẶC BIỆT

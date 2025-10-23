@@ -1,238 +1,77 @@
-/* src/styles/Promotions.css */
-
-/* --- HIỆU ỨNG CHUNG & NỀN TRANG --- */
 body {
-  background-color: #f8fafc;
+  background: radial-gradient(circle at 20% 30%, #1a1a24 0%, #0b0b0e 70%);
+  color: #f0f0f0;
 }
 
-/* --- TIÊU ĐỀ CHÍNH --- */
-.page-title {
-  position: relative;
-  display: inline-block;
-  padding-bottom: 8px;
+.promotions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  justify-items: center;
+  padding-bottom: 4rem;
 }
 
-.page-title::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 4px;
-  background-color: #3b82f6;
-  border-radius: 2px;
-}
-
-/* --- THẺ KHUYẾN MÃI (Offer Card) --- */
+/* --- CARD --- */
 .offer-card {
-  background-color: #ffffff;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(145deg, #1a1a1d, #232326);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 18px;
   overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 400px;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .offer-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(108, 99, 255, 0.35);
+  border-color: rgba(108, 99, 255, 0.6);
 }
 
 .offer-card-image {
   width: 100%;
-  height: 12rem;
+  height: 220px;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  display: block;
+  filter: brightness(0.9);
+  transition: 0.3s ease;
 }
 
-/* Modal Image Container */
-.modal-image-container {
-  position: relative;
-  border-radius: 1rem;
-  overflow: hidden;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+.offer-card:hover .offer-card-image {
+  filter: brightness(1.05);
 }
 
-.modal-image {
-  width: 100%;
-  height: auto;
-  min-height: 400px;
-  max-height: 600px;
-  object-fit: contain;
-  background-color: #000;
-  transition: transform 0.6s ease-in-out;
+.offer-card .p-6 {
+  padding: 1.5rem;
 }
 
-.modal-image-container:hover .modal-image {
-  transform: scale(1.05);
+.offer-card h3 {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
 }
 
-.modal-image-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-  padding: 2rem 1.5rem 1.5rem;
-  transform: translateY(20%);
-  transition: transform 0.3s ease-in-out;
+.offer-card p {
+  color: #b0b0b0;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
-.modal-image-container:hover .modal-image-overlay {
-  transform: translateY(0);
+/* --- BUTTON --- */
+.offer-card button {
+  background: linear-gradient(90deg, #6c63ff, #1dd1a1);
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 10px;
+  transition: all 0.25s ease;
 }
 
-.modal-image-date {
-  color: white;
-  font-size: 1.125rem;
-  font-weight: 500;
-  letter-spacing: 0.025em;
+.offer-card button:hover {
   opacity: 0.9;
-}
-
-.modal-image-line {
-  height: 2px;
-  width: 60px;
-  background-color: #3b82f6;
-  margin-top: 0.75rem;
-  transform: scaleX(0);
-  transition: transform 0.4s ease-in-out;
-  transform-origin: left;
-}
-
-.modal-image-container:hover .modal-image-line {
-  transform: scaleX(1);
-}
-
-/* Grid Layout */
-.promotions-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Always 3 columns */
-  gap: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-  .promotions-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .promotions-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-}
-
-
-.offer-card-content {
-  padding: 1.5rem; /* 24px */
-}
-
-.offer-card-title {
-  font-size: 1.25rem; /* 20px */
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-}
-
-.offer-card-summary {
-  font-size: 0.875rem; /* 14px */
-  color: #4b5563;
-  line-height: 1.5; /* Giãn dòng */
-}
-
-
-/* --- CỬA SỔ POP-UP (Modal) --- */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-  padding: 1rem;
-}
-
-.modal-container {
-  background-color: #ffffff;
-  border-radius: 1rem; /* bo góc 16px */
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  width: 100%;
-  max-width: 56rem; /* 896px */
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  animation: fade-in-up 0.4s ease-out forwards; /* Áp dụng animation */
-}
-
-/* Nút đóng Modal */
-.modal-close-button {
-  position: absolute;
-  top: 1rem; /* 16px */
-  right: 1rem; /* 16px */
-  color: #9ca3af;
-  transition: color 0.2s ease;
-  z-index: 10;
-}
-
-.modal-close-button:hover {
-  color: #1f2937;
-}
-
-/* --- ĐỊNH DẠNG NỘI DUNG BÊN TRONG MODAL --- */
-/* Class 'prose' này rất hữu ích để định dạng nội dung HTML 
-  được chèn vào bằng 'dangerouslySetInnerHTML'. 
-*/
-.prose {
-  color: #374151;
-  line-height: 1.7;
-}
-
-.prose h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #111827;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-}
-
-.prose p {
-  margin-bottom: 1em;
-}
-
-.prose ul {
-  list-style-type: disc;
-  padding-left: 1.5em;
-  margin-bottom: 1em;
-}
-
-.prose li {
-  margin-bottom: 0.5em;
-}
-
-.prose strong {
-  color: #111827;
-  font-weight: 600;
-}
-
-
-/* --- ANIMATION CHO MODAL --- */
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  transform: scale(1.03);
 }
