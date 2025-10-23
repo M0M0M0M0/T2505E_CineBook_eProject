@@ -196,7 +196,7 @@ const MovieCard = ({ movie, selectedDate }) => {
   return (
     <ListGroup.Item className="px-0 py-3">
       <Row className="g-3 align-items-start">
-        <Col xs={3} sm={2}>
+        <Col sm={3} m={2}>
           <Image 
             src={movie.poster} 
             alt={`Poster phim ${movie.title}`} 
@@ -210,7 +210,7 @@ const MovieCard = ({ movie, selectedDate }) => {
           <p className="text-muted small mb-2"><i className="bi bi-clock-fill me-2"></i>Suất chiếu</p>
           <div className="d-flex flex-wrap gap-2">
             {showtimesForSelectedDate.times.map(time => (
-              <Button key={time} variant="outline-primary" size="sm">
+              <Button key={time} variant="outline-success" size="m">
                 {time}
               </Button>
             ))}
