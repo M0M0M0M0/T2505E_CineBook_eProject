@@ -1,35 +1,22 @@
 import React from "react";
-import { movies } from "../../components/utilities/constants";
-import { useNavigate } from "react-router-dom";
+import { soons } from "../../components/utilities/constants";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const NowShowing = () => {
-  const navigate = useNavigate();
-
+const ComingSoon = () => {
   return (
     <div className="w-100 py-5 bg-white">
       <div className="container">
         {/* Header */}
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h2 className="fw-semibold text-dark mb-0">Now Showing</h2>
-          <span
-            onClick={() => navigate("/movies")}
-            className="text-danger fw-medium text-decoration-none"
-            style={{ cursor: "pointer" }}
-            onMouseOver={(e) => (e.target.style.textDecoration = "underline")}
-            onMouseOut={(e) => (e.target.style.textDecoration = "none")}
-          >
-            See All
-          </span>
+          <h2 className="fw-semibold text-dark mb-0">Coming Soon</h2>
         </div>
 
         {/* Movie Grid */}
         <div className="row g-4">
-          {movies.map((movie, i) => (
+          {soons.map((soon, i) => (
             <div
               key={i}
               className="col-6 col-md-4 col-xl-3"
-              onClick={() => navigate(`/movie/${movie.id || i + 1}`)}
               style={{ cursor: "pointer" }}
             >
               <div className="card border-0 shadow-sm h-100">
@@ -39,8 +26,8 @@ const NowShowing = () => {
                   style={{ aspectRatio: "2/3", borderRadius: "0.5rem" }}
                 >
                   <img
-                    src={movie.img}
-                    alt={movie.title}
+                    src={soon.img}
+                    alt={soon.title}
                     className="w-100 h-100"
                     style={{
                       objectFit: "cover",
@@ -55,23 +42,21 @@ const NowShowing = () => {
                   />
                 </div>
 
-                {/* Rating Bar */}
+                {/* Release Date Bar */}
                 <div className="bg-dark text-white small px-2 py-1 d-flex justify-content-between">
                   <span>
-                    Rating {movie.rating}/10
-                  </span>
-                  <span className="text-secondary">
-                    {movie.votes} Recommended
+                    <span className="text-secondary">Release Date: </span>
+                    <span className="text-white fw-medium">{soon.date}</span>
                   </span>
                 </div>
 
                 {/* Info */}
                 <div className="card-body p-2">
                   <h6 className="fw-semibold text-dark text-truncate mb-1">
-                    {movie.title}
+                    {soon.title}
                   </h6>
                   <p className="text-muted small mb-0">
-                    {movie.genre.replaceAll("/", " | ")}
+                    {soon.genre.replaceAll("/", " | ")}
                   </p>
                 </div>
               </div>
@@ -83,5 +68,4 @@ const NowShowing = () => {
   );
 };
 
-export default NowShowing;
-
+export default ComingSoon;
