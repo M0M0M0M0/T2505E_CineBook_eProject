@@ -1,7 +1,7 @@
 /**
  * Movies.jsx
- * Trang danh sách phim — gồm HeroBanner, SearchBar, FilterPanel, MovieCard, Offers.
- * Dữ liệu lấy từ src/assets/json/movies.json (dữ liệu giả, mock data).
+ * Trang danh sách phim — gồm HeroBanner, SearchBar, FilterPanel, MovieCard.
+ * Dữ liệu lấy từ src/components/utilities/constants.js
  */
 
 import React, { useState, useEffect } from "react";
@@ -11,41 +11,39 @@ import FilterPanel from "./components/FilterPanel";
 import MovieCard from "./components/MovieCard";
 import "./Movies.css";
 
-// ✅ Import JSON giả từ src/assets/json/
-import moviesData from "../../assets/json/movies.json";
+// ✅ Import đúng kiểu named export (phù hợp với file constants.js)
+import * as constants from "../../components/utilities/constants";
 
 function Movies() {
-  const [movies, setMovies] = useState([]); // Toàn bộ phim
-  const [filteredMovies, setFilteredMovies] = useState([]); // Phim sau khi lọc
+  // ✅ Lấy dữ liệu từ constants
+  const moviesData = constants.movies || [];
+  const banners = constants.banners || [];
+
+  const [movies, setMovies] = useState([]);
+  const [filteredMovies, setFilteredMovies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
 
+  // ✅ Load dữ liệu phim
   useEffect(() => {
-    // ✅ Dùng new URL() để Vite xử lý đường dẫn ảnh tương đối trong JSON
-    const withImageURL = moviesData.map((movie) => ({
-      ...movie,
-      poster: new URL(`../../assets/images/${movie.poster}`, import.meta.url)
-        .href,
-    }));
-    console.log(
-      "DEBUG: loaded movies with posters:",
-      withImageURL.map((m) => m.poster)
-    );
-    setMovies(withImageURL);
-    setFilteredMovies(withImageURL);
-  }, []);
+    setMovies(moviesData);
+    setFilteredMovies(moviesData);
+  }, [moviesData]);
 
-  // Xử lý lọc và tìm kiếm
+  // ✅ Lọc và tìm kiếm
   useEffect(() => {
     let results = movies.filter((movie) =>
       movie.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     if (selectedGenre) {
-      results = results.filter((movie) => movie.genre.includes(selectedGenre));
+      results = results.filter((movie) =>
+        movie.genre.toLowerCase().includes(selectedGenre.toLowerCase())
+      );
     }
 
+    // ⚠️ selectedCity không có trong constants.js — chỉ để tương lai
     if (selectedCity) {
       results = results.filter((movie) => movie.city === selectedCity);
     }
@@ -54,19 +52,30 @@ function Movies() {
   }, [searchTerm, selectedGenre, selectedCity, movies]);
 
   return (
-    <div className="movies-page-container bg-dark">
-      {/* Banner tiêu đề */}
-      <HeroBanner title="Movies" subtitle="Enjoy our latest films" />
+    <div className="movies-page-container bg-dark text-light min-vh-100">
+      {/* Banner đầu trang */}
+      <HeroBanner
+        title="Now Showing"
+        subtitle="Explore our movie collection"
+        banners={banners}
+      />
 
-      {/* Thanh tìm kiếm và bộ lọc */}
-      <div className="movies-controls">
+      {/* Thanh tìm kiếm + Bộ lọc */}
+      <div className="movies-controls container my-4">
         <SearchBar
-          placeholder="Search by title, actor, or director..."
+          placeholder="Search by movie title..."
           value={searchTerm}
           onChange={setSearchTerm}
         />
         <FilterPanel
-          genres={["Action", "Romance", "Comedy", "Horror"]}
+          genres={[
+            "Action",
+            "Drama",
+            "Fantasy",
+            "Thriller",
+            "Horror",
+            "Comedy",
+          ]}
           cities={["Hanoi", "Ho Chi Minh", "Da Nang"]}
           selectedGenre={selectedGenre}
           selectedCity={selectedCity}
@@ -76,14 +85,24 @@ function Movies() {
       </div>
 
       {/* Danh sách phim */}
-      <div className="movies-list">
-        {filteredMovies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
-        ))}
+      <div className="movies-list container pb-5">
+        <div className="row g-4">
+          {filteredMovies.map((movie) => (
+            <div key={movie.id} className="col-6 col-md-4 col-lg-3">
+              <MovieCard
+                movie={{
+                  title: movie.title,
+                  genre: movie.genre,
+                  rating: movie.rating,
+                  votes: movie.votes,
+                  img: movie.img,
+                  promoted: movie.promoted,
+                }}
+              />
+            </div>
+          ))}
+        </div>
       </div>
-
-      {/* Ưu đãi đặc biệt */}
-      {/* <Offers /> */}
     </div>
   );
 }

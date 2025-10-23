@@ -21,7 +21,7 @@ export default function MovieCard({ movie }) {
     <>
       <div className="movie-card" onClick={handleCardClick}>
         <div className="poster-container">
-          <img src={movie.poster} alt={movie.title} className="poster" />
+          <img src={movie.img} alt={movie.title} className="poster" />
           <button
             className="play-btn"
             onClick={() => setShowTrailer(true)}

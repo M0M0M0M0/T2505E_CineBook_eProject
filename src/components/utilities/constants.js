@@ -84,12 +84,5 @@ export const soons = [
     date: "20/10/2025",
     img: m4,
   },
-//    {
-//     id: 5,
-//     title: "F1: The Movie",
-//     genre: "Action/Drama/Sports",
-//     rating: 9.5,
-//     votes: "6.8K",
-//     img: m4,
-//   },
+
 ];
