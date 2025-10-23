@@ -166,11 +166,6 @@ export default function Header() {
             </li>
             {/* <li className="nav-item-cb"><Link to="/about" className="nav-link-cb">About</Link></li> */}
             <li className="nav-item-cb">
-              <Link to="/booking" className="nav-link-cb">
-                Booking
-              </Link>
-            </li>
-            <li className="nav-item-cb">
               <Link to="/admin" className="nav-link-cb">
                 Admin Dashboard
               </Link>
