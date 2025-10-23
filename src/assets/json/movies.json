@@ -2,10 +2,7 @@
   {
     "id": 1,
     "title": "The Great Adventure",
-    "genre": [
-      "Action",
-      "Adventure"
-    ],
+    "genre": ["Action", "Adventure"],
     "rating": 4.5,
     "duration": "2h 10m",
     "language": "English",
@@ -28,15 +25,28 @@
         "photo": "mia-tga.jpg"
       }
     ],
-    "director": "Arne Sucksdorff"
+    "director": "Arne Sucksdorff",
+    "showtimes": [
+      {
+        "id": 1,
+        "cinema": "CGV Vincom Ba Trieu",
+        "city": "Hanoi",
+        "date": "2025-10-25",
+        "times": ["09:30", "13:00", "16:45", "20:15"]
+      },
+      {
+        "id": 2,
+        "cinema": "Beta Cineplex Thanh Xuan",
+        "city": "Hanoi",
+        "date": "2025-10-25",
+        "times": ["10:15", "14:00", "17:30", "21:10"]
+      }
+    ]
   },
   {
     "id": 2,
     "title": "Romantic Sunset",
-    "genre": [
-      "Romance",
-      "Drama"
-    ],
+    "genre": ["Romance", "Drama"],
     "rating": 4.2,
     "duration": "1h 45m",
     "language": "English",
@@ -59,6 +69,22 @@
         "photo": "nr-rs.jpg"
       }
     ],
-    "director": "Richard Linklater"
+    "director": "Richard Linklater",
+    "showtimes": [
+      {
+        "id": 1,
+        "cinema": "Lotte Cinema Diamond Plaza",
+        "city": "Ho Chi Minh",
+        "date": "2025-10-25",
+        "times": ["10:00", "12:30", "15:00", "19:00"]
+      },
+      {
+        "id": 2,
+        "cinema": "CGV Crescent Mall",
+        "city": "Ho Chi Minh",
+        "date": "2025-10-25",
+        "times": ["09:00", "11:45", "14:30", "18:45"]
+      }
+    ]
   }
 ]

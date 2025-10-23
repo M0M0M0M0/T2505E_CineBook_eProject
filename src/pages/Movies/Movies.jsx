@@ -1,6 +1,6 @@
 /**
  * Movies.jsx
- * Trang danh sách phim — gồm HeroBanner, SearchBar, FilterPanel, MovieCardList, Offers.
+ * Trang danh sách phim — gồm HeroBanner, SearchBar, FilterPanel, MovieCard, Offers.
  * Dữ liệu lấy từ src/assets/json/movies.json (dữ liệu giả, mock data).
  */
 
@@ -8,10 +8,8 @@ import React, { useState, useEffect } from "react";
 import HeroBanner from "./components/HeroBanner";
 import SearchBar from "./components/SearchBar";
 import FilterPanel from "./components/FilterPanel";
-import MovieCardList from "./components/MovieCardList";
-import Offers from "./components/Offers";
+import MovieCard from "./components/MovieCard";
 import "./Movies.css";
-
 
 // ✅ Import JSON giả từ src/assets/json/
 import moviesData from "../../assets/json/movies.json";
@@ -27,9 +25,13 @@ function Movies() {
     // ✅ Dùng new URL() để Vite xử lý đường dẫn ảnh tương đối trong JSON
     const withImageURL = moviesData.map((movie) => ({
       ...movie,
-      poster: new URL(`../../assets/images/${movie.poster}`, import.meta.url).href,
+      poster: new URL(`../../assets/images/${movie.poster}`, import.meta.url)
+        .href,
     }));
-    console.log('DEBUG: loaded movies with posters:', withImageURL.map(m => m.poster));
+    console.log(
+      "DEBUG: loaded movies with posters:",
+      withImageURL.map((m) => m.poster)
+    );
     setMovies(withImageURL);
     setFilteredMovies(withImageURL);
   }, []);
@@ -41,9 +43,7 @@ function Movies() {
     );
 
     if (selectedGenre) {
-      results = results.filter((movie) =>
-        movie.genre.includes(selectedGenre)
-      );
+      results = results.filter((movie) => movie.genre.includes(selectedGenre));
     }
 
     if (selectedCity) {
@@ -76,7 +76,11 @@ function Movies() {
       </div>
 
       {/* Danh sách phim */}
-      <MovieCardList movies={filteredMovies} />
+      <div className="movies-list">
+        {filteredMovies.map((movie) => (
+          <MovieCard key={movie.id} movie={movie} />
+        ))}
+      </div>
 
       {/* Ưu đãi đặc biệt */}
       {/* <Offers /> */}

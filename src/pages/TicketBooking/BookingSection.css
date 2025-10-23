@@ -1,0 +1,94 @@
+.booking-section {
+  margin-top: 60px;
+  background: #0b0b0b;
+  padding: 30px;
+  border-radius: 16px;
+  color: #fff;
+}
+
+.booking-section h2 {
+  text-align: center;
+  color: #ffcc00;
+  margin-bottom: 20px;
+}
+
+.screen {
+  background: linear-gradient(to right, #1d1d1d, #3f3f3f);
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  color: #7aff8a;
+}
+
+.seat-map {
+  display: block !important; /* ép container hiển thị dạng block */
+}
+
+.seat-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.seat-row-label {
+  display: inline-block;
+  width: 20px;
+  text-align: center;
+  color: #bbb;
+  flex-shrink: 0;
+}
+
+.seat {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: #000;
+}
+
+.seat.standard {
+  background: #ccc;
+}
+
+.seat.vip {
+  background: #ffd700;
+}
+
+.seat.couple {
+  background: #00e0ff;
+}
+
+.seat.selected {
+  background: #9aff62;
+  color: #000;
+  border: 2px solid #fff;
+}
+
+.booking-summary {
+  margin-top: 30px;
+  text-align: center;
+  background: #151515;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.booking-summary button {
+  background: #ffcc00;
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}

@@ -3,12 +3,27 @@ import { useParams } from "react-router-dom";
 import moviesData from "../../assets/json/movies.json";
 import "./MovieDetail.css";
 import CastCrewList from "./components/CastCrewList";
+import BookingSection from "../TicketBooking/BookingSection";
+import ShowtimeSelector from "../TicketBooking/ShowtimeSelector";
+import { div } from "framer-motion/client";
 
 export default function MovieDetail() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
+    // HandleBookingSection
+  const [step, setStep] = useState("detail"); // "detail" | "showtime" | "seat"
 
+  const handleBookNow = () => {
+    setStep("showtime");
+  };
+
+  const handleSelectShowtime = (showtime) => {
+    console.log("User chọn suất chiếu:", showtime);
+    setStep("seat");
+  };
+
+  // HangleTrailer
   useEffect(() => {
     const found = moviesData.find((m) => m.id === Number(id));
 
@@ -21,13 +36,16 @@ export default function MovieDetail() {
       // ✅ Gán lại vào state với đường dẫn ảnh & trailer đã xử lý
       setMovie({
         ...found,
-        poster: new URL(`../../assets/images/${found.poster}`, import.meta.url).href,
-        bgImage: new URL(`../../assets/images/${found.bgImage}`, import.meta.url).href,
+        poster: new URL(`../../assets/images/${found.poster}`, import.meta.url)
+          .href,
+        bgImage: new URL(
+          `../../assets/images/${found.bgImage}`,
+          import.meta.url
+        ).href,
         trailer: trailerUrl,
       });
     }
   }, [id]);
-
 
   if (!movie)
     return (
@@ -43,6 +61,8 @@ export default function MovieDetail() {
         Loading movie details...
       </div>
     );
+
+
 
   return (
     <div
@@ -63,8 +83,8 @@ export default function MovieDetail() {
               <h2 className="md-title">{movie.title}</h2>
 
               <p className="md-meta">
-                {movie.genre?.join(", ")} {movie.genre ? " | " : ""}
-                ⭐ {movie.rating} {movie.duration ? " | ⏱ " + movie.duration : ""}
+                {movie.genre?.join(", ")} {movie.genre ? " | " : ""}⭐{" "}
+                {movie.rating} {movie.duration ? " | ⏱ " + movie.duration : ""}
               </p>
 
               {/* ✅ Các thông tin chi tiết nằm ngay bên dưới meta */}
@@ -90,7 +110,7 @@ export default function MovieDetail() {
               </div>
 
               <div className="md-actions">
-                <a href="#" className="md-book-now">
+                <a href="#" className="md-book-now" onClick={handleBookNow}>
                   🎟 Book Now
                 </a>
                 <button
@@ -103,16 +123,43 @@ export default function MovieDetail() {
             </div>
           </div>
 
-          {/* ✅ Phần tóm tắt (synopsis) nằm riêng xuống dưới */}
-          <div className="md-synopsis-section">
-            <h4>Synopsis</h4>
-            <p className="md-synopsis">{movie.synopsis}</p>
-          </div>
+          {/* ✅ Hiển thị phần tóm tắt nếu chưa nhấn Book Now */}
+          {step === "detail" && (
+            <>
+              <div className="md-synopsis-section">
+                <h4>Synopsis</h4>
+                <p className="md-synopsis">{movie.synopsis}</p>
+              </div>
+              <CastCrewList cast={movie.cast} crew={movie.crew} />
+            </>
+          )}
 
+          {/* ✅ Khi nhấn Book Now → hiện component chọn suất chiếu */}
+          {step === "showtime" && (
+            <div>
+            <h3 style={{ color: "white" }}>Bước 1: Chọn suất chiếu</h3>
+            <ShowtimeSelector
+              showtimes={movie.showtimes}
+              onSelectShowtime={handleSelectShowtime}
+            />
+            </div>
+          )}
+
+          {/* ✅ Khi chọn suất chiếu → chuyển sang bước chọn ghế */}
+          {step === "seat" && (
+            <div>
+              <h3 style={{ color: "white" }}>Bước 2: Chọn ghế</h3>
+              <BookingSection movieTitle={movie.title} />
+              
+            </div>
+          )}
 
           {/* ✅ Trailer hiển thị trong modal */}
           {showTrailer && movie.trailer && (
-            <div className="trailer-modal-overlay" onClick={() => setShowTrailer(false)}>
+            <div
+              className="trailer-modal-overlay"
+              onClick={() => setShowTrailer(false)}
+            >
               <div
                 className="trailer-modal-content"
                 onClick={(e) => e.stopPropagation()}
@@ -129,6 +176,7 @@ export default function MovieDetail() {
               </div>
             </div>
           )}
+          
         </div>
       </div>
     </div>

@@ -37,7 +37,14 @@
   font-size: 18px;
   color: #ddd;
 }
-
+.movies-list {
+  display: flex ;
+  flex-wrap: wrap;       
+  justify-content:left;  
+  gap: 24px;               
+  padding: 20px 0;
+  margin: 0 150px;
+}
 /* CONTROLS */
 .movies-controls {
   display: flex;
