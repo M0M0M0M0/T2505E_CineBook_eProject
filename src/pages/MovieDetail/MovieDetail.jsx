@@ -130,7 +130,6 @@ export default function MovieDetail() {
                 <h4>Synopsis</h4>
                 <p className="md-synopsis">{movie.synopsis}</p>
               </div>
-              <CastCrewList cast={movie.cast} crew={movie.crew} />
             </>
           )}
 

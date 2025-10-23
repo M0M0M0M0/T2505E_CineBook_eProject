@@ -47,14 +47,20 @@ export default function MovieCard({ movie }) {
         <div className="trailer-modal" onClick={() => setShowTrailer(false)}>
           <div className="trailer-content" onClick={(e) => e.stopPropagation()}>
             <iframe
-              src={movie.trailer}
+              src={
+                movie.trailer?.includes("watch?v=")
+                  ? movie.trailer.replace("watch?v=", "embed/")
+                  : movie.trailer
+              }
               title="Trailer"
               frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             ></iframe>
           </div>
         </div>
       )}
+
     </>
   );
 }
