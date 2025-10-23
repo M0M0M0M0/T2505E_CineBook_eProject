@@ -7,11 +7,11 @@ const NowShowing = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-100 py-5 bg-white">
+    <div className="w-100 py-5">
       <div className="container">
         {/* Header */}
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h2 className="fw-semibold text-dark mb-0">Now Showing</h2>
+          <h2 className="fw-semibold text-white mb-0">Now Showing</h2>
           <span
             onClick={() => navigate("/movies")}
             className="text-danger fw-medium text-decoration-none"
@@ -36,7 +36,7 @@ const NowShowing = () => {
                 {/* Poster */}
                 <div
                   className="overflow-hidden"
-                  style={{ aspectRatio: "2/3", borderRadius: "0.5rem" }}
+                  style={{ aspectRatio: "2/3"}}
                 >
                   <img
                     src={movie.img}

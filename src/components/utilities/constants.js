@@ -1,10 +1,10 @@
-import banner1 from "../../assets/images/featured1.JPG";
-import banner2 from "../../assets/images/featured2.JPG";
-import banner3 from "../../assets/images/featured3.JPG";
-import m1 from "../../assets/images/movie1.JPG";
-import m2 from "../../assets/images/movie2.JPG";
-import m3 from "../../assets/images/movie3.JPG";
-import m4 from "../../assets/images/movie4.JPG";
+import banner1 from "../../assets/img/avenger-end-game.jpg";
+import banner2 from "../../assets/img/interstellar.jpg";
+import banner3 from "../../assets/img/Jumanji-Welcome-to-the-Jungle.jpg";
+import m1 from "../../assets/img/avatar-the-way-of-water.jpg";
+import m2 from "../../assets/img/joker.jpg";
+import m3 from "../../assets/img/frozen.jpg";
+import m4 from "../../assets/img/ghost-rider.jpg";
 
 export const banners = [banner1, banner2, banner3];
 

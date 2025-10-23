@@ -8,7 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 const BannerSlider = () => {
   const settings = {
     centerMode: true,
-    centerPadding: "300px",
+    centerPadding: "0px",
     slidesToShow: 1,
     infinite: true,
     autoplay: true,
@@ -39,7 +39,7 @@ const BannerSlider = () => {
   };
 
   return (
-    <div className="container-fluid bg-white py-4">
+    <div className="container-fluid py-4">
       <div className="mx-auto px-3">
         <Slider {...settings}>
           {banners.map((banner, i) => (

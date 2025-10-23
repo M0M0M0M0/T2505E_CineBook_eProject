@@ -5,7 +5,7 @@ import ComingSoon from "./ComingSoon";
 
 const Home = () => {
     return (
-        <div>
+        <div className="">
             <BannerSlider />
             <NowShowing />
             <ComingSoon />
