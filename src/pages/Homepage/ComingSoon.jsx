@@ -1,6 +1,7 @@
 import React from "react";
 import { soons } from "../../components/utilities/constants";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./NowShowing";
 
 const ComingSoon = () => {
   return (
@@ -30,18 +31,19 @@ const ComingSoon = () => {
                       objectFit: "cover",
                       transition: "transform 0.3s ease",
                       marginBottom: "-1px",
+                      transform: "scale(1.01)",
                     }}
                     onMouseOver={(e) =>
                       (e.currentTarget.style.transform = "scale(1.03)")
                     }
                     onMouseOut={(e) =>
-                      (e.currentTarget.style.transform = "scale(1)")
+                      (e.currentTarget.style.transform = "scale(1.01)")
                     }
                   />
                 </div>
 
                 {/* Movie Info */}
-                <div className="bg-dark text-light px-3 py-2 border-top border-secondary-subtle">
+                <div className="bg-dark text-light px-3 py-2">
                   {/* Release Date */}
                   <div className="d-flex justify-content-between align-items-center mb-1">
                     <small className="text-secondary">Release Date</small>
