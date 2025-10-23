@@ -200,7 +200,6 @@ export default function Offers() {
                   alt={selectedOffer.title}
                   className="w-full h-80 object-cover object-center"
                 />
-                
               </div>
               <div 
                 className="prose max-w-none prose-blue prose-lg prose-img:rounded-lg prose-headings:text-blue-600"
