@@ -4,13 +4,13 @@ import NowShowing from "./NowShowing";
 import ComingSoon from "./ComingSoon";
 
 const Home = () => {
-  return (
-    <div>
-      <BannerSlider />
-      <NowShowing />
-      <ComingSoon />
-    </div>
-  );
-};
+    return (
+        <div>
+            <BannerSlider />
+            <NowShowing />
+            <ComingSoon />
+        </div>
+    )
+}
 
-export default Home;
+export default Home
