@@ -14,7 +14,7 @@ import Login from "./pages/Auth/Login.jsx";
 import Register from "./pages/Auth/Register.jsx";
 import UserDashboard from "./pages/UserPage/UserDashboard.jsx";
 import ProfilePage from "./pages/ProfilePage/ProfilePage.jsx";
-import BookingPage from "./pages/BookingPage/BookingPage.jsx";
+
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 
 function App() {
@@ -35,7 +35,6 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/my-tickets" element={<UserDashboard />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/booking" element={<BookingPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
 
