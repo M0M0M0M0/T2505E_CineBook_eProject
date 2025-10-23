@@ -102,6 +102,16 @@
   color: #ff6666;
   border: 1px solid #ff6666;
 }
+.forgot-password {
+  text-align: right;
+  margin-top: -10px;
+  margin-bottom: 20px;
+}
+.auth-form .alert-warning{
+  background-color: rgba(255, 102, 102, 0.1);
+  color: #ff6666;
+  border: 1px solid #ff6666;
+}
 
 @keyframes fadeSlide {
   from {
