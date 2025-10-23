@@ -152,7 +152,7 @@ export default function MovieDetail() {
               
             </div>
           )}
-
+          
           {/* ✅ Trailer hiển thị trong modal */}
           {showTrailer && movie.trailer && (
             <div

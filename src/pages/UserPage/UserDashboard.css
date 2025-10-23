@@ -117,7 +117,12 @@
     transform: scale(1);
   }
 }
-
+.ticket-btn {
+  margin: 10px;
+}
+.ticket-modal-title{
+  margin: 10px;
+}
 .ticket-detail-modal {
   max-width: 850px;
   width: 90%;

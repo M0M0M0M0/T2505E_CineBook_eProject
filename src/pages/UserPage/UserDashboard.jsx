@@ -86,12 +86,6 @@ const UserDashboard = () => {
           >
             🕒 History
           </li>
-          <li
-            className={activeTab === "profile" ? "active" : ""}
-            onClick={() => setActiveTab("profile")}
-          >
-            👤 Profile Info
-          </li>
         </ul>
       </div>
 
@@ -132,23 +126,34 @@ const UserDashboard = () => {
 
         {activeTab === "history" && (
           <div className="user-dashboard-section">
-            <h4>📜 Ticket History</h4>
-            {historyTickets.map((ticket) => (
+            <h4>🎟️ Current Bookings</h4>
+            {tickets.map((ticket) => (
               <div key={ticket.id} className="ticket-card">
-                <h5>{ticket.movie}</h5>
-                <p><strong>Theater:</strong> {ticket.theater}</p>
-                <p><strong>Date:</strong> {ticket.date}</p>
-                <p><strong>Seats:</strong> {ticket.seats.join(", ")}</p>
-                <p><strong>Status:</strong> ✅ {ticket.status}</p>
+                <div style={{ display: "flex", gap: "20px" }}>
+                  <img
+                    src={ticket.poster}
+                    alt={ticket.movie}
+                    style={{
+                      width: "100px",
+                      borderRadius: "10px",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <div>
+                    <h5>{ticket.movie}</h5>
+                    <p><strong>Theater:</strong> {ticket.theater}</p>
+                    <p><strong>Date:</strong> {ticket.date}</p>
+                    <p><strong>Seats:</strong> {ticket.seats.join(", ")}</p>
+                    <button
+                      className="btn btn-warning mt-2"
+                      onClick={() => handleViewDetails(ticket)}
+                    >
+                      View Details
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
-          </div>
-        )}
-
-        {activeTab === "profile" && (
-          <div className="user-dashboard-section">
-            <h4>👤 Profile Information</h4>
-            <p>Feature under development.</p>
           </div>
         )}
       </div>
@@ -165,7 +170,7 @@ const UserDashboard = () => {
               style={{ backgroundColor: "#1a1a1a", color: "#fff" }}
             >
               <div className="modal-header border-0">
-                <h5 className="modal-title text-warning">
+                <h5 className="modal-title text-warning ticket-modal-title">
                   🎫 Ticket Details - {selectedTicket.movie}
                 </h5>
                 <button
@@ -220,12 +225,12 @@ const UserDashboard = () => {
               <div className="modal-footer border-0 d-flex justify-content-end">
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-secondary ticket-btn"
                   onClick={handleCloseModal}
                 >
                   Close
                 </button>
-                <button type="button" className="btn btn-warning">
+                <button type="button" className="btn btn-warning ticket-btn">
                   Download E-Ticket
                 </button>
               </div>
