@@ -24,7 +24,7 @@ const NowShowing = () => {
           {movies.map((movie, i) => (
             <div
               key={i}
-                onClick={() => navigate(`/movies/${movie.id || i + 1}`)}
+                onClick={() => navigate(`/movie/${movie.id || i + 1}`)}
               className="rounded-lg overflow-hidden shadow hover:scale-[1.03] hover:shadow-lg transition-transform duration-300 cursor-pointer"
             >
               {/* Poster */}
