@@ -1,41 +1,197 @@
-.booking-page {
-  min-height: 90vh;
-  background-color: #f8f9fa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.booking-card {
+  max-width: 850px;
+  margin: 0 auto;
 }
 
-.booking-card {
-  max-width: 700px;
+.screen {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #9fdc8a;
+  margin: 20px 0;
+  position: relative;
+}
+.screen::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 0;
   width: 100%;
+  height: 15px;
+  border-top: 4px solid #9fdc8a;
+  border-radius: 50%;
 }
 
 .seat-map {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
-  justify-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
-.seat-btn {
-  width: 60px;
-  height: 60px;
-  border: 2px solid #0d6efd;
-  border-radius: 10px;
-  background-color: white;
-  color: #0d6efd;
+.seat-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.row-label {
+  width: 20px;
+  text-align: center;
   font-weight: 600;
-  transition: 0.2s;
+  color: #555;
 }
 
-.seat-btn:hover {
-  background-color: #0d6efd;
-  color: white;
+.seat {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.seat-btn.selected {
-  background-color: #0d6efd;
-  color: white;
-  border: 2px solid #0a58ca;
+.seat.standard {
+  background-color: #e0e0e0;
 }
+.seat.vip {
+  background-color: #ffe98c;
+}
+.seat.couple {
+  background-color: #aef4ff;
+}
+.seat.selected {
+  background-color: #9ef468 !important;
+}
+.seat.sold {
+  background-color: #f74a4a;
+  cursor: not-allowed;
+}
+
+.seat:hover:not(.sold):not(.selected) {
+  transform: scale(1.05);
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+  font-size: 0.9rem;
+}
+
+.legend-box {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  margin-right: 6px;
+}
+.legend-box.standard { background-color: #e0e0e0; }
+.legend-box.vip { background-color: #ffe98c; }
+.legend-box.couple { background-color: #aef4ff; }
+.legend-box.selected { background-color: #9ef468; }
+.legend-box.sold { background-color: #f74a4a; }
+
+/* 🎟️ Ticket popup */
+.ticket-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(30, 30, 30, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.ticket-popup {
+  background: #fff;
+  border-radius: 16px;
+  width: 360px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  animation: popIn 0.4s ease;
+}
+
+.ticket-popup::before,
+.ticket-popup::after {
+  content: "";
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: #f5f5f5;
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.ticket-popup::before {
+  left: -20px;
+}
+
+.ticket-popup::after {
+  right: -20px;
+}
+
+.ticket-title {
+  background: linear-gradient(to right, #2c82ff, #4ad991);
+  color: white;
+  padding: 15px 0;
+  font-weight: bold;
+  font-size: 1.2rem;
+  letter-spacing: 0.5px;
+}
+
+.ticket-body {
+  padding: 20px;
+  border-top: 2px dashed #ccc;
+  border-bottom: 2px dashed #ccc;
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.ticket-body p {
+  margin: 6px 0;
+}
+
+.ticket-footer {
+  padding: 15px;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Optional: make VIP and Couple seats visually distinct */
+.seat.vip {
+  background-color: #ffe98c;
+  border: 1px solid #f5d544;
+}
+
+.seat.couple {
+  background-color: #aef4ff;
+  border: 1px solid #67d7e3;
+}
+
+.seat.standard {
+  background-color: #e0e0e0;
+  border: 1px solid #cfcfcf;
+}
+
