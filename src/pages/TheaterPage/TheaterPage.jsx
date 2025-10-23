@@ -1,5 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { Container, Row, Col, Card, Button, Form, ListGroup, Image } from 'react-bootstrap';
+// Local poster images
+import latMatImage from '../../assets/img/lat-mat.jpeg';
+import doraemonImage from '../../assets/img/Doraemon_Movie.jpg';
+import planetApesImage from '../../assets/img/kingdom_of_the_planet_of_the_apes.jpg';
+import garfieldImage from '../../assets/img/The_Garfield_Movie.jpg';
+
+
+
 // --- Ghi chú của người sửa lỗi: Lỗi không thể giải quyết 'react-bootstrap-icons'.
 // --- Đã xóa import JavaScript và thay thế bằng các lớp CSS của Bootstrap Icons.
 // --- Giả định rằng CSS của Bootstrap Icons được tải cùng với CSS Bootstrap chính.
@@ -37,28 +45,30 @@ const theatersData = [
       {
         id: 101,
         title: 'Lật Mặt 7: Một Điều Ước',
-        poster: 'https://placehold.co/100x150/000000/FFFFFF?text=Lat+Mat+7',
+        poster: latMatImage,
         showtimes: [
-          { date: '2025-10-21', times: ['18:00', '19:30', '20:45', '21:15', '22:00'] },
-          { date: '2025-10-22', times: ['18:30', '20:00', '21:45'] },
+          { date: '2025-10-23', times: ['18:00', '19:30', '20:45', '21:15', '22:00'] },
+          { date: '2025-10-24', times: ['18:30', '20:00', '21:45'] },
+          { date: '2025-10-25', times: ['17:45', '19:45', '21:45'] },
         ],
       },
       {
         id: 102,
         title: 'Doraemon: Nobita và Bản Giao Hưởng Địa Cầu',
-        poster: 'https://placehold.co/100x150/3498db/FFFFFF?text=Doraemon',
+        poster: doraemonImage,
         showtimes: [
-          { date: '2025-10-21', times: ['17:45', '19:00', '20:10'] },
-          { date: '2025-10-22', times: ['17:00', '19:15'] },
-          { date: '2025-10-23', times: ['18:00', '20:30'] },
+          { date: '2025-10-23', times: ['17:45', '19:00', '20:10'] },
+          { date: '2025-10-24', times: ['17:00', '19:15'] },
+          { date: '2025-10-25', times: ['18:00', '20:30'] },
         ],
       },
       {
         id: 103,
         title: 'Hành Tinh Khỉ: Vương Quốc Mới',
-        poster: 'https://placehold.co/100x150/e67e22/FFFFFF?text=Planet+Apes',
+        poster: planetApesImage,
         showtimes: [
-          { date: '2025-10-21', times: ['19:20', '21:50'] },
+          { date: '2025-10-26', times: ['19:20', '21:50'] },
+          { date: '2025-10-25', times: ['17:45', '19:45', '21:45'] }
         ],
       },
     ],
@@ -72,19 +82,19 @@ const theatersData = [
        {
         id: 101,
         title: 'Lật Mặt 7: Một Điều Ước',
-        poster: 'https://placehold.co/100x150/000000/FFFFFF?text=Lat+Mat+7',
+        poster: latMatImage,
         showtimes: [
-          { date: '2025-10-21', times: ['19:15', '21:00'] },
-          { date: '2025-10-23', times: ['20:15'] },
+          { date: '2025-10-23', times: ['19:15', '21:00'] },
+          { date: '2025-10-25', times: ['20:15'] },
         ],
       },
       {
         id: 104,
         title: 'Garfield: Mèo Béo Siêu Quậy',
-        poster: 'https://placehold.co/100x150/f1c40f/000000?text=Garfield',
+        poster: garfieldImage,
         showtimes: [
-          { date: '2025-10-22', times: ['17:30', '19:20'] },
-          { date: '2025-10-23', times: ['18:00', '20:00'] },
+          { date: '2025-10-23', times: ['17:30', '19:20'] },
+          { date: '2025-10-24', times: ['18:00', '20:00'] },
         ],
       },
     ]
@@ -98,19 +108,20 @@ const theatersData = [
       {
         id: 101,
         title: 'Lật Mặt 7: Một Điều Ước',
-        poster: 'https://placehold.co/100x150/000000/FFFFFF?text=Lat+Mat+7',
+        poster: latMatImage,
         showtimes: [
-          { date: '2025-10-21', times: ['19:00', '20:30', '21:45'] },
-          { date: '2025-10-22', times: ['20:00', '21:30'] },
+          { date: '2025-10-24', times: ['19:00', '20:30', '21:45'] },
+          { date: '2025-10-25', times: ['20:00', '21:30'] },
         ],
       },
        {
         id: 104,
         title: 'Garfield: Mèo Béo Siêu Quậy',
-        poster: 'https://placehold.co/100x150/f1c40f/000000?text=Garfield',
+        poster: garfieldImage,
         showtimes: [
-          { date: '2025-10-22', times: ['17:15', '19:10'] },
-          { date: '2025-10-23', times: ['18:15', '20:10', '21:05'] },
+          { date: '2025-10-23', times: ['17:15', '19:10'] },
+          { date: '2025-10-24', times: ['18:15', '20:10', '21:05'] },
+          { date: '2025-10-25', times: ['17:45', '19:45', '21:45'] }
         ],
       },
     ],
@@ -124,18 +135,19 @@ const theatersData = [
        {
         id: 102,
         title: 'Doraemon: Nobita và Bản Giao Hưởng Địa Cầu',
-        poster: 'https://placehold.co/100x150/3498db/FFFFFF?text=Doraemon',
+        poster: doraemonImage,
         showtimes: [
-          { date: '2025-10-21', times: ['17:00', '18:00'] },
-          { date: '2025-10-23', times: ['19:30'] },
+          { date: '2025-10-23', times: ['17:00', '18:00'] },
+          { date: '2025-10-25', times: ['19:30'] },
         ],
       },
       {
         id: 103,
         title: 'Hành Tinh Khỉ: Vương Quốc Mới',
-        poster: 'https://placehold.co/100x150/e67e22/FFFFFF?text=Planet+Apes',
+        poster: planetApesImage,
         showtimes: [
-          { date: '2025-10-22', times: ['20:20', '22:10'] },
+          { date: '2025-10-24', times: ['20:20', '22:10'] },
+          { date: '2025-10-25', times: ['17:45', '19:45', '21:45'] }
         ],
       },
     ],
@@ -146,21 +158,23 @@ const theatersData = [
     address: '116 Nguyễn Du, Phường Bến Thành, Quận 1',
     region: 'TP. Hồ Chí Minh',
     movies: [
-      {
+       {
         id: 101,
         title: 'Lật Mặt 7: Một Điều Ước',
-        poster: 'https://placehold.co/100x150/000000/FFFFFF?text=Lat+Mat+7',
+        poster: latMatImage,
         showtimes: [
-          { date: '2025-10-22', times: ['20:15', '21:00', '22:30'] },
+          { date: '2025-10-24', times: ['20:15', '21:00', '22:30'] },
+          { date: '2025-10-25', times: ['17:45', '19:45', '21:45'] }
         ],
       },
        {
         id: 104,
         title: 'Garfield: Mèo Béo Siêu Quậy',
-        poster: 'https://placehold.co/100x150/f1c40f/000000?text=Garfield',
+        poster: garfieldImage,
         showtimes: [
-          { date: '2025-10-21', times: ['18:45', '19:45'] },
-          { date: '2025-10-22', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-10-24', times: ['18:45', '19:45'] },
+          { date: '2025-10-25', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-10-26', times: ['17:45', '19:45', '21:45'] }
         ],
       },
     ],

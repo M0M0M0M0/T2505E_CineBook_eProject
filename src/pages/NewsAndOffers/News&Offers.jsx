@@ -170,10 +170,10 @@ export default function Offers() {
   return (
     <div className="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen font-sans">
       <div className="container mx-auto px-4 py-12">
-        <h1 className="page-title text-4xl font-bold text-center text-gray-800 mb-8">
+        <h1 className="page-title text-4xl font-bold text-center text-white mb-8">
           ƯU ĐÃI ĐẶC BIỆT
         </h1>
-        
+        <br/>
         <div className="promotions-grid mt-12">
           {promotionsData.map(offer => (
             <OfferCard key={offer.id} offer={offer} onClick={handleOpenModal} />
@@ -198,7 +198,7 @@ export default function Offers() {
                 <img 
                   src={selectedOffer.image}
                   alt={selectedOffer.title}
-                  className="w-full h-80 object-scale-down"
+                  className="w-full h-80 object-cover object-center"
                 />
                 
               </div>
