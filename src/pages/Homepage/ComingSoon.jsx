@@ -21,10 +21,7 @@ const ComingSoon = () => {
             >
               <div className="card border-0 shadow-sm h-100">
                 {/* Poster */}
-                <div
-                  className="overflow-hidden"
-                  style={{ aspectRatio: "2/3",}}
-                >
+                <div className="overflow-hidden" style={{ aspectRatio: "2/3" }}>
                   <img
                     src={soon.img}
                     alt={soon.title}
@@ -32,6 +29,7 @@ const ComingSoon = () => {
                     style={{
                       objectFit: "cover",
                       transition: "transform 0.3s ease",
+                      marginBottom: "-1px",
                     }}
                     onMouseOver={(e) =>
                       (e.currentTarget.style.transform = "scale(1.03)")
@@ -42,20 +40,27 @@ const ComingSoon = () => {
                   />
                 </div>
 
-                {/* Release Date Bar */}
-                <div className="bg-dark text-white small px-2 py-1 d-flex justify-content-between">
-                  <span>
-                    <span className="text-secondary">Release Date: </span>
-                    <span className="text-white fw-medium">{soon.date}</span>
-                  </span>
-                </div>
+                {/* Movie Info */}
+                <div className="bg-dark text-light px-3 py-2 border-top border-secondary-subtle">
+                  {/* Release Date */}
+                  <div className="d-flex justify-content-between align-items-center mb-1">
+                    <small className="text-secondary">Release Date</small>
+                    <small className="fw-medium text-white">{soon.date}</small>
+                  </div>
 
-                {/* Info */}
-                <div className="card-body p-2">
-                  <h6 className="fw-semibold text-dark text-truncate mb-1">
+                  {/* Title */}
+                  <h6
+                    className="fw-semibold text-truncate mb-1"
+                    style={{ fontSize: "0.95rem", color: "#fff" }}
+                  >
                     {soon.title}
                   </h6>
-                  <p className="text-muted small mb-0">
+
+                  {/* Genre */}
+                  <p
+                    className="text-secondary small mb-0"
+                    style={{ fontSize: "0.8rem" }}
+                  >
                     {soon.genre.replaceAll("/", " | ")}
                   </p>
                 </div>
