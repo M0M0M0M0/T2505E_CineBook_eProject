@@ -270,7 +270,7 @@ export default function Theaters() {
     <div className="bg-light min-vh-100">
       <Container className="py-5">
         <header className="text-center mb-5">
-          <h1 className="display-4 fw-bold">Lịch Chiếu Phim</h1>
+          <h1 className="display-4 fw-bold text-black">Lịch Chiếu Phim</h1>
           <p className="lead text-muted">Chọn rạp, ngày và đặt vé ngay hôm nay!</p>
         </header>
 

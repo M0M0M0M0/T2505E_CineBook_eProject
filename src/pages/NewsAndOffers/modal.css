@@ -1,67 +1,59 @@
-/* --- MODAL STYLES --- */
-
-.modal-promotion .modal-content {
-  border-radius: 1rem;
-  border: none;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+.modal-promotion .modal-dialog {
+  max-width: 750px;
 }
 
-.modal-promotion .modal-header {
-  background-color: #ffffff;
-  border-top-left-radius: 1rem;
-  border-top-right-radius: 1rem;
-  padding: 1.5rem 2rem 0.5rem;
+.modal-promotion .modal-content {
+  background: #1a1a1d;
+  color: #f0f0f0;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.6);
+}
+
+.modal-promotion img {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto;
+  filter: brightness(0.95);
 }
 
 .modal-promotion .modal-body {
   padding: 1.5rem 2rem;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
+.modal-promotion .modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-promotion .modal-body::-webkit-scrollbar-thumb {
+  background-color: rgba(108, 99, 255, 0.4);
+  border-radius: 4px;
+}
+
+.modal-promotion .modal-header,
 .modal-promotion .modal-footer {
-  background-color: #ffffff;
-  border-bottom-left-radius: 1rem;
-  border-bottom-right-radius: 1rem;
-  padding: 1rem 2rem 1.5rem;
+  background-color: #1a1a1d;
+  border: none;
 }
 
-.modal-promotion .close {
-  font-size: 1.5rem;
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
+.modal-promotion .btn-close {
+  filter: invert(1) brightness(1.3);
 }
 
-.modal-promotion .close:hover {
-  opacity: 1;
+.modal-promotion .btn-primary {
+  background: linear-gradient(90deg, #6c63ff, #1dd1a1);
+  border: none;
+  font-weight: 600;
+  transition: all 0.25s ease;
 }
 
-/* Animation for modal content */
-.modal-promotion .modal-content {
-  animation: modalFadeIn 0.3s ease-out;
-}
-
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .offer-card {
-    margin-bottom: 1.5rem;
-  }
-  
-  .modal-promotion .modal-body {
-    padding: 1rem;
-  }
-  
-  .modal-promotion .modal-header,
-  .modal-promotion .modal-footer {
-    padding: 1rem;
-  }
+.modal-promotion .btn-primary:hover {
+  opacity: 0.85;
 }
