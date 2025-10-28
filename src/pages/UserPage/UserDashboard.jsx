@@ -9,7 +9,8 @@ const UserDashboard = () => {
     {
       id: 1,
       movie: "Avatar 5: The Search for More Money",
-      poster: "https://m.media-amazon.com/images/M/MV5BZDYxY2I1OGMtN2Y4MS00ZmU1LTgyNDAtODA0MzAyYjI0N2Y2XkEyXkFqcGc%40._V1_.jpg",
+      poster:
+        "https://m.media-amazon.com/images/M/MV5BZDYxY2I1OGMtN2Y4MS00ZmU1LTgyNDAtODA0MzAyYjI0N2Y2XkEyXkFqcGc%40._V1_.jpg",
       language: "English, Sub: Vietnamese",
       format: "IMAX 3D",
       duration: "2h 45m",
@@ -32,7 +33,8 @@ const UserDashboard = () => {
     {
       id: 2,
       movie: "Avengers: Endgame",
-      poster: "https://upload.wikimedia.org/wikipedia/en/0/0d/Avengers_Endgame_poster.jpg",
+      poster:
+        "https://upload.wikimedia.org/wikipedia/en/0/0d/Avengers_Endgame_poster.jpg",
       language: "English, Sub: Vietnamese",
       format: "2D",
       duration: "3h 1m",
@@ -59,6 +61,8 @@ const UserDashboard = () => {
       id: 3,
       movie: "Inside Out 2",
       theater: "CGV Crescent Mall",
+      poster:
+        "https://mlpnk72yciwc.i.optimole.com/cqhiHLc.IIZS~2ef73/w:auto/h:auto/q:75/https://bleedingcool.com/wp-content/uploads/2024/03/inside_out_two_ver12.jpg",
       date: "10 Aug 2025",
       seats: ["F7", "F8"],
       status: "Completed",
@@ -67,6 +71,36 @@ const UserDashboard = () => {
 
   const handleViewDetails = (ticket) => setSelectedTicket(ticket);
   const handleCloseModal = () => setSelectedTicket(null);
+
+  const renderTicketCard = (ticket, isHistory = false) => (
+    <div key={ticket.id} className="ticket-card">
+      <div className="ticket-card-content">
+        <img src={ticket.poster} alt={ticket.movie} className="ticket-card-img" />
+        <div>
+          <h5 className="ticket-card-title">{ticket.movie}</h5>
+          <p>
+            <strong>Theater:</strong> {ticket.theater}
+          </p>
+          <p>
+            <strong>Date:</strong> {ticket.date}
+          </p>
+          <p>
+            <strong>Seats:</strong> {ticket.seats.join(", ")}
+          </p>
+
+          {/* 👇 Chỉ hiển thị View Detail ở tab My Tickets */}
+          {!isHistory && (
+            <button
+              className="btn btn-warning mt-2"
+              onClick={() => handleViewDetails(ticket)}
+            >
+              View Details
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="user-dashboard-container">
@@ -94,66 +128,14 @@ const UserDashboard = () => {
         {activeTab === "tickets" && (
           <div className="user-dashboard-section">
             <h4>🎟️ Current Bookings</h4>
-            {tickets.map((ticket) => (
-              <div key={ticket.id} className="ticket-card">
-                <div style={{ display: "flex", gap: "20px" }}>
-                  <img
-                    src={ticket.poster}
-                    alt={ticket.movie}
-                    style={{
-                      width: "100px",
-                      borderRadius: "10px",
-                      objectFit: "cover",
-                    }}
-                  />
-                  <div>
-                    <h5>{ticket.movie}</h5>
-                    <p><strong>Theater:</strong> {ticket.theater}</p>
-                    <p><strong>Date:</strong> {ticket.date}</p>
-                    <p><strong>Seats:</strong> {ticket.seats.join(", ")}</p>
-                    <button
-                      className="btn btn-warning mt-2"
-                      onClick={() => handleViewDetails(ticket)}
-                    >
-                      View Details
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+            {tickets.map((ticket) => renderTicketCard(ticket))}
           </div>
         )}
 
         {activeTab === "history" && (
           <div className="user-dashboard-section">
-            <h4>🎟️ Current Bookings</h4>
-            {tickets.map((ticket) => (
-              <div key={ticket.id} className="ticket-card">
-                <div style={{ display: "flex", gap: "20px" }}>
-                  <img
-                    src={ticket.poster}
-                    alt={ticket.movie}
-                    style={{
-                      width: "100px",
-                      borderRadius: "10px",
-                      objectFit: "cover",
-                    }}
-                  />
-                  <div>
-                    <h5>{ticket.movie}</h5>
-                    <p><strong>Theater:</strong> {ticket.theater}</p>
-                    <p><strong>Date:</strong> {ticket.date}</p>
-                    <p><strong>Seats:</strong> {ticket.seats.join(", ")}</p>
-                    <button
-                      className="btn btn-warning mt-2"
-                      onClick={() => handleViewDetails(ticket)}
-                    >
-                      View Details
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+            <h4>📜 Past Bookings</h4>
+            {historyTickets.map((ticket) => renderTicketCard(ticket, true))}
           </div>
         )}
       </div>
@@ -165,13 +147,10 @@ const UserDashboard = () => {
             className="modal-dialog modal-lg ticket-detail-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <div
-              className="modal-content"
-              style={{ backgroundColor: "#1a1a1a", color: "#fff" }}
-            >
+            <div className="modal-content ticket-modal">
               <div className="modal-header border-0">
                 <h5 className="modal-title text-warning ticket-modal-title">
-                  🎫 Ticket Details - {selectedTicket.movie}
+                  🎬 {selectedTicket.movie}
                 </h5>
                 <button
                   type="button"
@@ -180,45 +159,46 @@ const UserDashboard = () => {
                 ></button>
               </div>
               <div className="modal-body scrollable-modal">
-                <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+                <div className="ticket-detail-body">
                   <img
                     src={selectedTicket.poster}
                     alt={selectedTicket.movie}
-                    style={{
-                      width: "160px",
-                      borderRadius: "10px",
-                      objectFit: "cover",
-                    }}
+                    className="ticket-detail-img"
                   />
-                  <div style={{ flex: 1 }}>
-                    <h6 className="text-warning">1. Showtime & Movie Details</h6>
-                    <p><strong>Language:</strong> {selectedTicket.language}</p>
-                    <p><strong>Format:</strong> {selectedTicket.format}</p>
-                    <p><strong>Duration:</strong> {selectedTicket.duration}</p>
-                    <p><strong>Date:</strong> {selectedTicket.date}</p>
-                    <p><strong>Time:</strong> {selectedTicket.time}</p>
+                  <div className="ticket-detail-info">
+                    <section>
+                      <h6 className="text-warning">Showtime & Movie Details</h6>
+                      <p><strong>Language:</strong> {selectedTicket.language}</p>
+                      <p><strong>Format:</strong> {selectedTicket.format}</p>
+                      <p><strong>Duration:</strong> {selectedTicket.duration}</p>
+                      <p><strong>Date:</strong> {selectedTicket.date}</p>
+                      <p><strong>Time:</strong> {selectedTicket.time}</p>
+                    </section>
                     <hr />
-
-                    <h6 className="text-warning">2. Location Details</h6>
-                    <p><strong>Theater:</strong> {selectedTicket.theater}</p>
-                    <p><strong>Address:</strong> {selectedTicket.address}</p>
-                    <p><strong>Room:</strong> {selectedTicket.room}</p>
+                    <section>
+                      <h6 className="text-warning">Location Details</h6>
+                      <p><strong>Theater:</strong> {selectedTicket.theater}</p>
+                      <p><strong>Address:</strong> {selectedTicket.address}</p>
+                      <p><strong>Room:</strong> {selectedTicket.room}</p>
+                    </section>
                     <hr />
-
-                    <h6 className="text-warning">3. Ticket & Seat Details</h6>
-                    <p><strong>Booking ID:</strong> {selectedTicket.bookingId}</p>
-                    <p><strong>Seat Type:</strong> {selectedTicket.seatType}</p>
-                    <p><strong>Seats:</strong> {selectedTicket.seats.join(", ")}</p>
-                    <p><strong>Quantity:</strong> {selectedTicket.quantity}</p>
+                    <section>
+                      <h6 className="text-warning">Ticket & Seat Details</h6>
+                      <p><strong>Booking ID:</strong> {selectedTicket.bookingId}</p>
+                      <p><strong>Seat Type:</strong> {selectedTicket.seatType}</p>
+                      <p><strong>Seats:</strong> {selectedTicket.seats.join(", ")}</p>
+                      <p><strong>Quantity:</strong> {selectedTicket.quantity}</p>
+                    </section>
                     <hr />
-
-                    <h6 className="text-warning">4. Transaction & Price Details</h6>
-                    <p><strong>Ticket Price:</strong> {selectedTicket.ticketPrice.toLocaleString()}₫</p>
-                    <p><strong>Food & Drinks:</strong> {selectedTicket.foodPrice.toLocaleString()}₫</p>
-                    <p><strong>Total:</strong> {selectedTicket.total.toLocaleString()}₫</p>
-                    <p><strong>Payment Method:</strong> {selectedTicket.payment}</p>
-                    <p><strong>Paid At:</strong> {selectedTicket.paidTime}</p>
-                    <p><strong>Status:</strong> ✅ {selectedTicket.status}</p>
+                    <section>
+                      <h6 className="text-warning">Transaction & Price</h6>
+                      <p><strong>Ticket Price:</strong> {selectedTicket.ticketPrice?.toLocaleString()}₫</p>
+                      <p><strong>Food & Drinks:</strong> {selectedTicket.foodPrice?.toLocaleString()}₫</p>
+                      <p><strong>Total:</strong> {selectedTicket.total?.toLocaleString()}₫</p>
+                      <p><strong>Payment:</strong> {selectedTicket.payment}</p>
+                      <p><strong>Paid At:</strong> {selectedTicket.paidTime}</p>
+                      <p><strong>Status:</strong> ✅ {selectedTicket.status}</p>
+                    </section>
                   </div>
                 </div>
               </div>
@@ -230,9 +210,13 @@ const UserDashboard = () => {
                 >
                   Close
                 </button>
-                <button type="button" className="btn btn-warning ticket-btn">
-                  Download E-Ticket
-                </button>
+
+                {/* 👇 Nút Download chỉ hiện trong My Tickets */}
+                {activeTab === "tickets" && (
+                  <button type="button" className="btn btn-warning ticket-btn">
+                    Download E-Ticket
+                  </button>
+                )}
               </div>
             </div>
           </div>
