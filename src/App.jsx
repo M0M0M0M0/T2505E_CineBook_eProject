@@ -4,6 +4,7 @@ import "./App.css";
 import Dashboard from "./pages/AdminDashboard/AdminDashboard.jsx";
 import Home from "./pages/Homepage/Home.jsx";
 import Movies from "./pages/Movies/Movies.jsx";
+import ComingSoon from "./pages/Movies/ComingSoon.jsx";
 import MovieDetail from "./pages/MovieDetail/MovieDetail.jsx";
 import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
@@ -27,6 +28,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/movies" element={<Movies />} />
+        <Route path="/coming-soon" element={<ComingSoon />} />
         <Route path="/movie/:id" element={<MovieDetail />} />
         <Route path="/admin" element={<Dashboard />} />
         <Route path="/offers" element={<Offers />} />

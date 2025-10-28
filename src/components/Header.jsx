@@ -96,7 +96,7 @@ export default function Header() {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/movies?filter=coming" className="dropdown-link-cb">
+                  <Link to="/coming-soon" className="dropdown-link-cb">
                     Coming Soon
                   </Link>
                 </li>
