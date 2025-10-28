@@ -17,31 +17,31 @@ const promotionsData = [
   {
     id: 1,
     image: u23Image,
-    title: 'U22 - GIÁ SIÊU SỐC, TRẢI NGHIỆM SIÊU ĐỈNH',
-    summary: 'Mùa hè rực rỡ đã đến, và rạp phim dành tặng cho các U22 một ưu đãi cực "đã" – giá vé xem phim chỉ từ 55.000 VNĐ dành cho học sinh, sinh viên dưới 22 tuổi.',
+    title: 'U22: Unbeatable Value. Unforgettable Experience.',
+    summary: 'Summer is here! U22 Student Deal: Movie tickets from just 55,000 VND. (Ages 22 & under).',
     details: {
-        fullTitle: 'ƯU ĐÃI U22 - CHỈ 55.000Đ/VÉ',
-        date: 'Áp dụng từ hôm nay',
+        fullTitle: 'U22 DEAL: ONLY 55,000VND/TICKET',
+        date: 'Starting today !!!',
         content: `
-            <p class="mb-4">Bạn là "cú đêm" chính hiệu? Bạn đang tìm một trải nghiệm thú vị sau 22h? Hãy để chúng tôi mang đến cho bạn một đêm đáng nhớ với chương trình <strong>Ưu đãi suất chiếu đêm</strong>.</p>
-            <h3 class="text-xl font-bold mb-2">Xem phim trẻ - Giá cực mê</h3>
-            <p class="mb-4">Chỉ cần mang theo thẻ học sinh/sinh viên hoặc giấy tờ tùy thân chứng minh bạn dưới 23 tuổi, bạn sẽ được hưởng ngay mức giá vé không thể nào hời hơn!</p>
+            <p class="mb-4"> <strong>Calling all students! We've got an amazing deal just for you.</strong></p>
+            <h3 class="text-xl font-bold mb-2">Fresh Flicks, Sweet Deals.</h3>
+            <p class="mb-4">Simply present your student ID, or any valid ID proving you are under 23, to instantly receive this unbeatable ticket price!</p>
             <ul class="list-disc list-inside mb-4 pl-4">
-                <li>Cơ hội để bạn trải nghiệm những suất chiếu đặc biệt với giá vé ưu đãi chỉ từ <strong>55.000Đ</strong>.</li>
-                <li>Không khí rạp yên tĩnh, ghế ngồi thoải mái, không lo chen chúc – đây chính là lựa chọn lý tưởng.</li>
-                <li>Cùng bạn bè trải nghiệm rạp phim đêm thú vị.</li>
+                <li>Your chance to enjoy special screenings with promotional tickets starting from <strong>55.000Đ.</strong>.</li>
+                <li>Enjoy a quiet atmosphere, comfortable seats, and a crowd-free experience – it's the ideal choice.</li>
+                <li>Grab your friends and experience the latest blockbusters at a special rate.</li>
             </ul>
-            <h3 class="text-xl font-bold mb-2">Thông tin chi tiết chương trình</h3>
+            <h3 class="text-xl font-bold mb-2">Promotion information</h3>
             <ul class="list-disc list-inside mb-4 pl-4">
-                <li><strong>Đối tượng áp dụng:</strong> Tất cả khách hàng dưới 23 tuổi.</li>
-                <li><strong>Giá vé ưu đãi:</strong> Chỉ từ 55.000 VNĐ/vé.</li>
-                <li><strong>Điều kiện:</strong> Vui lòng xuất trình thẻ HSSV hoặc CMND/CCCD khi mua vé.</li>
-                <li><strong>Lưu ý:</strong> Giá vé có thể thay đổi tùy cụm rạp, khuyến khích khách hàng kiểm tra chi tiết tại quầy vé hoặc website.</li>
+                <li><strong>This offer is applicable to students under 23.</strong></li>
+                <li><strong>Special Price:</strong> Starting from just 55,000 VND/ticket.</li>
+                <li><strong>Conditions:</strong> Please present your Student ID or ID Card when purchasing tickets.</li>
+                <li><strong>Please note:</strong> Prices may vary by cinema location. Customers are encouraged to check details at the box office or on our website.</li>
             </ul>
-            <h3 class="text-xl font-bold mb-2">Đặt vé xem phim khuya ngay hôm nay</h3>
+            <h3 class="text-xl font-bold mb-2">Book your tickets <strong>TODAY</strong></h3>
             <ul class="list-disc list-inside pl-4">
-                <li>Truy cập website của chúng tôi.</li>
-                <li>Hoặc mua vé trực tiếp tại quầy vé gần bạn nhất.</li>
+                <li>Go to our website.</li>
+                <li>Or purchase your tickets at the nearest box office.</li>
             </ul>
         `
     }
@@ -50,82 +50,79 @@ const promotionsData = [
     id: 2,
     image: summerDealsImage,
     title: 'SUMMER FLICKS! COOL DEAL!',
-    summary: 'Chào hè sảng khoái! Mua 1 vé xem phim, nhận ngay 1 ly soda mát lạnh để nhân đôi niềm vui. Đừng bỏ lỡ cơ hội tuyệt vời này nhé!',
+    summary: 'Cool off this summer! Buy 1 movie ticket, get a free cold soda to double the fun. Do not miss out on this fantastic deal!',
     details: {
-        fullTitle: 'MUA 1 VÉ TẶNG 1 SODA - GIẢI NHIỆT MÙA HÈ',
-        date: 'Diễn ra trong suốt mùa hè',
+        fullTitle: 'BUY 1 TICKET, GET 1 FREE SODA - BEAT THE SUMMER HEAT',
+        date: 'Available all summer long',
         content: `
-            <p class="mb-4">Mùa hè nóng bỏng đã tới, còn gì tuyệt vời hơn là ngồi trong rạp phim mát lạnh, thưởng thức một bộ phim bom tấn và nhâm nhi ly soda miễn phí?</p>
-            <h3 class="text-xl font-bold mb-2">Chi tiết ưu đãi</h3>
-            <p class="mb-4">Khi mua bất kỳ vé xem phim 2D nào tại rạp, bạn sẽ nhận được ngay một phiếu đổi (voucher) để lấy một ly soda cỡ vừa hoàn toàn miễn phí tại quầy bắp nước.</p>
-            <h3 class="text-xl font-bold mb-2">Điều khoản và điều kiện</h3>
+            <p class="mb-4">The hot summer is here! What could be better than sitting in a cool cinema, enjoying a blockbuster movie, and sipping on a free soda?</p>
+            <h3 class="text-xl font-bold mb-2">Offer Details</h3>
+            <p class="mb-4">When you purchase any 2D movie ticket at the cinema, you will instantly receive a voucher for one (1) free medium soda, redeemable at the concession stand.</p>
+            <h3 class="text-xl font-bold mb-2">Terms and Conditions</h3>
             <ul class="list-disc list-inside mb-4 pl-4">
-                <li>Áp dụng cho tất cả các suất chiếu trong ngày, từ Thứ Hai đến Chủ Nhật.</li>
-                <li>Không áp dụng đồng thời với các chương trình khuyến mãi khác.</li>
-                <li>Chương trình có thể kết thúc sớm hơn dự kiến khi hết quà tặng.</li>
-                <li>Phiếu đổi soda chỉ có giá trị sử dụng trong ngày.</li>
+                <li>Valid for all showtimes, Monday through Sunday.</li>
+                <li>Cannot be combined with other promotions or offers.</li>
+                <li>Offer is valid while supplies last and may end early.</li>
+                <li>The soda voucher is valid for same-day use only.</li>
             </ul>
-            <p>Rủ ngay bạn bè và người thân đến rạp để tận hưởng một mùa hè thật "cool" nào!</p>
+            <p>Bring your friends and family to the cinema and enjoy a truly "cool" summer !!</p>
         `
     }
   },
   {
     id: 3,
     image: chocolatePopcornImage,
-    title: 'BẮP RANG SÔ-CÔ-LA PHIÊN BẢN GIỚI HẠN',
-    summary: 'Lần đầu tiên ra mắt! Thưởng thức ngay vị bắp rang sô-cô-la mới lạ, thơm lừng. Nâng cấp combo chỉ với 7.000 VNĐ.',
+    title: 'LIMITED EDITION CHOCOLATE POPCORN',
+    summary: 'Introducing for the first time! Enjoy the new and delicious flavor of chocolate popcorn. Upgrade your combo for just 7,000 VND.',
     details: {
-        fullTitle: 'THỬ NGAY HƯƠNG VỊ MỚI: BẮP RANG SÔ-CÔ-LA',
-        date: 'Chỉ bán trong thời gian có hạn',
+        fullTitle: 'TRY THE NEW FLAVOR: CHOCOLATE POPCORN',
+        date: 'Available for a limited time only',
         content: `
-            <p class="mb-4">Tin nóng hổi cho các tín đồ điện ảnh và ẩm thực! Lần đầu tiên, chúng tôi cho ra mắt hương vị bắp rang hoàn toàn mới: <strong>Bắp Rang Sô-cô-la</strong>. Một sự kết hợp không thể hoàn hảo hơn giữa bắp rang giòn tan và sô-cô-la ngọt ngào, đậm vị.</p>
-            <h3 class="text-xl font-bold mb-2">Nâng cấp vị ngon, thêm phần hứng khởi</h3>
-            <p class="mb-4">Khi mua bất kỳ combo bắp nước nào, bạn có thể dễ dàng nâng cấp lên hương vị sô-cô-la độc đáo này với một mức phí cực kỳ ưu đãi:</p>
+            <p class="mb-4">Calling all movie lovers and foodies! For the first time ever, we're introducing a brand-new popcorn flavor: <strong>Chocolate Popcorn</strong>. It’s the perfect combination of crispy popcorn and rich, sweet chocolate.</p>
+            <h3 class="text-xl font-bold mb-2">A Tasty Upgrade for Extra Fun</h3>
+            <p class="mb-4">When you purchase any popcorn combo, you can easily upgrade to this unique chocolate flavor for a special additional fee:</p>
             <ul class="list-disc list-inside mb-4 pl-4">
-                <li>Chỉ thêm <strong>7.000 VNĐ</strong> để nâng cấp lên bắp sô-cô-la cỡ nhỏ.</li>
-                <li>Chỉ thêm <strong>10.000 VNĐ</strong> để nâng cấp lên bắp sô-cô-la cỡ lớn.</li>
+                <li>Add only <strong>7,000 VND</strong> to upgrade to a small chocolate popcorn.</li>
+                <li>Add only <strong>10,000 VND</strong> to upgrade to a large chocolate popcorn.</li>
             </ul>
-            <p class="mb-4">Đây là cơ hội có một không hai để trải nghiệm hương vị mới lạ này trong khi thưởng thức những bộ phim hay nhất.</p>
-            <p><strong>Ưu đãi chỉ có trong thời gian giới hạn. Hãy đến rạp và thử ngay hôm nay!</strong></p>
+            <p class="mb-4">This is your one-of-a-kind opportunity to try this new flavor while enjoying the best movies.</p> <p><strong>This is a limited-time offer. Visit our cinema and try it today!</strong></p>
         `
     }
   },
   {
     id: 4,
     image: backToSchoolImage,
-    title: 'KHUYẾN MÃI BACK TO SCHOOL',
-    summary: 'Chào đón năm học mới với ưu đãi đặc biệt dành cho học sinh, sinh viên. Giảm 30% giá vé khi đi xem phim theo nhóm từ 4 người.',
-    details: {
-        fullTitle: 'BACK TO SCHOOL - ƯU ĐÃI HẤP DẪN CHO HỌC SINH, SINH VIÊN',
-        date: 'Áp dụng từ 15/8 đến 15/9',
-        content: `
-            <p class="mb-4">Chào mừng năm học mới, rạp phim mang đến chương trình ưu đãi đặc biệt dành cho các bạn học sinh, sinh viên!</p>
-            <h3 class="text-xl font-bold mb-2">Ưu đãi hấp dẫn</h3>
-            <ul class="list-disc list-inside mb-4 pl-4">
-                <li>Giảm 30% giá vé khi đi theo nhóm từ 4 người</li>
-                <li>Tặng combo bắp nước khi mua vé trước 3 ngày</li>
-                <li>Đặc biệt: Suất chiếu sớm dành riêng cho học sinh, sinh viên</li>
-            </ul>
-            <p><strong>Hãy rủ bạn bè cùng đến rạp để nhận ưu đãi!</strong></p>
+    title: 'BACK TO SCHOOL PROMOTION', 
+    summary: 'Welcome the new school year with a special offer for students. Get 30% off movie tickets for groups of 4 or more.', 
+    details: { fullTitle: 'BACK TO SCHOOL - AMAZING DEAL FOR STUDENTS', 
+      date: 'Valid from August 15 to September 15', 
+      content: `
+
+<p class="mb-4">To celebrate the new school year, the cinema is launching a special promotion just for students!</p>
+ <h3 class="text-xl font-bold mb-2">Amazing Deals</h3> 
+ <ul class="list-disc list-inside mb-4 pl-4"> 
+ <li>Get 30% off ticket prices for groups of 4 or more.</li> 
+ <li>Receive a free Popcorn & Soda combo when booking 3 days in advance.</li> 
+ <li>Special: Exclusive early screenings for students.</li> </ul> 
+ <p><strong>Gather your friends and head to the cinema to enjoy these offers!</strong></p>
         `
     }
   },
   {
     id: 5,
     image: womanDayImage,
-    title: 'NGÀY PHỤ NỮ VIỆT NAM 20/10',
-    summary: 'Chương trình ưu đãi đặc biệt nhân ngày Phụ nữ Việt Nam 20/10. Giảm giá 50% cho khách hàng nữ.',
-    details: {
-        fullTitle: 'MỪNG NGÀY PHỤ NỮ VIỆT NAM 20/10',
-        date: 'Áp dụng từ 18/10 đến 20/10',
-        content: `
-            <p class="mb-4">Nhân dịp kỷ niệm ngày Phụ nữ Việt Nam 20/10, rạp phim gửi tới một nửa thế giới xinh đẹp những ưu đãi đặc biệt:</p>
-            <ul class="list-disc list-inside mb-4 pl-4">
-                <li>Giảm 50% giá vé cho khách hàng nữ</li>
-                <li>Tặng voucher mua sắm trị giá 100.000đ</li>
-                <li>Quà tặng đặc biệt cho nhóm từ 3 khách hàng nữ</li>
-            </ul>
-            <p><strong>Hãy đến và tận hưởng những khoảnh khắc đáng nhớ!</strong></p>
+    title: 'VIETNAMESE WOMEN’S DAY 20/10', 
+    summary: 'A special promotion to celebrate Vietnamese Wome’s Day 20/10. Enjoy 50% off for all female customers.', 
+    details: { 
+      fullTitle: 'CELEBRATING VIETNAMESE WOMEN’S DAY 20/10', 
+      date: 'Valid from October 18 to October 20', 
+      content: `
+      <p class="mb-4">On the occasion of Vietnamese Women's Day 20/10, the cinema sends special offers to the beautiful half of the world:</p>
+      <ul class="list-disc list-inside mb-4 pl-4"> 
+      <li>50% off ticket prices for all female customers.</li> 
+      <li>Receive a free 100,000VND shopping voucher.</li> 
+      <li>A special gift for groups of 3 or more female customers.</li> </ul>
+      <p><strong>Come and enjoy memorable moments!</strong></p>
         `
     }
   },
@@ -215,7 +212,7 @@ export default function Offers() {
             onClick={handleCloseModal}
             className="bg-blue-600 hover:bg-blue-700 transition-colors duration-300 px-6 py-2 rounded-full"
           >
-            Đóng
+            Close
           </Button>
         </Modal.Footer>
       </Modal>
