@@ -162,6 +162,7 @@ nav ul {
   padding: 8px;
   border-radius: 8px;
   box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+  z-index: 5000;
 }
 .search-input-cb {
   width: 280px;

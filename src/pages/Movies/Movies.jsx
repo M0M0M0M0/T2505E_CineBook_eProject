@@ -5,17 +5,19 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import HeroBanner from "./components/HeroBanner";
 import SearchBar from "./components/SearchBar";
 import FilterPanel from "./components/FilterPanel";
 import MovieCard from "./components/MovieCard";
 import "./Movies.css";
-
 // ✅ Import đúng kiểu named export (phù hợp với file constants.js)
 import * as constants from "../../components/utilities/constants";
 
+
 function Movies() {
   // ✅ Lấy dữ liệu từ constants
+  const location = useLocation();
   const moviesData = constants.movies || [];
   const banners = constants.banners || [];
 
@@ -24,6 +26,13 @@ function Movies() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+
+  // ✅ Khi URL thay đổi, lấy query ?search=
+  useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const search = params.get("search") || "";
+  setSearchTerm(search);
+}, [location.search]);
 
   // ✅ Load dữ liệu phim
   useEffect(() => {

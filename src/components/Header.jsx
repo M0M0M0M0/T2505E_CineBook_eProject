@@ -1,31 +1,27 @@
 // src/components/Header.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [keyword, setKeyword] = useState("");
+
   // dropdown state: null | 'movies' | 'theaters'
   const [openDropdown, setOpenDropdown] = useState(null);
 
   const searchRef = useRef(null);
   const mobileRef = useRef(null);
+  const navigate = useNavigate();
 
+  // ✅ Đóng menu / search khi click ngoài
   useEffect(() => {
     function onDocClick(e) {
-      if (
-        searchOpen &&
-        searchRef.current &&
-        !searchRef.current.contains(e.target)
-      ) {
+      if (searchOpen && searchRef.current && !searchRef.current.contains(e.target)) {
         setSearchOpen(false);
       }
-      if (
-        mobileOpen &&
-        mobileRef.current &&
-        !mobileRef.current.contains(e.target)
-      ) {
+      if (mobileOpen && mobileRef.current && !mobileRef.current.contains(e.target)) {
         setMobileOpen(false);
       }
     }
@@ -33,7 +29,7 @@ export default function Header() {
     return () => document.removeEventListener("click", onDocClick);
   }, [searchOpen, mobileOpen]);
 
-  // Handlers to open/close dropdowns with small delay tolerance
+  // ✅ Dropdown control
   let closeTimer = useRef(null);
   function handleOpenDropdown(name) {
     if (closeTimer.current) {
@@ -43,13 +39,21 @@ export default function Header() {
     setOpenDropdown(name);
   }
   function handleCloseDropdownDelayed() {
-    // small delay to allow pointer to move into menu
     closeTimer.current = setTimeout(() => setOpenDropdown(null), 120);
   }
   function handleCancelClose() {
     if (closeTimer.current) {
       clearTimeout(closeTimer.current);
       closeTimer.current = null;
+    }
+  }
+
+  // ✅ Search submit handler
+  function handleSearch(e) {
+    e.preventDefault();
+    if (keyword.trim() !== "") {
+      navigate(`/movies?search=${encodeURIComponent(keyword.trim())}`);
+      setSearchOpen(false);
     }
   }
 
@@ -62,6 +66,7 @@ export default function Header() {
           </Link>
         </div>
 
+        {/* ===== Main Nav ===== */}
         <nav className="header-cb-nav" aria-label="Main navigation">
           <ul className="header-cb-nav-list">
             {/* Movies dropdown */}
@@ -116,9 +121,7 @@ export default function Header() {
                 aria-haspopup="true"
                 aria-expanded={openDropdown === "theaters"}
                 onClick={() =>
-                  setOpenDropdown(
-                    openDropdown === "theaters" ? null : "theaters"
-                  )
+                  setOpenDropdown(openDropdown === "theaters" ? null : "theaters")
                 }
               >
                 <Link to="/theaters" className="nav-link-cb">
@@ -164,7 +167,6 @@ export default function Header() {
                 Profile
               </Link>
             </li>
-            {/* <li className="nav-item-cb"><Link to="/about" className="nav-link-cb">About</Link></li> */}
             <li className="nav-item-cb">
               <Link to="/admin" className="nav-link-cb">
                 Admin Dashboard
@@ -173,7 +175,9 @@ export default function Header() {
           </ul>
         </nav>
 
+        {/* ===== Right Actions ===== */}
         <div className="header-cb-actions">
+          {/* Search */}
           <div className="search-wrapper-cb" ref={searchRef}>
             <button
               className="search-toggle-cb"
@@ -205,17 +209,20 @@ export default function Header() {
             </button>
 
             {searchOpen && (
-              <div className="search-box-cb" role="search">
+              <form className="search-box-cb" role="search" onSubmit={handleSearch}>
                 <input
                   type="search"
-                  placeholder="Search title, actor, director..."
+                  placeholder="Search movie title..."
                   className="search-input-cb"
                   autoFocus
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
                 />
-              </div>
+              </form>
             )}
           </div>
 
+          {/* Auth */}
           <div className="auth-links-cb">
             <Link to="/login" className="auth-link-cb">
               Login
@@ -225,6 +232,7 @@ export default function Header() {
             </Link>
           </div>
 
+          {/* Hamburger */}
           <button
             className={`hamburger-cb ${mobileOpen ? "is-open" : ""}`}
             aria-label="Open menu"
@@ -237,6 +245,7 @@ export default function Header() {
         </div>
       </div>
 
+      {/* ===== Mobile Nav ===== */}
       <div
         className={`mobile-nav-cb ${mobileOpen ? "open" : ""}`}
         ref={mobileRef}
@@ -254,7 +263,7 @@ export default function Header() {
             </Link>
           </li>
           <li className="mobile-nav-item-cb">
-            <Link to="/news" onClick={() => setMobileOpen(false)}>
+            <Link to="/offers" onClick={() => setMobileOpen(false)}>
               News & Offers
             </Link>
           </li>
@@ -269,11 +278,6 @@ export default function Header() {
             </Link>
           </li>
           <li className="mobile-nav-item-cb">
-            <Link to="/about" onClick={() => setMobileOpen(false)}>
-              About
-            </Link>
-          </li>
-          <li className="mobile-nav-item-cb auth-mobile-cb">
             <Link to="/login" onClick={() => setMobileOpen(false)}>
               Login
             </Link>
