@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { Container, Row, Col, Card, Button, Form, ListGroup, Image } from 'react-bootstrap';
-// Local poster images
 import latMatImage from '../../assets/img/lat-mat.jpeg';
 import doraemonImage from '../../assets/img/Doraemon_Movie.jpg';
 import planetApesImage from '../../assets/img/kingdom_of_the_planet_of_the_apes.jpg';
 import garfieldImage from '../../assets/img/The_Garfield_Movie.jpg';
 import backgroundImage from '../../assets/img/background-theater.jpg';
+import './TheaterPage.css';
 
 const generateDates = () => {
   const dates = [];
@@ -27,8 +27,6 @@ const generateDates = () => {
   }
   return dates;
 };
-
-// --- Dữ liệu mẫu (Giữ nguyên) ---
 const theatersData = [
   {
     id: 1,
@@ -41,9 +39,9 @@ const theatersData = [
         title: 'Lật Mặt 7: Một Điều Ước',
         poster: latMatImage,
         showtimes: [
-          { date: '2025-10-26', times: ['18:00', '19:30', '20:45', '21:15', '22:00'] },
-          { date: '2025-10-27', times: ['18:30', '20:00', '21:45'] },
-          { date: '2025-10-28', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-02', times: ['18:00', '19:30', '20:45', '21:15', '22:00'] },
+          { date: '2025-10-04', times: ['18:30', '20:00', '21:45'] },
+          { date: '2025-10-06', times: ['17:45', '19:45', '21:45'] },
         ],
       },
       {
@@ -51,9 +49,9 @@ const theatersData = [
         title: 'Doraemon: Nobita và Bản Giao Hưởng Địa Cầu',
         poster: doraemonImage,
         showtimes: [
-          { date: '2025-10-26', times: ['17:45', '19:00', '20:10'] },
-          { date: '2025-10-27', times: ['17:00', '19:15'] },
-          { date: '2025-10-28', times: ['18:00', '20:30'] },
+          { date: '2025-11-01', times: ['17:45', '19:00', '20:10'] },
+          { date: '2025-11-02', times: ['17:00', '19:15'] },
+          { date: '2025-11-03', times: ['18:00', '20:30'] },
         ],
       },
       {
@@ -61,9 +59,9 @@ const theatersData = [
         title: 'Hành Tinh Khỉ: Vương Quốc Mới',
         poster: planetApesImage,
         showtimes: [
-          { date: '2025-10-26', times: ['19:20', '21:50'] },
-          { date: '2025-10-27', times: ['17:45', '19:45', '21:45'] },
-          { date: '2025-10-28', times: ['17:45', '19:45', '21:45'] }
+          { date: '2025-11-02', times: ['18:00', '19:30', '20:45', '21:15', '22:00'] },
+          { date: '2025-10-04', times: ['18:30', '20:00', '21:45'] },
+          { date: '2025-10-06', times: ['17:45', '19:45', '21:45'] },
         ],
       },
     ],
@@ -79,8 +77,10 @@ const theatersData = [
         title: 'Lật Mặt 7: Một Điều Ước',
         poster: latMatImage,
         showtimes: [
-          { date: '2025-10-23', times: ['19:15', '21:00'] },
-          { date: '2025-10-25', times: ['20:15'] },
+          { date: '2025-11-02', times: ['18:00', '19:30', '20:45', '21:15', '22:00'] },
+          { date: '2025-11-04', times: ['18:30', '20:00', '21:45'] },
+          { date: '2025-11-06', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-07', times: ['18:00', '19:30', '20:45', '21:15', '22:00'] },
         ],
       },
       {
@@ -88,8 +88,10 @@ const theatersData = [
         title: 'Garfield: Mèo Béo Siêu Quậy',
         poster: garfieldImage,
         showtimes: [
-          { date: '2025-10-23', times: ['17:30', '19:20'] },
-          { date: '2025-10-24', times: ['18:00', '20:00'] },
+          { date: '2025-11-02', times: ['18:00', '19:30', '20:45', '21:15', '22:00'] },
+          { date: '2025-11-04', times: ['18:30', '20:00', '21:45'] },
+          { date: '2025-11-06', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-07', times: ['18:00', '19:30', '20:45', '21:15', '22:00'] },
         ],
       },
     ]
@@ -105,11 +107,13 @@ const theatersData = [
         title: 'Lật Mặt 7: Một Điều Ước',
         poster: latMatImage,
         showtimes: [
-          { date: '2025-10-26', times: ['19:00', '20:30', '21:45'] },
-          { date: '2025-10-27', times: ['20:00', '21:30'] },
-          { date: '2025-10-28', times: ['17:45', '19:45', '21:45'] },
-          { date: '2025-10-29', times: ['17:45', '19:45', '21:45'] },
-          { date: '2025-10-30', times: ['17:45', '19:45', '21:45'] }
+          { date: '2025-11-01', times: ['19:00', '20:30', '21:45'] },
+          { date: '2025-11-02', times: ['20:00', '21:30'] },
+          { date: '2025-11-03', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-04', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-05', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-06', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-07', times: ['18:00', '19:30', '20:45', '21:15', '22:00'] },
         ],
       },
        {
@@ -117,9 +121,12 @@ const theatersData = [
         title: 'Garfield: Mèo Béo Siêu Quậy',
         poster: garfieldImage,
         showtimes: [
-          { date: '2025-10-28', times: ['17:15', '19:10'] },
-          { date: '2025-10-29', times: ['18:15', '20:10', '21:05'] },
-          { date: '2025-10-30', times: ['17:45', '19:45', '21:45'] }
+          { date: '2025-11-02', times: ['20:00', '21:30'] },
+          { date: '2025-11-03', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-04', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-05', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-06', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-07', times: ['18:00', '19:30', '20:45', '21:15', '22:00'] },
         ],
       },
     ],
@@ -135,9 +142,12 @@ const theatersData = [
         title: 'Doraemon: Nobita và Bản Giao Hưởng Địa Cầu',
         poster: doraemonImage,
         showtimes: [
-          { date: '2025-10-25', times: ['17:00', '18:00'] },
-          { date: '2025-10-27', times: ['19:30'] },
-          { date: '2025-10-29', times: ['17:45', '19:45', '21:45'] }
+          { date: '2025-11-02', times: ['20:00', '21:30'] },
+          { date: '2025-11-03', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-04', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-05', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-06', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-07', times: ['18:00', '19:30', '20:45', '21:15', '22:00'] },
         ],
       },
       {
@@ -145,10 +155,12 @@ const theatersData = [
         title: 'Hành Tinh Khỉ: Vương Quốc Mới',
         poster: planetApesImage,
         showtimes: [
-          { date: '2025-10-25', times: ['20:20', '22:10'] },
-          { date: '2025-10-27', times: ['17:45', '19:45', '21:45'] },
-          { date: '2025-10-28', times: ['17:45', '19:45', '21:45'] },
-          { date: '2025-10-30', times: ['17:45', '19:45', '21:45'] }
+          { date: '2025-11-02', times: ['20:00', '21:30'] },
+          { date: '2025-11-03', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-04', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-05', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-06', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-07', times: ['18:00', '19:30', '20:45', '21:15', '22:00'] },
         ],
       },
     ],
@@ -164,9 +176,11 @@ const theatersData = [
         title: 'Lật Mặt 7: Một Điều Ước',
         poster: latMatImage,
         showtimes: [
-          { date: '2025-10-27', times: ['20:15', '21:00', '22:30'] },
-          { date: '2025-10-28', times: ['17:45', '19:45', '21:45'] },
-          { date: '2025-10-29', times: ['17:45', '19:45', '21:45'] }
+          { date: '2025-11-02', times: ['20:00', '21:30'] },
+          { date: '2025-11-03', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-04', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-05', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-06', times: ['17:45', '19:45', '21:45'] },
         ],
       },
        {
@@ -174,9 +188,12 @@ const theatersData = [
         title: 'Garfield: Mèo Béo Siêu Quậy',
         poster: garfieldImage,
         showtimes: [
-          { date: '2025-10-28', times: ['18:45', '19:45'] },
-          { date: '2025-10-29', times: ['17:45', '19:45', '21:45'] },
-          { date: '2025-10-30', times: ['17:45', '19:45', '21:45'] }
+          { date: '2025-11-02', times: ['20:00', '21:30'] },
+          { date: '2025-11-03', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-04', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-05', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-06', times: ['17:45', '19:45', '21:45'] },
+          { date: '2025-11-07', times: ['18:00', '19:30', '20:45', '21:15', '22:00'] },
         ],
       },
     ],
@@ -184,10 +201,9 @@ const theatersData = [
 ];
 
 
-const regions = ['All', ...new Set(theatersData.map(t => t.region))];
-const availableDates = generateDates();
 
-// --- Component con: MovieCard ---
+const regions = ['All Regions', ...new Set(theatersData.map(t => t.region))];
+const availableDates = generateDates();
 const MovieCard = ({ movie, selectedDate }) => {
   const showtimesForSelectedDate = movie.showtimes.find(st => st.date === selectedDate);
 
@@ -240,7 +256,7 @@ const MovieCard = ({ movie, selectedDate }) => {
   );
 };
 
-// --- Component con: TheaterCard ---
+
 const TheaterCard = ({ theater, selectedDate }) => {
   const moviesForSelectedDate = theater.movies.filter(movie =>
     movie.showtimes.some(st => st.date === selectedDate)
@@ -262,7 +278,7 @@ const TheaterCard = ({ theater, selectedDate }) => {
           {moviesForSelectedDate.length > 0 ? (
             moviesForSelectedDate.map(movie => <MovieCard key={movie.id} movie={movie} selectedDate={selectedDate} />)
           ) : (
-            <p className="text-muted text-center py-3">Không có suất chiếu tại rạp này trong ngày đã chọn.</p>
+            <p className="text-muted text-center py-3">No matching showtimes available.</p>
           )}
         </ListGroup>
       </Card.Body>
@@ -270,22 +286,41 @@ const TheaterCard = ({ theater, selectedDate }) => {
   );
 };
 
-// --- Component chính: App ---
+
 export default function Theaters() {
-  const [selectedRegion, setSelectedRegion] = useState('Tất cả');
+  const [selectedRegion, setSelectedRegion] = useState('All Regions');
   const [selectedDate, setSelectedDate] = useState(availableDates[0].value);
+  const [selectedTheaterId, setSelectedTheaterId] = useState('All Theaters');
+
+  const availableTheaters = useMemo(() => {
+    if (selectedRegion === 'All Regions') {
+      return []; 
+    }
+    return theatersData.filter(t => t.region === selectedRegion);
+  }, [selectedRegion]);
+
+  const handleRegionChange = (e) => {
+    setSelectedRegion(e.target.value);
+    setSelectedTheaterId('All Theaters'); 
+  }; 
 
   const filteredTheaters = useMemo(() => {
-    const theatersInRegion = selectedRegion === 'Tất cả'
-      ? theatersData
-      : theatersData.filter(theater => theater.region === selectedRegion);
+    let theaters = theatersData;
 
-    return theatersInRegion.filter(theater => 
+    if (selectedRegion !== 'All Regions') {
+      theaters = theaters.filter(theater => theater.region === selectedRegion);
+    }
+
+    if (selectedTheaterId !== 'All Theaters') {
+      theaters = theaters.filter(theater => theater.id.toString() === selectedTheaterId);
+    }
+
+    return theaters.filter(theater => 
       theater.movies.some(movie => 
         movie.showtimes.some(st => st.date === selectedDate)
       )
     );
-  }, [selectedRegion, selectedDate]);
+  }, [selectedRegion, selectedTheaterId, selectedDate]); 
 
   return (
     <div
@@ -304,32 +339,46 @@ export default function Theaters() {
           <p className="lead text-muted">Pick a theater and book your tickets today!!</p>
         </header>
 
-        {/* --- Bộ lọc --- */}
         <Row className="justify-content-center mb-4 g-3">
-            <Col md={5} lg={4}>
-                <Form.Select value={selectedRegion} onChange={(e) => setSelectedRegion(e.target.value)}>
-                    {regions.map(region => <option key={region} value={region}>{region}</option>)}
-                </Form.Select>
-            </Col>
+          <Col md={5} lg={4}>
+            <Form.Select value={selectedRegion} onChange={handleRegionChange}className="custom-select-dark">
+                {regions.map(region => <option key={region} value={region}>{region}</option>)}
+            </Form.Select>
+          </Col>
+          
+          <Col md={5} lg={4}>
+            <Form.Select
+              value={selectedTheaterId}
+              onChange={(e) => setSelectedTheaterId(e.target.value)}
+              disabled={selectedRegion === 'All Regions'}
+              className="custom-select-dark"
+            >
+              {/* Fixed typo in value here */}
+              <option value="All Theaters">All Theaters</option> 
+              {availableTheaters.map(theater => (
+                <option key={theater.id} value={theater.id}>
+                  {theater.name}
+                </option>
+              ))}
+            </Form.Select>
+          </Col>
         </Row>
+        
         <Row className="justify-content-center mb-5">
-            <Col xs={12}>
-                <div className="d-flex justify-content-center flex-wrap gap-2">
-                    {availableDates.map(date => (
-                        <Button
-                            key={date.value}
-                            variant={selectedDate === date.value ? 'primary' : 'outline-secondary'}
-                            onClick={() => setSelectedDate(date.value)}
-                        >
-                            {date.label}
-                        </Button>
-                    ))}
-                </div>
-            </Col>
+          <Col xs={12}>
+            <div className="d-flex justify-content-center flex-wrap gap-2 date-filter-container">
+              {availableDates.map(date => (
+                <Button
+                  key={date.value}
+                  variant={selectedDate === date.value ? 'primary' : 'outline-secondary'}
+                  onClick={() => setSelectedDate(date.value)}
+                >
+                  {date.label}
+                </Button>
+              ))}
+            </div>
+          </Col>
         </Row>
-
-
-        {/* --- Danh sách rạp chiếu --- */}
         <main>
           <Row>
             <Col md={12} lg={10} xl={8} className="mx-auto">
@@ -350,4 +399,3 @@ export default function Theaters() {
     </div>
   );
 }
-
