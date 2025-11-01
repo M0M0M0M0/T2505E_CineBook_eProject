@@ -8,23 +8,32 @@ export default function MovieCard({ movie }) {
 
   const handleCardClick = (e) => {
     // Nếu người dùng click vào nút play hoặc nút mua vé thì không chuyển trang
-    if (
-      e.target.closest(".play-btn") ||
-      e.target.closest(".buy-btn")
-    ) {
+    if (e.target.closest(".play-btn") || e.target.closest(".buy-btn")) {
       return;
     }
-    navigate(`/movie/${movie.id}`); // điều hướng sang trang chi tiết
+    navigate(`/movie/${movie.id}`);
   };
+
+  const getEmbedUrl = (url) => {
+    if (!url) return "";
+    return url.includes("watch?v=") ? url.replace("watch?v=", "embed/") : url;
+  };
+  console.log("Trailer link value:", movie.trailer_link);
+  console.log("Embed URL:", getEmbedUrl(movie.trailer_link));
 
   return (
     <>
+      {/* --- Movie Card --- */}
       <div className="movie-card" onClick={handleCardClick}>
         <div className="poster-container">
           <img src={movie.img} alt={movie.title} className="poster" />
+
           <button
             className="play-btn"
-            onClick={() => setShowTrailer(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowTrailer(true);
+            }}
           >
             ▶
           </button>
@@ -32,35 +41,34 @@ export default function MovieCard({ movie }) {
 
         <button
           className="buy-btn"
-          onClick={() => navigate(`/movie/${movie.id}`)}
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/movie/${movie.id}`);
+          }}
         >
           MUA VÉ NGAY 🎟️
         </button>
 
         <div className="movie-info">
           <h3 className="movie-title">{movie.title}</h3>
-          <p className="movie-genre">Thể loại phim: {movie.genre}</p>
+          <p className="movie-genre">{movie.genre}</p>
         </div>
       </div>
 
-      {showTrailer && (
+      {/* --- Trailer Modal (iframe đặt ở đây) --- */}
+      {showTrailer && movie.trailer_link && (
         <div className="trailer-modal" onClick={() => setShowTrailer(false)}>
           <div className="trailer-content" onClick={(e) => e.stopPropagation()}>
             <iframe
-              src={
-                movie.trailer?.includes("watch?v=")
-                  ? movie.trailer.replace("watch?v=", "embed/")
-                  : movie.trailer
-              }
+              src={getEmbedUrl(movie.trailer_link)}
               title="Trailer"
               frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="autoplay; encrypted-media; picture-in-picture"
               allowFullScreen
             ></iframe>
           </div>
         </div>
       )}
-
     </>
   );
 }

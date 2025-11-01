@@ -1,9 +1,3 @@
-/**
- * Movies.jsx
- * Trang danh sách phim — gồm HeroBanner, SearchBar, FilterPanel, MovieCard.
- * Dữ liệu lấy từ src/components/utilities/constants.js
- */
-
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import HeroBanner from "./components/HeroBanner";
@@ -11,36 +5,46 @@ import SearchBar from "./components/SearchBar";
 import FilterPanel from "./components/FilterPanel";
 import MovieCard from "./components/MovieCard";
 import "./Movies.css";
-// ✅ Import đúng kiểu named export (phù hợp với file constants.js)
-import * as constants from "../../components/utilities/constants";
-
 
 function Movies() {
-  // ✅ Lấy dữ liệu từ constants
   const location = useLocation();
-  const moviesData = constants.movies || [];
-  const banners = constants.banners || [];
 
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+  const [banners, setBanners] = useState([
+    // Bạn vẫn có thể giữ các banner mặc định
+    { img: "banner1.jpg", title: "Banner 1" },
+    { img: "banner2.jpg", title: "Banner 2" },
+    { img: "banner3.jpg", title: "Banner 3" },
+  ]);
 
-  // ✅ Khi URL thay đổi, lấy query ?search=
+  // Lấy query search từ URL
   useEffect(() => {
-  const params = new URLSearchParams(location.search);
-  const search = params.get("search") || "";
-  setSearchTerm(search);
-}, [location.search]);
+    const params = new URLSearchParams(location.search);
+    const search = params.get("search") || "";
+    setSearchTerm(search);
+  }, [location.search]);
 
-  // ✅ Load dữ liệu phim
+  // ✅ Lấy dữ liệu từ API
   useEffect(() => {
-    setMovies(moviesData);
-    setFilteredMovies(moviesData);
-  }, [moviesData]);
+    const fetchMovies = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/movies");
+        if (!response.ok) throw new Error("Failed to fetch movies");
+        const data = await response.json();
+        setMovies(data);
+        setFilteredMovies(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchMovies();
+  }, []);
 
-  // ✅ Lọc và tìm kiếm
+  // Lọc và tìm kiếm
   useEffect(() => {
     let results = movies.filter((movie) =>
       movie.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -52,7 +56,6 @@ function Movies() {
       );
     }
 
-    // ⚠️ selectedCity không có trong constants.js — chỉ để tương lai
     if (selectedCity) {
       results = results.filter((movie) => movie.city === selectedCity);
     }
@@ -62,14 +65,12 @@ function Movies() {
 
   return (
     <div className="movies-page-container bg-dark text-light min-vh-100">
-      {/* Banner đầu trang */}
       <HeroBanner
         title="Now Showing"
         subtitle="Explore our movie collection"
         banners={banners}
       />
 
-      {/* Thanh tìm kiếm + Bộ lọc */}
       <div className="movies-controls container my-4">
         <SearchBar
           placeholder="Search by movie title..."
@@ -93,19 +94,19 @@ function Movies() {
         />
       </div>
 
-      {/* Danh sách phim */}
       <div className="movies-list container pb-5">
         <div className="row g-4">
           {filteredMovies.map((movie) => (
-            <div key={movie.id} className="col-6 col-md-4 col-lg-3">
+            <div key={movie.movie_id} className="col-6 col-md-4 col-lg-3">
               <MovieCard
                 movie={{
                   title: movie.title,
-                  genre: movie.genre,
-                  rating: movie.rating,
-                  votes: movie.votes,
-                  img: movie.img,
-                  promoted: movie.promoted,
+                  genre: movie.genres.map((g) => g.name).join(", "),
+                  rating: movie.vote_average,
+                  votes: movie.vote_count || 0, // nếu API có votes
+                  img: movie.poster_path,
+                  promoted: movie.promoted || false,
+                  trailer_link: movie.trailer_link,
                 }}
               />
             </div>
