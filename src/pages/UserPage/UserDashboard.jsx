@@ -64,8 +64,21 @@ const UserDashboard = () => {
       poster:
         "https://mlpnk72yciwc.i.optimole.com/cqhiHLc.IIZS~2ef73/w:auto/h:auto/q:75/https://bleedingcool.com/wp-content/uploads/2024/03/inside_out_two_ver12.jpg",
       date: "10 Aug 2025",
+      time: "17:30 PM", 
+      address: "101 Ton Dat Tien, District 7, HCMC", 
       seats: ["F7", "F8"],
       status: "Completed",
+      language: "English, Sub: Vietnamese",
+      format: "2D",
+      duration: "1h 45m",
+      room: "Screen 2",
+      bookingId: "BK2025-IO2-0810",
+      quantity: 2,
+      ticketPrice: 150000,
+      foodPrice: 60000,
+      total: 360000,
+      payment: "ZaloPay",
+      paidTime: "10 Aug 2025, 17:00",
     },
   ];
 
@@ -78,25 +91,16 @@ const UserDashboard = () => {
         <img src={ticket.poster} alt={ticket.movie} className="ticket-card-img" />
         <div>
           <h5 className="ticket-card-title">{ticket.movie}</h5>
-          <p>
-            <strong>Theater:</strong> {ticket.theater}
-          </p>
-          <p>
-            <strong>Date:</strong> {ticket.date}
-          </p>
-          <p>
-            <strong>Seats:</strong> {ticket.seats.join(", ")}
-          </p>
-
-          {/* 👇 Chỉ hiển thị View Detail ở tab My Tickets */}
-          {!isHistory && (
-            <button
-              className="btn btn-warning mt-2"
-              onClick={() => handleViewDetails(ticket)}
-            >
-              View Details
-            </button>
-          )}
+          <p><strong>Theater:</strong> {ticket.theater}</p>
+          <p><strong>Date:</strong> {ticket.date}</p>
+          <p><strong>Seats:</strong> {ticket.seats.join(", ")}</p>
+          <p><strong>Status:</strong> {ticket.status}</p>
+          <button
+            className="btn btn-warning mt-2"
+            onClick={() => handleViewDetails(ticket)}
+          >
+            View Details
+          </button>
         </div>
       </div>
     </div>
@@ -211,7 +215,6 @@ const UserDashboard = () => {
                   Close
                 </button>
 
-                {/* 👇 Nút Download chỉ hiện trong My Tickets */}
                 {activeTab === "tickets" && (
                   <button type="button" className="btn btn-warning ticket-btn">
                     Download E-Ticket
