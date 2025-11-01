@@ -7,13 +7,6 @@ import planetApesImage from '../../assets/img/kingdom_of_the_planet_of_the_apes.
 import garfieldImage from '../../assets/img/The_Garfield_Movie.jpg';
 import backgroundImage from '../../assets/img/background-theater.jpg';
 
-
-
-// --- Ghi chú của người sửa lỗi: Lỗi không thể giải quyết 'react-bootstrap-icons'.
-// --- Đã xóa import JavaScript và thay thế bằng các lớp CSS của Bootstrap Icons.
-// --- Giả định rằng CSS của Bootstrap Icons được tải cùng với CSS Bootstrap chính.
-
-// --- Helper Function: Tạo danh sách các ngày sắp tới ---
 const generateDates = () => {
   const dates = [];
   const today = new Date();
