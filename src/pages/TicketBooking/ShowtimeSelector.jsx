@@ -1,40 +1,53 @@
-import React from "react";
-import "./ShowtimeSelector.css";
+import React, { useState, useEffect } from "react";
 
-export default function ShowtimeSelector({ showtimes = [], onSelectShowtime }) {
+export default function ShowtimeSelector({ onSelectShowtime }) {
+  const [showtimes, setShowtimes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchShowtimes = async () => {
+      try {
+        // Lấy movie_id từ URL
+        const movieId = window.location.pathname.split("/").pop();
+
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/movies/${movieId}/showtimes`
+        );
+        if (!response.ok) throw new Error("Failed to fetch showtimes");
+        const data = await response.json();
+        setShowtimes(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchShowtimes();
+  }, []);
+
+  if (loading) return <p>Loading showtimes...</p>;
+  if (!showtimes.length) return <p>No showtimes available.</p>;
+
   return (
-    <div className="showtime-section">
-      <h3>Chọn rạp và suất chiếu</h3>
-
-      {showtimes.length === 0 ? (
-        <p>Hiện chưa có suất chiếu cho phim này.</p>
-      ) : (
-        showtimes.map((cinema, index) => (
-          <div key={index} className="cinema-item">
-            <div className="cinema-header">
-              <div>
-                <h4>{cinema.cinema}</h4>
-                <p>
-                  {cinema.city} • Ngày chiếu:{" "}
-                  <span className="cinema-date">{cinema.date}</span>
-                </p>
-              </div>
-            </div>
-
-            <div className="showtime-list">
-              {cinema.times?.map((time, i) => (
-                <button
-                  key={i}
-                  className="showtime-btn"
-                  onClick={() => onSelectShowtime({ cinema, time })}
-                >
-                  {time}
-                </button>
-              ))}
-            </div>
-          </div>
-        ))
-      )}
+    <div>
+      {showtimes.map((showtime) => (
+        <button
+          key={showtime.showtime_id}
+          onClick={() => onSelectShowtime(showtime)}
+          style={{
+            margin: "5px",
+            padding: "10px 20px",
+            background: "#f90",
+            border: "none",
+            borderRadius: "5px",
+            color: "#000",
+            cursor: "pointer",
+          }}
+        >
+          {new Date(showtime.start_time).toLocaleString()} - {showtime.room.room_name} ({showtime.room.theater.theater_name})
+        </button>
+      ))}
     </div>
   );
 }

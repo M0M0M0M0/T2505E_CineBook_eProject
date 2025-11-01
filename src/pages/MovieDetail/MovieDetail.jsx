@@ -3,13 +3,21 @@ import { useParams } from "react-router-dom";
 import "./MovieDetail.css";
 import ShowtimeSelector from "../TicketBooking/ShowtimeSelector";
 import BookingSection from "../TicketBooking/BookingSection";
+import FoodSelection from "../TicketBooking/FoodSelection";
+import PaymentSection from "../TicketBooking/PaymentSection";
 
 export default function MovieDetail() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
-  const [step, setStep] = useState("detail");
+  const [step, setStep] = useState("detail"); // detail → showtime → seat → food → payment
   const [embedTrailer, setEmbedTrailer] = useState("");
+
+  const [selectedShowtime, setSelectedShowtime] = useState(null);
+  const [selectedSeats, setSelectedSeats] = useState([]);
+  const [seatTotal, setSeatTotal] = useState(0);
+  const [selectedFoods, setSelectedFoods] = useState([]);
+  const [foodTotal, setFoodTotal] = useState(0);
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -50,7 +58,23 @@ export default function MovieDetail() {
     );
 
   const handleBookNow = () => setStep("showtime");
-  const handleSelectShowtime = () => setStep("seat");
+
+  const handleSelectShowtime = (showtime) => {
+    setSelectedShowtime(showtime);
+    setStep("seat");
+  };
+
+  const handleSelectSeats = ({ seats, total }) => {
+    setSelectedSeats(seats);
+    setSeatTotal(total);
+    setStep("food");
+  };
+
+  const handleSelectFoods = ({ foods, total }) => {
+    setSelectedFoods(foods);
+    setFoodTotal(total);
+    setStep("payment");
+  };
 
   return (
     <div
@@ -63,12 +87,11 @@ export default function MovieDetail() {
       }}
     >
       <div className="movie-detail-inner container">
-        {/* ---------- HEADER ---------- */}
+        {/* HEADER */}
         <div
           className="movie-detail-header row align-items-start"
           style={{ marginBottom: "40px" }}
         >
-          {/* Poster */}
           <div className="col-md-4 text-center">
             <img
               src={movie.poster_path}
@@ -77,17 +100,12 @@ export default function MovieDetail() {
               style={{ maxHeight: "500px", objectFit: "cover" }}
             />
           </div>
-
-          {/* Info */}
           <div className="col-md-8">
             <h2 className="md-title mb-3">{movie.title}</h2>
-
             <p className="md-meta text-secondary mb-2">
               {movie.genre && <>{movie.genre} | </>}⭐ {movie.vote_average}
               {movie.vote_count ? ` (${movie.vote_count} votes)` : ""}
             </p>
-
-            {/* Các thông tin bổ sung */}
             <p className="md-extra mb-1">
               <strong>Thời lượng:</strong>{" "}
               {movie.duration ? `${movie.duration} phút` : "N/A"}
@@ -97,7 +115,6 @@ export default function MovieDetail() {
               {movie.release_date || "Chưa cập nhật"}
             </p>
 
-            {/* Overview */}
             <div
               className="md-overview text-light mb-4"
               style={{ lineHeight: "1.6" }}
@@ -106,7 +123,6 @@ export default function MovieDetail() {
               <p>{movie.overview || "Chưa có mô tả"}</p>
             </div>
 
-            {/* Buttons */}
             <div className="md-actions d-flex gap-3 mt-4">
               <button
                 className="detail-booknow-btn px-4 py-2"
@@ -127,7 +143,7 @@ export default function MovieDetail() {
           </div>
         </div>
 
-        {/* ---------- SHOWTIME / SEAT SELECTION ---------- */}
+        {/* STEPS */}
         {step === "showtime" && (
           <div className="showtime-section">
             <h3 style={{ color: "white" }}>Bước 1: Chọn suất chiếu</h3>
@@ -138,11 +154,46 @@ export default function MovieDetail() {
         {step === "seat" && (
           <div className="seat-section">
             <h3 style={{ color: "white" }}>Bước 2: Chọn ghế</h3>
-            <BookingSection movieTitle={movie.title} />
+            <BookingSection
+              movieTitle={movie.title}
+              selectedSeats={selectedSeats} // <-- thêm
+              setSelectedSeats={setSelectedSeats} // <-- thêm
+              onSelectSeats={handleSelectSeats}
+              onBack={() => setStep("showtime")}
+            />
           </div>
         )}
 
-        {/* ---------- TRAILER POPUP ---------- */}
+        {step === "food" && (
+          <div className="food-section">
+            <h3 style={{ color: "white" }}>Bước 3: Chọn đồ ăn</h3>
+            <FoodSelection
+              selectedSeats={selectedSeats}
+              seatTotal={seatTotal}
+              selectedFoods={selectedFoods} // thêm
+              setSelectedFoods={setSelectedFoods} // thêm
+              onComplete={handleSelectFoods}
+              onBack={() => setStep("seat")}
+            />
+          </div>
+        )}
+
+        {step === "payment" && (
+          <div className="payment-section">
+            <h3 style={{ color: "white" }}>Bước 4: Thanh toán</h3>
+            <PaymentSection
+              movieTitle={movie.title}
+              selectedShowtime={selectedShowtime}
+              selectedSeats={selectedSeats}
+              seatTotal={seatTotal}
+              selectedFoods={selectedFoods}
+              foodTotal={foodTotal}
+              onBack={() => setStep("food")} // Thêm nút quay lại bước chọn đồ ăn
+            />
+          </div>
+        )}
+
+        {/* TRAILER POPUP */}
         {showTrailer && embedTrailer && (
           <div
             className="trailer-modal-overlay"

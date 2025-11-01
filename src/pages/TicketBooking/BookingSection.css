@@ -186,3 +186,6 @@
 .booking-summary button:hover {
   background: #ffd84a;
 }
+.back-button{
+  margin-right: 10px;
+}

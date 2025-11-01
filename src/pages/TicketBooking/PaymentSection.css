@@ -1,0 +1,88 @@
+.payment-summary {
+  background-color: #1c1c1c;
+  padding: 20px;
+  border-radius: 12px;
+  color: #fff;
+  max-width: 600px;
+  margin: 20px auto;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+}
+
+.payment-summary h4 {
+  text-align: center;
+  color: #ffcc00;
+  margin-bottom: 20px;
+}
+
+.payment-summary h5 {
+  color: #ffcc00;
+  margin-top: 15px;
+  margin-bottom: 8px;
+}
+
+.payment-summary p {
+  margin: 6px 0;
+}
+
+.seat-list,
+.food-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px 0;
+}
+
+.seat-list li,
+.food-list li {
+  background-color: #2c2c2c;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 5px;
+}
+
+.total-amount {
+  text-align: center;
+  margin-top: 15px;
+  color: #ffcc00;
+}
+
+/* Container cho các nút */
+.payment-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+/* Nút quay lại */
+.back-button {
+  flex: 1;
+  padding: 12px 0;
+  border: none;
+  border-radius: 8px;
+  background-color: #555;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.back-button:hover {
+  background-color: #777;
+}
+
+/* Nút thanh toán */
+.payment-button {
+  flex: 1;
+  padding: 12px 0;
+  border: none;
+  border-radius: 8px;
+  background-color: #ffcc00;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.payment-button:hover {
+  background-color: #e6b800;
+}
