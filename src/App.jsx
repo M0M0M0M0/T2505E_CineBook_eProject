@@ -38,6 +38,7 @@ function App() {
         <Route path="/my-tickets" element={<UserDashboard />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="movies/:id" element={<MovieDetail />} />
 
 
       {/* <Movies /> */}

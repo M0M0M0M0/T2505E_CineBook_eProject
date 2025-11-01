@@ -11,7 +11,7 @@ export default function MovieCard({ movie }) {
     if (e.target.closest(".play-btn") || e.target.closest(".buy-btn")) {
       return;
     }
-    navigate(`/movie/${movie.id}`);
+    navigate(`/movies/${movie.movie_id}`);
   };
 
   const getEmbedUrl = (url) => {
@@ -43,7 +43,7 @@ export default function MovieCard({ movie }) {
           className="buy-btn"
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/movie/${movie.id}`);
+            navigate(`/movies/${movie.movie_id}`);
           }}
         >
           MUA VÉ NGAY 🎟️

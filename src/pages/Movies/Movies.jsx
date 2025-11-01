@@ -107,6 +107,8 @@ function Movies() {
                   img: movie.poster_path,
                   promoted: movie.promoted || false,
                   trailer_link: movie.trailer_link,
+                  movie_id: movie.movie_id,
+                  overview: movie.overview,
                 }}
               />
             </div>
