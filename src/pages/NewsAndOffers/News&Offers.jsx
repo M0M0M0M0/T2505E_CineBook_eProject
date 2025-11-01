@@ -167,7 +167,7 @@ export default function Offers() {
   return (
     <div className=" min-h-screen font-sans">
       <div className="container mx-auto px-4 py-12">
-        <h1 className="page-title text-4xl font-bold text-center mb-8" style={{ color: '#ffd54f' }}>
+        <h1 className="page-title text-4xl font-bold text-center mb-8" style={{ color: '#ffd54f', paddingTop: '30px' }}>
           SPECIAL OFFERS
         </h1>
         <br/>
