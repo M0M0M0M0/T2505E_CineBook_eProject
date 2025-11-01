@@ -144,7 +144,7 @@ const OfferCard = ({ offer, onClick }) => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"/>
       </div>
       <div className="p-6 relative">
-        <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors" style={{ color: '#ffd54f' }}>{offer.title}</h3>
+        <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors" style={{ color: '#ffd27a' }}>{offer.title}</h3>
         <p className="text-gray-600 text-sm leading-relaxed">{offer.summary}</p>
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"/>
       </div>
@@ -167,7 +167,7 @@ export default function Offers() {
   return (
     <div className=" min-h-screen font-sans">
       <div className="container mx-auto px-4 py-12">
-        <h1 className="page-title text-4xl font-bold text-center mb-8" style={{ color: '#ffd54f', paddingTop: '30px' }}>
+        <h1 className="page-title text-4xl font-bold text-center mb-8" style={{ color: '#ffd27a', paddingTop: '30px' }}>
           SPECIAL OFFERS
         </h1>
         <br/>
@@ -186,7 +186,7 @@ export default function Offers() {
         centered
       >
         <Modal.Header closeButton className="border-0 pb-0">
-          <Modal.Title className="text-2xl font-bold text-blue-600"style={{ color: '#ffd54f' }}>{selectedOffer?.details?.fullTitle}</Modal.Title>
+          <Modal.Title className="text-2xl font-bold text-blue-600"style={{ color: '#ffd27a' }}>{selectedOffer?.details?.fullTitle}</Modal.Title>
         </Modal.Header>
         <Modal.Body className="px-6" >
           {selectedOffer && (

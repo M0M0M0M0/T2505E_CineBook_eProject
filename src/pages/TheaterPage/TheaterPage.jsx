@@ -202,7 +202,7 @@ const theatersData = [
 
 
 
-const regions = ['All Regions', ...new Set(theatersData.map(t => t.region))];
+const regions = ['All Cities', ...new Set(theatersData.map(t => t.region))];
 const availableDates = generateDates();
 const MovieCard = ({ movie, selectedDate }) => {
   const showtimesForSelectedDate = movie.showtimes.find(st => st.date === selectedDate);
@@ -224,8 +224,8 @@ const MovieCard = ({ movie, selectedDate }) => {
           />
         </Col>
         <Col xs={9} sm={10}>
-          <h5 className="fw-bold mb-1" style={{ color: '#ffd54f' }}>{movie.title}</h5>
-          <p className=" medium mb-2" style={{ color: '#ffd54f' }}><i className="bi bi-clock-fill me-2"></i>Showtimes</p>
+          <h5 className="fw-bold mb-1" style={{ color: '#ffd27a' }}>{movie.title}</h5>
+          <p className=" medium mb-2" style={{ color: '#ffd27a' }}><i className="bi bi-clock-fill me-2"></i>Showtimes</p>
           <div className="d-flex flex-wrap gap-2">
             {showtimesForSelectedDate.times.map(time => (
               <Button 
@@ -288,12 +288,12 @@ const TheaterCard = ({ theater, selectedDate }) => {
 
 
 export default function Theaters() {
-  const [selectedRegion, setSelectedRegion] = useState('All Regions');
+  const [selectedRegion, setSelectedRegion] = useState('All Cities');
   const [selectedDate, setSelectedDate] = useState(availableDates[0].value);
   const [selectedTheaterId, setSelectedTheaterId] = useState('All Theaters');
 
   const availableTheaters = useMemo(() => {
-    if (selectedRegion === 'All Regions') {
+    if (selectedRegion === 'All Cities') {
       return []; 
     }
     return theatersData.filter(t => t.region === selectedRegion);
@@ -307,7 +307,7 @@ export default function Theaters() {
   const filteredTheaters = useMemo(() => {
     let theaters = theatersData;
 
-    if (selectedRegion !== 'All Regions') {
+    if (selectedRegion !== 'All Cities') {
       theaters = theaters.filter(theater => theater.region === selectedRegion);
     }
 
