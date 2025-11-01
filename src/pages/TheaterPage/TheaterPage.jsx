@@ -265,14 +265,14 @@ const TheaterCard = ({ theater, selectedDate }) => {
   return (
     <Card className="mb-4 shadow-sm" style={{ backgroundColor: 'black' }}>
       <Card.Body>
-        <Card.Title as="h3" className="fw-bold" style={{ color: '#ffd54f' }}>
+        <Card.Title as="h3" className="fw-bold" style={{ color: '#ffd27a' }}>
           {theater.name}
         </Card.Title>
-        <Card.Subtitle className="mb-2" style={{ color: '#ffd54f' }}>
+        <Card.Subtitle className="mb-2" style={{ color: '#ffd27a' }}>
           <i className="bi bi-geo-alt-fill me-2" ></i>{theater.address}
         </Card.Subtitle>
       </Card.Body>
-      <Card.Body className="border-top" style={{ color: '#ffd54f' }}>
+      <Card.Body className="border-top" style={{ color: '#ffd27a' }}>
         <h4 className="h6 text-uppercase "><i className="bi bi-film me-2"></i>Now Showing</h4>
         <ListGroup variant="flush">
           {moviesForSelectedDate.length > 0 ? (
@@ -335,7 +335,7 @@ export default function Theaters() {
     >
       <Container className="py-5">
         <header className="text-center mb-5">
-          <h1 className="display-4 fw-bold " style={{ color: '#ffd54f' }} >Movies Schedules</h1>
+          <h1 className="display-4 fw-bold " style={{ color: '#ffd27a' }} >Movies Schedules</h1>
           <p className="lead text-muted">Pick a theater and book your tickets today!!</p>
         </header>
 
@@ -387,7 +387,7 @@ export default function Theaters() {
                   <TheaterCard key={theater.id} theater={theater} selectedDate={selectedDate} />
                 ))
               ) : (
-                <div className="text-center bg-black p-5 rounded shadow-sm" style={{ color: '#ffd54f' }}>
+                <div className="text-center bg-black p-5 rounded shadow-sm" style={{ color: '#ffd27a' }}>
                   <h2 className="h4" >No matching showtimes available. </h2>
                   <p className=" mt-2">Please try another location or date.</p>
                 </div>

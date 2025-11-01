@@ -1,7 +1,7 @@
 
 .form-select.custom-select-dark {
   background-color: #000; 
-  color: #ffd54f;          
+  color: #ffd27a;          
   border-color: #5a5a5a;   
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffd54f' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 }
@@ -14,8 +14,8 @@
 
 .form-select.custom-select-dark:focus {
   background-color: #000;
-  color: #ffd54f;
-  border-color: #ffd54f; 
+  color: #ffd27a;
+  border-color: #ffd27a; 
   box-shadow: 0 0 0 0.25rem rgba(255, 213, 79, 0.25); 
 }
 
@@ -28,14 +28,14 @@
 
 
 .date-filter-container .btn-outline-secondary {
-  color: #ffd54f;         
-  border-color: #ffd54f;   
+  color: #ffd27a;         
+  border-color: #ffd27a;   
 }
 
 .date-filter-container .btn-outline-secondary:hover {
   color: #ffffff;
   background-color: #000000;
-  border-color: #ffd54f;
+  border-color: #ffd27a;
   box-shadow: 0 0 10px #000000;
 }
 
@@ -43,14 +43,14 @@
 .date-filter-container .btn-primary {
   color: #000;           
   background-color: #ffd54f; 
-  border-color: #ffd54f;   
+  border-color: #ffd27a;   
 }
 
 .date-filter-container .btn-primary:hover,
 .date-filter-container .btn-primary:focus {
   color: #000;
   background-color: #ffca28; 
-  border-color: #ffc107;
+  border-color: #ffd27a;
   box-shadow: 0 0 10px #ffd27a;
 }
 

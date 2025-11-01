@@ -20,7 +20,7 @@
   box-shadow: 0 0 10px rgba(255, 193, 7, 0.1);
 }
 .user-dashboard-sidebar h3 {
-  color: #ffc107;
+  color: #ffd27a;
   margin-bottom: 25px;
 }
 .user-dashboard-sidebar ul {
@@ -36,7 +36,7 @@
 }
 .user-dashboard-sidebar li:hover,
 .user-dashboard-sidebar li.active {
-  background-color: #ffc107;
+  background-color: #ffd27a;
   color: #000;
   font-weight: 600;
 }
@@ -50,7 +50,7 @@
   box-shadow: 0 0 12px rgba(255, 193, 7, 0.1);
 }
 .user-dashboard-section h4 {
-  color: #ffc107;
+  color: #ffd27a;
   margin-bottom: 25px;
 }
 
@@ -83,7 +83,7 @@
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 6px;
-  color: #ffc107;
+  color: #ffd27a;
 }
 
 /* ==============================
@@ -188,5 +188,5 @@
   font-size: 16px;
   margin-top: 10px;
   margin-bottom: 6px;
-  color: #ffc107; 
+  color: #ffd27a; 
 }
