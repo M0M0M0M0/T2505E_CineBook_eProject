@@ -47,9 +47,9 @@ export default function Footer() {
               aria-label="Email"
               style={{ maxWidth: "250px" }}
             />
-            <button type="submit" className="btn btn-danger">
-              Subscribe
-            </button>
+           <button type="submit" className="btn btn-custom-yellow">
+            Subscribe
+           </button>
           </form>
         </div>
       </div>
