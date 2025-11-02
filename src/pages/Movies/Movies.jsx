@@ -44,6 +44,25 @@ function Movies() {
     fetchMovies();
   }, []);
 
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/movies");
+        if (!response.ok) throw new Error("Failed to fetch movies");
+        const data = await response.json();
+
+        // ✅ Chia dữ liệu: 20 phim cuối là Now Showing
+        const nowShowing = data.slice(-20);
+
+        setMovies(nowShowing);
+        setFilteredMovies(nowShowing);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchMovies();
+  }, []);
+
   // Lọc và tìm kiếm
   useEffect(() => {
     let results = movies.filter((movie) =>
