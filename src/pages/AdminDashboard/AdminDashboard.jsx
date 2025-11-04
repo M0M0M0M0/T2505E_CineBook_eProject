@@ -21,6 +21,7 @@ import {
   Eye,
   X as XIcon,
   Building,
+  Building2,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -251,6 +252,22 @@ export default function Dashboard() {
   });
   const [theaterError, setTheaterError] = useState("");
 
+  // --- Room & Seat Management ---
+const [showManageRooms, setShowManageRooms] = useState(false);
+const [selectedTheaterForRooms, setSelectedTheaterForRooms] = useState(null);
+
+const [rooms, setRooms] = useState([]);
+const [newRoom, setNewRoom] = useState({ room_name: "", room_type: "" });
+
+const [selectedRoom, setSelectedRoom] = useState(null);
+const [seats, setSeats] = useState([]);
+const [newSeat, setNewSeat] = useState({
+  seat_row: "",
+  seat_number: "",
+  seat_type_id: "",
+});
+
+
   const handleMenuClick = (name) => {
     if (name === activeMenu) return;
     setActiveMenu(name);
@@ -361,59 +378,112 @@ export default function Dashboard() {
   };
 
   // Handlers cho theater
-  const handleAddTheater = () => {
-    setIsAddTheater(true);
-    setEditTheater(null);
-    setTheaterForm({
-      name: "",
-      city: "",
-      address: "",
-      rooms: "",
-      seatCapacity: "",
-    });
-    setTheaterError("");
-  };
+const handleAddTheater = () => {
+  setIsAddTheater(true);
+  setEditTheater(null);
+  setTheaterForm({
+    theater_name: "",
+    theater_city: "",
+    theater_address: "",
+    theater_capacity: "",
+  });
+  setTheaterError("");
+};
 
-  const handleEditTheater = (theater, idx) => {
-    setEditTheater(idx);
-    setIsAddTheater(false);
-    setTheaterForm({
-      name: theater.name,
-      city: theater.city,
-      address: theater.address,
-      rooms: theater.rooms,
-      seatCapacity: theater.seatCapacity,
-    });
-    setTheaterError("");
-  };
+// ---- ROOM HANDLERS ----
+const handleManageRooms = (theater) => {
+  setSelectedTheaterForRooms(theater);
+  setShowManageRooms(true);
+  setRooms([]); // Later can load from backend
+};
 
-  const handleTheaterChange = (e) => {
-    setTheaterForm({ ...theaterForm, [e.target.name]: e.target.value });
-  };
+const handleAddRoom = () => {
+  if (!newRoom.room_name || !newRoom.room_type) return;
+  const roomData = { ...newRoom, seats: [] };
+  setRooms([...rooms, roomData]);
+  setNewRoom({ room_name: "", room_type: "" });
+};
 
-  const handleTheaterSave = () => {
-    const required = ["name", "city", "address", "rooms", "seatCapacity"];
-    for (let key of required) {
-      if (!theaterForm[key] || theaterForm[key].toString().trim() === "") {
-        setTheaterError("Please fill all required fields.");
-        return;
-      }
+const handleDeleteRoom = (index) => {
+  setRooms(rooms.filter((_, i) => i !== index));
+};
+
+const handleViewSeats = (room) => {
+  setSelectedRoom(room);
+  setSeats(room.seats || []);
+};
+
+// ---- SEAT HANDLERS ----
+const handleAddSeat = () => {
+  if (!newSeat.seat_row || !newSeat.seat_number || !newSeat.seat_type_id) return;
+  const seatData = { ...newSeat };
+  setSeats([...seats, seatData]);
+  setNewSeat({ seat_row: "", seat_number: "", seat_type_id: "" });
+};
+
+const handleDeleteSeat = (index) => {
+  setSeats(seats.filter((_, i) => i !== index));
+};
+
+
+const handleEditTheater = (theater, idx) => {
+  setEditTheater(idx);
+  setIsAddTheater(false);
+  setTheaterForm({
+    theater_name: theater.theater_name,
+    theater_city: theater.theater_city,
+    theater_address: theater.theater_address,
+    theater_capacity: theater.theater_capacity,
+  });
+  setTheaterError("");
+};
+
+const handleTheaterChange = (e) => {
+  setTheaterForm({ ...theaterForm, [e.target.name]: e.target.value });
+};
+
+const handleTheaterSave = () => {
+  const required = ["theater_name", "theater_city", "theater_address", "theater_capacity"];
+  for (let key of required) {
+    if (!theaterForm[key] || theaterForm[key].toString().trim() === "") {
+      setTheaterError("Please fill all required fields.");
+      return;
     }
-    setEditTheater(null);
-    setTheaterError("");
-  };
+  }
+  setEditTheater(null);
+  setTheaterError("");
+  // Add your API call or save logic here (PUT request to backend)
+};
 
-  const handleAddTheaterSave = () => {
-    const required = ["name", "city", "address", "rooms", "seatCapacity"];
-    for (let key of required) {
-      if (!theaterForm[key] || theaterForm[key].toString().trim() === "") {
-        setTheaterError("Please fill all required fields.");
-        return;
-      }
+const handleAddTheaterSave = () => {
+  const required = ["theater_name", "theater_city", "theater_address", "theater_capacity"];
+  for (let key of required) {
+    if (!theaterForm[key] || theaterForm[key].toString().trim() === "") {
+      setTheaterError("Please fill all required fields.");
+      return;
     }
-    setIsAddTheater(false);
-    setTheaterError("");
-  };
+  }
+
+  // Example API POST to Laravel backend
+  fetch("http://localhost:8000/api/theaters", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(theaterForm),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("Theater added:", data);
+      setIsAddTheater(false);
+      setTheaterError("");
+    })
+    .catch((err) => {
+      console.error("Error adding theater:", err);
+      setTheaterError("Failed to save theater.");
+    });
+};
+
 
   return (
     <div className="d-flex bg-light">
@@ -926,24 +996,27 @@ export default function Dashboard() {
                           <td>
                             <button
                               className="btn btn-sm btn-light me-1"
-                              title="Edit"
+                              title="Edit Theater Info"
                               onClick={() => handleEditTheater(theater, idx)}
                             >
                               <Pencil size={16} />
                             </button>
                             <button
                               className="btn btn-sm btn-light me-1"
-                              title="View Detail"
+                              title="Manage Rooms & Seats"
+                              onClick={() => handleManageRooms(theater)}
                             >
-                              <Eye size={16} />
+                              <Building2 size={16} />
                             </button>
                             <button
                               className="btn btn-sm btn-light"
                               title="Delete"
+                              onClick={() => console.log("Delete theater", idx)}
                             >
                               <XIcon size={16} color="#dc3545" />
                             </button>
                           </td>
+
                         </tr>
                       ))}
                     </tbody>
@@ -951,112 +1024,322 @@ export default function Dashboard() {
                 </motion.div>
               )}
 
-              {/* Form thêm/sửa rạp */}
-              {(editTheater !== null || isAddTheater) && (
-                <motion.div
-                  key="theater-form"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.2 }}
-                  style={{ maxWidth: 600, margin: "0 auto" }}
+             {/* Form thêm/sửa rạp */}
+{(editTheater !== null || isAddTheater) && (
+  <motion.div
+    key="theater-form"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -20 }}
+    transition={{ duration: 0.2 }}
+    style={{ maxWidth: 600, margin: "0 auto" }}
+    className="card shadow-sm border-0 p-4"
+  >
+    <h4 className="mb-4 text-center text-primary fw-semibold">
+      {isAddTheater ? "🎬 Add Theater" : "✏️ Edit Theater"}
+    </h4>
+
+    {theaterError && (
+      <div className="alert alert-danger py-2">{theaterError}</div>
+    )}
+
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        isAddTheater ? handleAddTheaterSave() : handleTheaterSave();
+      }}
+    >
+      <div className="mb-3">
+        <label className="form-label fw-semibold">
+          Theater Name <span className="text-danger">*</span>
+        </label>
+        <input
+          className="form-control border-primary"
+          name="theater_name"
+          placeholder="Enter theater name"
+          value={theaterForm.theater_name}
+          onChange={handleTheaterChange}
+          required
+        />
+      </div>
+
+                <div className="mb-3">
+        <label className="form-label">
+          City <span className="text-danger">*</span>
+        </label>
+        <select
+          className="form-control"
+          name="city"
+          value={theaterForm.city}
+          onChange={handleTheaterChange}
+          required
+        >
+          <option value="">Select a city</option>
+          <option value="Ha Noi">Ha Noi</option>
+          <option value="Ho Chi Minh">Ho Chi Minh</option>
+          <option value="Da Nang">Da Nang</option>
+        </select>
+      </div>
+
+
+
+      <div className="mb-3">
+        <label className="form-label fw-semibold">
+          Address <span className="text-danger">*</span>
+        </label>
+        <textarea
+          className="form-control border-primary"
+          name="theater_address"
+          placeholder="Enter full address"
+          value={theaterForm.theater_address}
+          onChange={handleTheaterChange}
+          rows="3"
+          required
+        />
+      </div>
+
+            <div className="mb-3">
+      <label className="form-label mb-0">
+        Number of Room: <span className="fw-semibold">20</span>
+      </label>
+    </div>
+
+
+
+      <div className="d-flex gap-2 justify-content-end mt-4">
+        <button type="submit" className="btn btn-primary">
+          💾 Save
+        </button>
+        <button
+          type="button"
+          className="btn btn-outline-secondary"
+          onClick={() => {
+            setEditTheater(null);
+            setIsAddTheater(false);
+          }}
+        >
+          ✖ Cancel
+        </button>
+      </div>
+    </form>
+  </motion.div>
+)}
+
+        {/* Manage Rooms and Seats */}
+{showManageRooms && selectedTheaterForRooms && (
+  <motion.div
+    key="manage-rooms"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -20 }}
+    transition={{ duration: 0.2 }}
+    className="card shadow-sm border-0 p-4"
+    style={{ maxWidth: 900, margin: "0 auto" }}
+  >
+    <h4 className="mb-4 text-center text-info fw-semibold">
+      🏢 Manage Rooms – {selectedTheaterForRooms.theater_name}
+    </h4>
+
+    {/* Add Room Form */}
+    <form
+      className="d-flex gap-2 align-items-end mb-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleAddRoom();
+      }}
+    >
+      <div className="flex-grow-1">
+        <label className="form-label fw-semibold">Room Name</label>
+        <input
+          className="form-control"
+          placeholder="Enter room name"
+          value={newRoom.room_name}
+          onChange={(e) =>
+            setNewRoom({ ...newRoom, room_name: e.target.value })
+          }
+          required
+        />
+      </div>
+      <div className="flex-grow-1">
+        <label className="form-label fw-semibold">Room Type</label>
+        <select
+          className="form-control"
+          value={newRoom.room_type}
+          onChange={(e) =>
+            setNewRoom({ ...newRoom, room_type: e.target.value })
+          }
+          required
+        >
+          <option value="">Select type</option>
+          <option value="Standard">Standard</option>
+          <option value="Deluxe">Deluxe</option>
+          <option value="VIP">VIP</option>
+        </select>
+      </div>
+      <button type="submit" className="btn btn-success">
+        ➕ Add Room
+      </button>
+    </form>
+
+    {/* Room Table */}
+    <table className="table table-hover align-middle">
+      <thead className="table-light">
+        <tr>
+          <th>Room Name</th>
+          <th>Type</th>
+          <th>Seats</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rooms.length === 0 ? (
+          <tr>
+            <td colSpan="4" className="text-center text-muted">
+              No rooms yet.
+            </td>
+          </tr>
+        ) : (
+          rooms.map((room, index) => (
+            <tr key={index}>
+              <td>{room.room_name}</td>
+              <td>{room.room_type}</td>
+              <td>{room.seats?.length || 0}</td>
+              <td>
+                <button
+                  className="btn btn-sm btn-outline-info me-2"
+                  onClick={() => handleViewSeats(room)}
                 >
-                  <h4 className="mb-3">
-                    {isAddTheater ? "Add Theater" : "Edit Theater"}
-                  </h4>
-                  {theaterError && (
-                    <div className="alert alert-danger py-2">
-                      {theaterError}
-                    </div>
-                  )}
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      isAddTheater
-                        ? handleAddTheaterSave()
-                        : handleTheaterSave();
-                    }}
-                  >
-                    <div className="mb-3">
-                      <label className="form-label">
-                        Name <span className="text-danger">*</span>
-                      </label>
-                      <input
-                        className="form-control"
-                        name="name"
-                        value={theaterForm.name}
-                        onChange={handleTheaterChange}
-                        required
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">
-                        City <span className="text-danger">*</span>
-                      </label>
-                      <input
-                        className="form-control"
-                        name="city"
-                        value={theaterForm.city}
-                        onChange={handleTheaterChange}
-                        required
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">
-                        Address <span className="text-danger">*</span>
-                      </label>
-                      <textarea
-                        className="form-control"
-                        name="address"
-                        value={theaterForm.address}
-                        onChange={handleTheaterChange}
-                        required
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">
-                        Number of Rooms <span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        name="rooms"
-                        value={theaterForm.rooms}
-                        onChange={handleTheaterChange}
-                        required
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">
-                        Seat Capacity <span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        name="seatCapacity"
-                        value={theaterForm.seatCapacity}
-                        onChange={handleTheaterChange}
-                        required
-                      />
-                    </div>
-                    <div className="d-flex gap-2">
-                      <button type="submit" className="btn btn-success">
-                        Save
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => {
-                          setEditTheater(null);
-                          setIsAddTheater(false);
-                        }}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </form>
-                </motion.div>
-              )}
+                  View Seats
+                </button>
+                <button
+                  className="btn btn-sm btn-outline-danger"
+                  onClick={() => handleDeleteRoom(index)}
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+
+    {/* Seat Management */}
+    {selectedRoom && (
+      <div className="mt-5">
+        <h5 className="fw-semibold text-primary mb-3">
+          🎟 Manage Seats – {selectedRoom.room_name}
+        </h5>
+
+        <form
+          className="d-flex gap-2 align-items-end mb-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleAddSeat();
+          }}
+        >
+          <div>
+            <label className="form-label">Row</label>
+            <input
+              className="form-control"
+              placeholder="A"
+              maxLength={1}
+              value={newSeat.seat_row}
+              onChange={(e) =>
+                setNewSeat({ ...newSeat, seat_row: e.target.value.toUpperCase() })
+              }
+              required
+            />
+          </div>
+          <div>
+            <label className="form-label">Number</label>
+            <input
+              type="number"
+              className="form-control"
+              placeholder="1"
+              value={newSeat.seat_number}
+              onChange={(e) =>
+                setNewSeat({ ...newSeat, seat_number: e.target.value })
+              }
+              required
+            />
+          </div>
+          <div className="flex-grow-1">
+            <label className="form-label">Seat Type</label>
+            <select
+              className="form-control"
+              value={newSeat.seat_type_id}
+              onChange={(e) =>
+                setNewSeat({ ...newSeat, seat_type_id: e.target.value })
+              }
+              required
+            >
+              <option value="">Select type</option>
+              <option value="STD">Standard</option>
+              <option value="VIP">VIP</option>
+              <option value="DLX">Deluxe</option>
+            </select>
+          </div>
+          <button type="submit" className="btn btn-success">
+            ➕ Add Seat
+          </button>
+        </form>
+
+        <table className="table table-hover align-middle">
+          <thead className="table-light">
+            <tr>
+              <th>Row</th>
+              <th>Number</th>
+              <th>Type</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {seats.length === 0 ? (
+              <tr>
+                <td colSpan="4" className="text-center text-muted">
+                  No seats yet.
+                </td>
+              </tr>
+            ) : (
+              seats.map((seat, index) => (
+                <tr key={index}>
+                  <td>{seat.seat_row}</td>
+                  <td>{seat.seat_number}</td>
+                  <td>{seat.seat_type_id}</td>
+                  <td>
+                    <button
+                      className="btn btn-sm btn-outline-danger"
+                      onClick={() => handleDeleteSeat(index)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    )}
+
+    {/* Back */}
+    <div className="d-flex justify-content-end mt-4">
+      <button
+        className="btn btn-outline-secondary"
+        onClick={() => {
+          setShowManageRooms(false);
+          setSelectedTheaterForRooms(null);
+          setSelectedRoom(null);
+        }}
+      >
+        ✖ Back
+      </button>
+    </div>
+  </motion.div>
+)}
+
+
             </AnimatePresence>
           </div>
         )}
