@@ -1,76 +1,91 @@
-/**
- * ComingSoon.jsx
- * Trang danh sách phim sắp chiếu — lấy dữ liệu từ API /api/movies
- * Hiển thị các phim KHÔNG nằm trong top 20 phim cuối (tức phần đầu danh sách)
- */
-
 import React, { useState, useEffect } from "react";
 import HeroBanner from "./components/HeroBanner";
 import SearchBar from "./components/SearchBar";
+import FilterPanel from "./components/FilterPanel";
 import MovieCard from "./components/MovieCard";
-import "./Movies.css"; // dùng lại CSS từ Movies
+import "./Movies.css";
 
 function ComingSoon() {
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("");
-  const [banners] = useState([
+  const [selectedCity, setSelectedCity] = useState("");
+
+  const banners = [
     { img: "banner1.jpg", title: "Banner 1" },
     { img: "banner2.jpg", title: "Banner 2" },
     { img: "banner3.jpg", title: "Banner 3" },
-  ]);
+  ];
 
-  // ✅ Gọi API và chia dữ liệu
+  // ✅ Gọi API
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/movies");
-        if (!response.ok) throw new Error("Failed to fetch movies");
-        const data = await response.json();
+        const res = await fetch("http://127.0.0.1:8000/api/movies");
+        const data = await res.json();
 
-        // ✅ Lấy tất cả trừ 20 phim cuối (Coming Soon)
-        const comingSoon = data.slice(0, data.length - 20);
+        const parsed = data.map((movie) => ({
+          ...movie,
+          cities: (() => {
+            try {
+              return JSON.parse(movie.cities);
+            } catch {
+              return [];
+            }
+          })(),
+        }));
 
+        // ✅ Lấy tất cả trừ 20 phim cuối
+        const comingSoon = parsed.slice(0, parsed.length - 20);
         setMovies(comingSoon);
         setFilteredMovies(comingSoon);
-      } catch (error) {
-        console.error(error);
+      } catch (e) {
+        console.error("Error fetching movies:", e);
       }
     };
     fetchMovies();
   }, []);
 
-  // ✅ Lọc & tìm kiếm
+  // 🎯 Lọc
   useEffect(() => {
-    let results = movies.filter((movie) =>
-      movie.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    let result = movies;
 
-    if (selectedGenre) {
-      results = results.filter((movie) =>
-        movie.genres?.some((g) =>
+    if (searchTerm)
+      result = result.filter((m) =>
+        m.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+    if (selectedGenre)
+      result = result.filter((m) =>
+        m.genres.some((g) =>
           g.name.toLowerCase().includes(selectedGenre.toLowerCase())
         )
       );
-    }
 
-    setFilteredMovies(results);
-  }, [searchTerm, selectedGenre, movies]);
+    if (selectedCity)
+      result = result.filter((m) => m.cities.includes(selectedCity));
+
+    setFilteredMovies(result);
+  }, [searchTerm, selectedGenre, selectedCity, movies]);
 
   return (
     <div className="movies-page-container bg-dark text-light min-vh-100">
-      <HeroBanner
-        title="Coming Soon"
-        subtitle="Upcoming movies — stay tuned!"
-        banners={banners}
-      />
+      <HeroBanner title="Coming Soon" subtitle="Upcoming movies — stay tuned!" banners={banners} />
 
       <div className="movies-controls container my-4">
         <SearchBar
-          placeholder="Search for upcoming movies..."
+          placeholder="Search upcoming movies..."
           value={searchTerm}
           onChange={setSearchTerm}
+        />
+        <FilterPanel
+          genres={["Action", "Drama", "Fantasy", "Thriller", "Horror", "Comedy"]}
+          cities={["Hanoi", "Ho Chi Minh", "Da Nang"]}
+          selectedGenre={selectedGenre}
+          selectedCity={selectedCity}
+          onGenreChange={setSelectedGenre}
+          onCityChange={setSelectedCity}
         />
       </div>
 
@@ -81,19 +96,25 @@ function ComingSoon() {
               <MovieCard
                 movie={{
                   title: movie.title,
-                  genre: movie.genres?.map((g) => g.name).join(", "),
+                  genre: movie.genres.map((g) => g.name).join(", "),
                   rating: movie.vote_average,
                   votes: movie.vote_count || 0,
                   img: movie.poster_path,
-                  promoted: movie.promoted || false,
                   trailer_link: movie.trailer_link,
                   movie_id: movie.movie_id,
                   overview: movie.overview,
+                  cities: movie.cities,
                 }}
               />
             </div>
           ))}
         </div>
+
+        {filteredMovies.length === 0 && (
+          <p className="text-center text-secondary mt-4">
+            No upcoming movies found for the selected filters.
+          </p>
+        )}
       </div>
     </div>
   );

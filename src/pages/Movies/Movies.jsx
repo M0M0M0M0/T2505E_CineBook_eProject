@@ -8,103 +8,87 @@ import "./Movies.css";
 
 function Movies() {
   const location = useLocation();
-
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
-  const [banners, setBanners] = useState([
-    // Bạn vẫn có thể giữ các banner mặc định
+
+  const banners = [
     { img: "banner1.jpg", title: "Banner 1" },
     { img: "banner2.jpg", title: "Banner 2" },
     { img: "banner3.jpg", title: "Banner 3" },
-  ]);
+  ];
 
-  // Lấy query search từ URL
+  // 🔍 Lấy query từ URL
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const search = params.get("search") || "";
-    setSearchTerm(search);
+    setSearchTerm(params.get("search") || "");
   }, [location.search]);
 
   // ✅ Lấy dữ liệu từ API
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/movies");
-        if (!response.ok) throw new Error("Failed to fetch movies");
-        const data = await response.json();
-        setMovies(data);
-        setFilteredMovies(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchMovies();
-  }, []);
+        const res = await fetch("http://127.0.0.1:8000/api/movies");
+        const data = await res.json();
 
-  useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        const response = await fetch("http://127.0.0.1:8000/api/movies");
-        if (!response.ok) throw new Error("Failed to fetch movies");
-        const data = await response.json();
+        const parsed = data.map((movie) => ({
+          ...movie,
+          cities: (() => {
+            try {
+              return JSON.parse(movie.cities);
+            } catch {
+              return [];
+            }
+          })(),
+        }));
 
-        // ✅ Chia dữ liệu: 20 phim cuối là Now Showing
-        const nowShowing = data.slice(-20);
-
+        // ✅ 20 phim mới nhất là Now Showing
+        const nowShowing = parsed.slice(-20);
         setMovies(nowShowing);
         setFilteredMovies(nowShowing);
-      } catch (error) {
-        console.error(error);
+      } catch (e) {
+        console.error("Error fetching movies:", e);
       }
     };
     fetchMovies();
   }, []);
 
-  // Lọc và tìm kiếm
+  // 🎯 Lọc
   useEffect(() => {
-    let results = movies.filter((movie) =>
-      movie.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    let result = movies;
 
-    if (selectedGenre) {
-      results = results.filter((movie) =>
-        movie.genre.toLowerCase().includes(selectedGenre.toLowerCase())
+    if (searchTerm)
+      result = result.filter((m) =>
+        m.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    }
 
-    if (selectedCity) {
-      results = results.filter((movie) => movie.city === selectedCity);
-    }
+    if (selectedGenre)
+      result = result.filter((m) =>
+        m.genres.some((g) =>
+          g.name.toLowerCase().includes(selectedGenre.toLowerCase())
+        )
+      );
 
-    setFilteredMovies(results);
+    if (selectedCity)
+      result = result.filter((m) => m.cities.includes(selectedCity));
+
+    setFilteredMovies(result);
   }, [searchTerm, selectedGenre, selectedCity, movies]);
 
   return (
     <div className="movies-page-container bg-dark text-light min-vh-100">
-      <HeroBanner
-        title="Now Showing"
-        subtitle="Explore our movie collection"
-        banners={banners}
-      />
+      <HeroBanner title="Now Showing" subtitle="Currently in cinemas" banners={banners} />
 
       <div className="movies-controls container my-4">
         <SearchBar
-          placeholder="Search by movie title..."
+          placeholder="Search movies..."
           value={searchTerm}
           onChange={setSearchTerm}
         />
         <FilterPanel
-          genres={[
-            "Action",
-            "Drama",
-            "Fantasy",
-            "Thriller",
-            "Horror",
-            "Comedy",
-          ]}
+          genres={["Action", "Drama", "Fantasy", "Thriller", "Horror", "Comedy"]}
           cities={["Hanoi", "Ho Chi Minh", "Da Nang"]}
           selectedGenre={selectedGenre}
           selectedCity={selectedCity}
@@ -122,17 +106,23 @@ function Movies() {
                   title: movie.title,
                   genre: movie.genres.map((g) => g.name).join(", "),
                   rating: movie.vote_average,
-                  votes: movie.vote_count || 0, // nếu API có votes
+                  votes: movie.vote_count || 0,
                   img: movie.poster_path,
-                  promoted: movie.promoted || false,
                   trailer_link: movie.trailer_link,
                   movie_id: movie.movie_id,
                   overview: movie.overview,
+                  cities: movie.cities,
                 }}
               />
             </div>
           ))}
         </div>
+
+        {filteredMovies.length === 0 && (
+          <p className="text-center text-secondary mt-4">
+            No movies found for the selected filters.
+          </p>
+        )}
       </div>
     </div>
   );
