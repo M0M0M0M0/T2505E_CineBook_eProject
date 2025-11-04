@@ -1,0 +1,41 @@
+.booking-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  transition: height 0.4s ease-in-out;
+}
+
+/* Mỗi slide chiếm toàn bộ chiều rộng container */
+.slide {
+  flex: 0 0 100%;
+  transition: transform 0.4s ease-in-out;
+}
+
+/* --- Layout --- */
+.booking-container.total .total-slide {
+  transform: translateX(0);
+}
+.booking-container.total .payment-slide {
+  transform: translateX(100%);
+}
+
+.booking-container.transition .total-slide {
+  transform: translateX(-100%);
+}
+.booking-container.transition .payment-slide {
+  transform: translateX(0);
+}
+
+.booking-container.payment .total-slide {
+  transform: translateX(-100%);
+}
+.booking-container.payment .payment-slide {
+  transform: translateX(0);
+}
+
+/* --- Bổ sung: giúp container cao bằng slide hiện tại --- */
+.slide > * {
+  display: block;
+  padding-bottom: 40px; /* tránh bị cắt nội dung cuối */
+}

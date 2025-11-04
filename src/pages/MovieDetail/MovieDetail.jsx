@@ -4,13 +4,15 @@ import "./MovieDetail.css";
 import ShowtimeSelector from "../TicketBooking/ShowtimeSelector";
 import BookingSection from "../TicketBooking/BookingSection";
 import FoodSelection from "../TicketBooking/FoodSelection";
+import TotalSection from "../TicketBooking/TotalSection";
 import PaymentSection from "../TicketBooking/PaymentSection";
+import BookingFlow from "../TicketBooking/BookingFlow";
 
 export default function MovieDetail() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
-  const [step, setStep] = useState("detail"); // detail → showtime → seat → food → payment
+  const [step, setStep] = useState("detail"); // detail → showtime → seat → food → toal → payment
   const [embedTrailer, setEmbedTrailer] = useState("");
 
   const [selectedShowtime, setSelectedShowtime] = useState(null);
@@ -73,8 +75,12 @@ export default function MovieDetail() {
   const handleSelectFoods = ({ foods, total }) => {
     setSelectedFoods(foods);
     setFoodTotal(total);
-    setStep("payment");
+    setStep("total");
   };
+  const handleNext = () => {
+  setStep("transition");
+  setTimeout(() => setStep("payment"), 400);
+};
 
   return (
     <div
@@ -178,20 +184,39 @@ export default function MovieDetail() {
           </div>
         )}
 
-        {step === "payment" && (
-          <div className="payment-section">
-            <h3 style={{ color: "white" }}>Bước 4: Thanh toán</h3>
-            <PaymentSection
-              movieTitle={movie.title}
-              selectedShowtime={selectedShowtime}
-              selectedSeats={selectedSeats}
-              seatTotal={seatTotal}
-              selectedFoods={selectedFoods}
-              foodTotal={foodTotal}
-              onBack={() => setStep("food")} // Thêm nút quay lại bước chọn đồ ăn
-            />
-          </div>
-        )}
+        {step === "total" && (
+  <div className="total-section">
+    <h3 style={{ color: "white" }}>Bước 4: Thanh toán</h3>
+    <TotalSection
+      movieTitle={movie.title}
+      selectedShowtime={selectedShowtime}
+      selectedSeats={selectedSeats}
+      seatTotal={seatTotal}
+      selectedFoods={selectedFoods}
+      foodTotal={foodTotal}
+      onBack={() => setStep("food")}     // quay lại chọn đồ ăn
+      onNext={() => setStep("payment")}  // ✅ chuyển sang bước PaymentSection
+    />
+  </div>
+)}
+
+{step === "payment" && (
+  <div className="total-section">
+    <h3 style={{ color: "white" }}>Bước 5: Xác nhận & Thanh toán</h3>
+    <PaymentSection
+      movieTitle={movie.title}
+      selectedShowtime={selectedShowtime}
+      selectedSeats={selectedSeats}
+      seatTotal={seatTotal}
+      selectedFoods={selectedFoods}
+      foodTotal={foodTotal}
+      onBack={() => setStep("total")}    // quay lại xem tổng
+      onFinish={() => setStep("done")}   // kết thúc / về trang chủ
+    />
+  </div>
+)}
+
+
 
         {/* TRAILER POPUP */}
         {showTrailer && embedTrailer && (

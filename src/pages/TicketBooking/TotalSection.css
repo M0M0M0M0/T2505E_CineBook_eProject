@@ -46,7 +46,7 @@
 }
 
 /* Container cho các nút */
-.payment-buttons {
+.total-buttons {
   display: flex;
   justify-content: space-between;
   margin-top: 15px;
@@ -71,7 +71,7 @@
 }
 
 /* Nút thanh toán */
-.payment-button {
+.total-button {
   flex: 1;
   padding: 12px 0;
   border: none;
@@ -83,6 +83,6 @@
   transition: 0.2s;
 }
 
-.payment-button:hover {
+.total-button:hover {
   background-color: #e6b800;
 }

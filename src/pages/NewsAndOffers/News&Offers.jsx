@@ -3,45 +3,36 @@ import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './News&Offers.css';
 import './modal.css';
-
-// Import images
-import u23Image from '../../assets/img/u23.jpg';
 import summerDealsImage from '../../assets/img/summer-deals.jpg';
 import chocolatePopcornImage from '../../assets/img/chocolate-popcorn.jpg';
 import backToSchoolImage from '../../assets/img/back-to-school.jpg';
 import womanDayImage from '../../assets/img/woman-day.jpg';
+import freeImage from '../../assets/img/free.jpg';
 
-// Dữ liệu mẫu cho các chương trình khuyến mãi
-// Bạn có thể thay thế bằng dữ liệu thật từ API
 const promotionsData = [
   {
     id: 1,
-    image: u23Image,
-    title: 'U22: Unbeatable Value. Unforgettable Experience.',
-    summary: 'Summer is here! U22 Student Deal: Movie tickets from just 55,000 VND. (Ages 22 & under).',
+    image: freeImage,
+    title: 'Movie Night Blowout: Get a FREE Soda or Popcorn!',
+    summary: 'Level up your movie night! For a limited time, when you book two movie tickets online (on our website or app), you’ll get a free coupon. Take your pick of the perfect movie snack: redeem your coupon for one free regular soda or one free small popcorn!',
     details: {
-        fullTitle: 'U22 DEAL: ONLY 55,000VND/TICKET',
-        date: 'Starting today !!!',
+        fullTitle: 'OFFICIAL PROMOTION: MOVIE NIGHT BLOWOUT – FREE TREAT (SODA/POPCORN) WITH 2 ONLINE TICKETS',
+        date: 'Valid from: November 4, 2025 – November 30, 2025!',
         content: `
-            <p class="mb-4"> <strong>Calling all students! We've got an amazing deal just for you.</strong></p>
+            <p class="mb-4"> <strong>Calling all movie lovers! We've got an amazing deal just for you.</strong></p>
             <h3 class="text-xl font-bold mb-2">Fresh Flicks, Sweet Deals.</h3>
-            <p class="mb-4">Simply present your student ID, or any valid ID proving you are under 23, to instantly receive this unbeatable ticket price!</p>
+            <p class="mb-4">Book two (2) standard movie tickets in a single online transaction to receive one (1) free treat coupon.!</p>
             <ul class="list-disc list-inside mb-4 pl-4">
-                <li>Your chance to enjoy special screenings with promotional tickets starting from <strong>55.000Đ.</strong>.</li>
-                <li>Enjoy a quiet atmosphere, comfortable seats, and a crowd-free experience – it's the ideal choice.</li>
-                <li>Grab your friends and experience the latest blockbusters at a special rate.</li>
+                <li>The offer is only valid for tickets purchased through our official website or mobile app. <strong>Bookings made at the box office are not eligible.</strong>.</li>
+                <li>The digital coupon will be sent to your email confirmation or added to your app account.</li>
+                <li>Present your coupon at the concession stand to redeem for your choice of one (1) of the following:One (1) small soda <strong>OR</strong> one (1) small popcorn.</li>
             </ul>
             <h3 class="text-xl font-bold mb-2">Promotion information</h3>
-            <ul class="list-disc list-inside mb-4 pl-4">
-                <li><strong>This offer is applicable to students under 23.</strong></li>
-                <li><strong>Special Price:</strong> Starting from just 55,000 VND/ticket.</li>
-                <li><strong>Conditions:</strong> Please present your Student ID or ID Card when purchasing tickets.</li>
-                <li><strong>Please note:</strong> Prices may vary by cinema location. Customers are encouraged to check details at the box office or on our website.</li>
-            </ul>
+            <p class="mb-4">Offer is valid for a limited time. The coupon must be used on the same day as your movie booking. This promotion cannot be combined with any other offers or discounts.</p>
+                
             <h3 class="text-xl font-bold mb-2">Book your tickets <strong>TODAY</strong></h3>
             <ul class="list-disc list-inside pl-4">
-                <li>Go to our website.</li>
-                <li>Or purchase your tickets at the nearest box office.</li>
+                <li>Go to our website for more information.</li>
             </ul>
         `
     }
