@@ -267,6 +267,82 @@ const [newSeat, setNewSeat] = useState({
   seat_type_id: "",
 });
 
+//Chinh Pricing
+const [editingSeats, setEditingSeats] = useState(false);
+const [editingDays, setEditingDays] = useState(false);
+const [editingTimes, setEditingTimes] = useState(false);
+
+const [seatTypes, setSeatTypes] = useState([
+  { seat_type_id: "ST1", seat_type_name: "Standard", seat_type_price: 50000 },
+  { seat_type_id: "ST2", seat_type_name: "VIP", seat_type_price: 80000 },
+]);
+
+// day modifiers
+const [dayModifiers, setDayModifiers] = useState([]); // load from API or initial state
+const [dayEditing, setDayEditing] = useState(false);
+
+// time slots
+const [timeSlots, setTimeSlots] = useState([]); // load from API or initial state
+const [timeEditing, setTimeEditing] = useState(false);
+
+// helper to create short unique IDs for new rows
+const genTempId = (prefix = "X") => `${prefix}${Date.now().toString().slice(-6)}`;
+
+// --- DAY MODIFIERS: add / delete ---
+const handleAddDayModifier = () => {
+  const newRow = {
+    day_modifier_id: genTempId("D"),
+    day_type: "New Day",
+    modifier_type: "percent",   // 'percent' or 'fixed'
+    modifier_amount: 0,
+    operation: "increase",      // 'increase' or 'decrease'
+    is_active: true,
+    __isNew: true,
+  };
+  setDayModifiers([newRow, ...dayModifiers]);
+};
+
+const handleDeleteDayModifier = (id) => {
+  // If the row is a temporary new row (__isNew) just remove it,
+  // otherwise remove it locally — later you can call DELETE /api/day-modifiers/:id
+  const row = dayModifiers.find((r) => r.day_modifier_id === id);
+  if (row?.__isNew) {
+    setDayModifiers(dayModifiers.filter((r) => r.day_modifier_id !== id));
+  } else {
+    // remove locally; optionally add to a deleted list to sync with API later
+    setDayModifiers(dayModifiers.filter((r) => r.day_modifier_id !== id));
+    // TODO: call your API to delete immediately, or collect for batch delete
+    // fetch(`/api/day-modifiers/${id}`, { method: 'DELETE' })
+  }
+};
+
+// --- TIME SLOTS: add / delete ---
+const handleAddTimeSlot = () => {
+  const newRow = {
+    time_slot_modifier_id: genTempId("TS"),
+    time_slot_name: "New Slot",
+    ts_start_time: "08:00:00",
+    ts_end_time: "10:00:00",
+    modifier_type: "percent", // 'percent' or 'fixed'
+    ts_amount: 0,
+    operation: "increase",
+    is_active: true,
+    __isNew: true,
+  };
+  setTimeSlots([newRow, ...timeSlots]);
+};
+
+const handleDeleteTimeSlot = (id) => {
+  const row = timeSlots.find((r) => r.time_slot_modifier_id === id);
+  if (row?.__isNew) {
+    setTimeSlots(timeSlots.filter((r) => r.time_slot_modifier_id !== id));
+  } else {
+    setTimeSlots(timeSlots.filter((r) => r.time_slot_modifier_id !== id));
+    // TODO: optionally call DELETE API here
+    // fetch(`/api/time-slot-modifiers/${id}`, { method: 'DELETE' })
+  }
+};
+
 
   const handleMenuClick = (name) => {
     if (name === activeMenu) return;
@@ -483,6 +559,8 @@ const handleAddTheaterSave = () => {
       setTheaterError("Failed to save theater.");
     });
 };
+
+
 
 
   return (
@@ -1427,76 +1505,212 @@ const handleAddTheaterSave = () => {
                   </div>
 
                   {/* --- Bảng danh sách showtime --- */}
-                  {filteredShowtimes.length > 0 ? (
-                    <table className="table table-hover align-middle">
-                      <thead className="table-light">
-                        <tr>
-                          <th>Title</th>
-                          <th>Date</th>
-                          <th>Time</th>
-                          <th>Room</th>
-                          <th>Price</th>
-                          <th>Status</th>
-                          <th>Tickets</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredShowtimes.map((s, idx) => (
-                          <tr key={idx}>
-                            <td className="fw-semibold">{s.title}</td>
-                            <td>{s.date}</td>
-                            <td>{s.time}</td>
-                            <td>{s.room}</td>
-                            <td>${s.price}</td>
-                            <td>
-                              <span className={`badge bg-${s.statusColor}`}>
-                                {s.status}
-                              </span>
-                            </td>
-                            <td>
-                              {s.sold}/{s.totalTicket}
-                            </td>
-                            <td>
-                              <button
-                                className="btn btn-sm btn-light me-1"
-                                title="Edit"
-                              >
-                                <Pencil size={16} />
-                              </button>
-                              <button
-                                className="btn btn-sm btn-light me-1"
-                                title="View Detail"
-                              >
-                                <Eye size={16} />
-                              </button>
-                              <button
-                                className="btn btn-sm btn-light"
-                                title="Delete"
-                              >
-                                <XIcon size={16} color="#dc3545" />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  ) : (
-                    <p className="text-muted mt-4">
-                      No showtimes available for the selected options.
-                    </p>
-                  )}
+                  {/* --- Bảng danh sách showtime --- */}
+{filteredShowtimes.length > 0 ? (
+  <div>
+    {/* Add new showtime button */}
+    <div className="d-flex justify-content-between align-items-center mb-3">
+      <h6 className="fw-bold mb-0">Danh sách suất chiếu</h6>
+      <button
+        className="btn btn-primary btn-sm"
+        onClick={() => {
+          const newShowtime = {
+            title: selectedMovie || "New Movie",
+            city: selectedCity || "Hà Nội",
+            theater: selectedTheater || "CGV Vincom",
+            date: "2025-11-04",
+            time: "10:00",
+            room: 1,
+            price: 100000,
+            status: "Available",
+            statusColor: "success",
+            sold: 0,
+            totalTicket: 100,
+            isEditing: true,
+          };
+          setFilteredShowtimes([...filteredShowtimes, newShowtime]);
+        }}
+      >
+        + Thêm suất chiếu
+      </button>
+    </div>
+
+    <table className="table table-hover align-middle">
+      <thead className="table-light">
+        <tr>
+          <th>Title</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Room</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Tickets</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {filteredShowtimes.map((s, idx) => (
+          <tr key={idx}>
+            <td className="fw-semibold">{s.title}</td>
+            <td>
+              {s.isEditing ? (
+                <input
+                  type="date"
+                  className="form-control form-control-sm"
+                  value={s.date}
+                  onChange={(e) => {
+                    const updated = [...filteredShowtimes];
+                    updated[idx].date = e.target.value;
+                    setFilteredShowtimes(updated);
+                  }}
+                />
+              ) : (
+                s.date
+              )}
+            </td>
+            <td>
+              {s.isEditing ? (
+                <input
+                  type="time"
+                  className="form-control form-control-sm"
+                  value={s.time}
+                  onChange={(e) => {
+                    const updated = [...filteredShowtimes];
+                    updated[idx].time = e.target.value;
+                    setFilteredShowtimes(updated);
+                  }}
+                />
+              ) : (
+                s.time
+              )}
+            </td>
+            <td>
+              {s.isEditing ? (
+                <input
+                  type="number"
+                  className="form-control form-control-sm"
+                  value={s.room}
+                  onChange={(e) => {
+                    const updated = [...filteredShowtimes];
+                    updated[idx].room = e.target.value;
+                    setFilteredShowtimes(updated);
+                  }}
+                />
+              ) : (
+                s.room
+              )}
+            </td>
+            <td>
+              {s.isEditing ? (
+                <input
+                  type="number"
+                  className="form-control form-control-sm"
+                  value={s.price}
+                  onChange={(e) => {
+                    const updated = [...filteredShowtimes];
+                    updated[idx].price = e.target.value;
+                    setFilteredShowtimes(updated);
+                  }}
+                />
+              ) : (
+                `$${s.price}`
+              )}
+            </td>
+            <td>
+              {s.isEditing ? (
+                <select
+                  className="form-select form-select-sm"
+                  value={s.status}
+                  onChange={(e) => {
+                    const updated = [...filteredShowtimes];
+                    updated[idx].status = e.target.value;
+                    updated[idx].statusColor =
+                      e.target.value === "Available" ? "success" : "danger";
+                    setFilteredShowtimes(updated);
+                  }}
+                >
+                  <option value="Available">Available</option>
+                  <option value="Full">Full</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              ) : (
+                <span className={`badge bg-${s.statusColor}`}>{s.status}</span>
+              )}
+            </td>
+            <td>
+              {s.sold}/{s.totalTicket}
+            </td>
+            <td>
+              {!s.isEditing ? (
+                <>
+                  <button
+                    className="btn btn-sm btn-light me-1"
+                    title="Edit"
+                    onClick={() => {
+                      const updated = [...filteredShowtimes];
+                      updated[idx].isEditing = true;
+                      setFilteredShowtimes(updated);
+                    }}
+                  >
+                    <Pencil size={16} />
+                  </button>
+                  <button
+                    className="btn btn-sm btn-light"
+                    title="Delete"
+                    onClick={() => {
+                      const updated = filteredShowtimes.filter(
+                        (_, i) => i !== idx
+                      );
+                      setFilteredShowtimes(updated);
+                    }}
+                  >
+                    <XIcon size={16} color="#dc3545" />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="btn btn-sm btn-success me-1"
+                    onClick={() => {
+                      const updated = [...filteredShowtimes];
+                      updated[idx].isEditing = false;
+                      setFilteredShowtimes(updated);
+                    }}
+                  >
+                    Save
+                  </button>
+                  <button
+                    className="btn btn-sm btn-secondary"
+                    onClick={() => {
+                      const updated = [...filteredShowtimes];
+                      updated[idx].isEditing = false;
+                      setFilteredShowtimes(updated);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+) : (
+  <p className="text-muted mt-4">
+    No showtimes available for the selected options.
+  </p>
+)}
+
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
         )}
 
-        {activeMenu === "Pricing" && (
-          <div
-            className="bg-white rounded shadow-sm p-4"
-            style={{ minHeight: 500 }}
-          >
+                {activeMenu === "Pricing" && (
+          <div className="bg-white rounded shadow-sm p-4" style={{ minHeight: 500 }}>
             <AnimatePresence mode="wait">
               <motion.div
                 key="pricing-section"
@@ -1504,148 +1718,58 @@ const handleAddTheaterSave = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.2 }}
+                className="text-dark"
               >
-                {/* --- CÀI ĐẶT GIÁ CHUNG --- */}
+                {/* --- SEAT TYPES --- */}
                 <div className="border rounded p-3 mb-4">
                   <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h5 className="fw-bold mb-0">Cài đặt giá áp dụng chung</h5>
+                    <h5 className="fw-bold text-dark mb-0">Giá loại ghế</h5>
                     <button
                       className="btn btn-sm btn-outline-primary"
-                      onClick={() => pricingSetEditCommon(!pricingEditCommon)}
+                      onClick={() => setEditingSeats(!editingSeats)}
                     >
-                      {pricingEditCommon ? "Save" : "Edit"}
+                      {editingSeats ? "Save" : "Edit"}
                     </button>
                   </div>
 
-                  {!pricingEditCommon ? (
-                    <table className="table table-bordered text-center mb-3">
+                  {!editingSeats ? (
+                    <table className="table table-bordered text-center align-middle">
                       <thead className="table-light">
-                        <tr>
-                          <th>Weekday</th>
-                          <th>Weekend</th>
-                          <th>Normal Hour</th>
-                          <th>Peak Hour</th>
+                        <tr className="fw-semibold text-dark">
+                          <th>Mã loại ghế</th>
+                          <th>Tên loại ghế</th>
+                          <th>Giá</th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>{pricingSettings.weekday}</td>
-                          <td>{pricingSettings.weekend}</td>
-                          <td>{pricingSettings.normal}</td>
-                          <td>{pricingSettings.peak}</td>
-                        </tr>
+                        {seatTypes.map((seat) => (
+                          <tr key={seat.seat_type_id} className="text-secondary">
+                            <td>{seat.seat_type_id}</td>
+                            <td className="fw-medium">{seat.seat_type_name}</td>
+                            <td className="fw-bold text-dark">{seat.seat_type_price}</td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   ) : (
                     <div className="row g-3">
-                      <div className="col-md-3">
-                        <label className="form-label">Weekday</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          value={pricingSettings.weekday}
-                          onChange={(e) =>
-                            pricingSetSettings({
-                              ...pricingSettings,
-                              weekday: Number(e.target.value),
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-md-3">
-                        <label className="form-label">Weekend</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          value={pricingSettings.weekend}
-                          onChange={(e) =>
-                            pricingSetSettings({
-                              ...pricingSettings,
-                              weekend: Number(e.target.value),
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-md-3">
-                        <label className="form-label">Normal Hour</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          value={pricingSettings.normal}
-                          onChange={(e) =>
-                            pricingSetSettings({
-                              ...pricingSettings,
-                              normal: Number(e.target.value),
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-md-3">
-                        <label className="form-label">Peak Hour</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          value={pricingSettings.peak}
-                          onChange={(e) =>
-                            pricingSetSettings({
-                              ...pricingSettings,
-                              peak: Number(e.target.value),
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* GIÁ GHẾ */}
-                  <div className="d-flex justify-content-between align-items-center mt-4 mb-2">
-                    <h6 className="fw-bold mb-0">Giá ghế</h6>
-                    <button
-                      className="btn btn-sm btn-outline-primary"
-                      onClick={() => pricingSetEditSeats(!pricingEditSeats)}
-                    >
-                      {pricingEditSeats ? "Save" : "Edit"}
-                    </button>
-                  </div>
-
-                  {!pricingEditSeats ? (
-                    <table className="table table-bordered text-center">
-                      <thead className="table-light">
-                        <tr>
-                          {Object.keys(pricingSettings.seats).map((seat) => (
-                            <th key={seat} className="text-capitalize">
-                              {seat}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          {Object.keys(pricingSettings.seats).map((seat) => (
-                            <td key={seat}>{pricingSettings.seats[seat]}</td>
-                          ))}
-                        </tr>
-                      </tbody>
-                    </table>
-                  ) : (
-                    <div className="row g-3">
-                      {Object.keys(pricingSettings.seats).map((seat) => (
-                        <div className="col-md-3" key={seat}>
-                          <label className="form-label text-capitalize">
-                            {seat}
+                      {seatTypes.map((seat, i) => (
+                        <div className="col-md-4" key={seat.seat_type_id}>
+                          <label className="form-label fw-semibold text-dark">
+                            {seat.seat_type_name}
                           </label>
                           <input
                             type="number"
-                            className="form-control"
-                            value={pricingSettings.seats[seat]}
+                            className="form-control text-dark"
+                            value={seat.seat_type_price}
                             onChange={(e) =>
-                              pricingSetSettings({
-                                ...pricingSettings,
-                                seats: {
-                                  ...pricingSettings.seats,
-                                  [seat]: Number(e.target.value),
-                                },
-                              })
+                              setSeatTypes(
+                                seatTypes.map((s, index) =>
+                                  index === i
+                                    ? { ...s, seat_type_price: Number(e.target.value) }
+                                    : s
+                                )
+                              )
                             }
                           />
                         </div>
@@ -1654,81 +1778,403 @@ const handleAddTheaterSave = () => {
                   )}
                 </div>
 
-                {/* --- CÀI ĐẶT GIÁ TỪNG PHIM --- */}
-                <div className="border rounded p-3">
-                  <h5 className="fw-bold mb-3">Cài đặt giá từng phim</h5>
+                {/* --- DAY MODIFIERS --- */}
+                            <div className="border rounded p-3 mb-4">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="fw-bold mb-0">Hệ số theo ngày</h5>
 
-                  {pricingMovies.map((movie) => (
-                    <div
-                      key={movie.id}
-                      className="d-flex align-items-center justify-content-between mb-3"
-                    >
-                      <div className="flex-grow-1">
-                        <label className="form-label mb-0 fw-semibold">
-                          {movie.title}
-                        </label>
-                      </div>
+                <div>
+                  {dayEditing ? (
+                    <>
+                      <button className="btn btn-sm btn-success me-2" onClick={() => setDayEditing(false)}>
+                        Save
+                      </button>
+                      <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => setDayEditing(false)}>
+                        Cancel
+                      </button>
+                      <button className="btn btn-sm btn-primary" onClick={handleAddDayModifier}>
+                        ➕ Add Modifier
+                      </button>
+                    </>
+                  ) : (
+                    <button className="btn btn-sm btn-outline-primary" onClick={() => setDayEditing(true)}>
+                      Edit
+                    </button>
+                  )}
+                </div>
+              </div>
 
-                      {!movie.isEditing ? (
-                        <>
-                          <span className="me-3">{movie.basePrice}</span>
-                          <button
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() =>
-                              pricingSetMovies(
-                                pricingMovies.map((m) =>
-                                  m.id === movie.id
-                                    ? { ...m, isEditing: true }
-                                    : m
-                                )
-                              )
-                            }
-                          >
-                            Edit
-                          </button>
-                        </>
-                      ) : (
-                        <>
+              <table className="table table-bordered text-center align-middle">
+                <thead className="table-light">
+                  <tr>
+                    <th>Loại ngày</th>
+                    <th>Kiểu</th>
+                    <th>Giá trị</th>
+                    <th>Hướng</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dayModifiers.map((mod) => (
+                    <tr key={mod.day_modifier_id}>
+                      <td>
+                        {dayEditing ? (
                           <input
-                            type="number"
-                            className="form-control w-auto me-2"
-                            value={movie.basePrice}
+                            className="form-control"
+                            value={mod.day_type}
                             onChange={(e) =>
-                              pricingSetMovies(
-                                pricingMovies.map((m) =>
-                                  m.id === movie.id
-                                    ? {
-                                        ...m,
-                                        basePrice: Number(e.target.value),
-                                      }
-                                    : m
+                              setDayModifiers(
+                                dayModifiers.map((d) =>
+                                  d.day_modifier_id === mod.day_modifier_id ? { ...d, day_type: e.target.value } : d
                                 )
                               )
                             }
                           />
-                          <button
-                            className="btn btn-sm btn-success"
-                            onClick={() =>
-                              pricingSetMovies(
-                                pricingMovies.map((m) =>
-                                  m.id === movie.id
-                                    ? { ...m, isEditing: false }
-                                    : m
+                        ) : (
+                          mod.day_type
+                        )}
+                      </td>
+
+                      <td>
+                        {dayEditing ? (
+                          <select
+                            className="form-select"
+                            value={mod.modifier_type}
+                            onChange={(e) =>
+                              setDayModifiers(
+                                dayModifiers.map((d) =>
+                                  d.day_modifier_id === mod.day_modifier_id ? { ...d, modifier_type: e.target.value } : d
                                 )
                               )
                             }
                           >
-                            Save
+                            <option value="percent">Percent</option>
+                            <option value="fixed">Fixed</option>
+                          </select>
+                        ) : (
+                          mod.modifier_type
+                        )}
+                      </td>
+
+                      <td>
+                        {dayEditing ? (
+                          <input
+                            type="number"
+                            className="form-control"
+                            value={mod.modifier_amount}
+                            onChange={(e) =>
+                              setDayModifiers(
+                                dayModifiers.map((d) =>
+                                  d.day_modifier_id === mod.day_modifier_id ? { ...d, modifier_amount: Number(e.target.value) } : d
+                                )
+                              )
+                            }
+                          />
+                        ) : mod.modifier_type === "percent" ? (
+                          `${mod.modifier_amount}%`
+                        ) : (
+                          `${mod.modifier_amount.toLocaleString()}₫`
+                        )}
+                      </td>
+
+                      <td>
+                        {dayEditing ? (
+                          <select
+                            className="form-select"
+                            value={mod.operation}
+                            onChange={(e) =>
+                              setDayModifiers(
+                                dayModifiers.map((d) =>
+                                  d.day_modifier_id === mod.day_modifier_id ? { ...d, operation: e.target.value } : d
+                                )
+                              )
+                            }
+                          >
+                            <option value="increase">Increase</option>
+                            <option value="decrease">Decrease</option>
+                          </select>
+                        ) : (
+                          mod.operation
+                        )}
+                      </td>
+
+                      <td>
+                        <div className="form-check form-switch d-flex justify-content-center">
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            checked={Boolean(mod.is_active)}
+                            onChange={(e) =>
+                              setDayModifiers(
+                                dayModifiers.map((d) =>
+                                  d.day_modifier_id === mod.day_modifier_id ? { ...d, is_active: e.target.checked } : d
+                                )
+                              )
+                            }
+                          />
+                        </div>
+                      </td>
+
+                      <td>
+                        {dayEditing ? (
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => handleDeleteDayModifier(mod.day_modifier_id)}
+                          >
+                            Delete
                           </button>
-                        </>
-                      )}
-                    </div>
+                        ) : (
+                          <span className="text-muted">—</span>
+                        )}
+                      </td>
+                    </tr>
                   ))}
-                </div>
+                </tbody>
+              </table>
+            </div>
+
+
+                {/* --- TIME SLOT MODIFIER SECTION --- */}
+<div className="border rounded p-3 mb-4">
+  <div className="d-flex justify-content-between align-items-center mb-3">
+    <h5 className="fw-bold mb-0">Hệ số theo khung giờ</h5>
+
+    <div>
+      {timeEditing ? (
+        <>
+          <button
+            className="btn btn-sm btn-success me-2"
+            onClick={() => setTimeEditing(false)}
+          >
+            Save
+          </button>
+          <button
+            className="btn btn-sm btn-outline-secondary me-2"
+            onClick={() => setTimeEditing(false)}
+          >
+            Cancel
+          </button>
+          <button
+            className="btn btn-sm btn-primary"
+            onClick={handleAddTimeSlot}
+          >
+            ➕ Add Time Slot
+          </button>
+        </>
+      ) : (
+        <button
+          className="btn btn-sm btn-outline-primary"
+          onClick={() => setTimeEditing(true)}
+        >
+          Edit
+        </button>
+      )}
+    </div>
+  </div>
+
+  <table className="table table-bordered text-center align-middle">
+    <thead className="table-light">
+      <tr>
+        <th>Tên khung giờ</th>
+        <th>Bắt đầu</th>
+        <th>Kết thúc</th>
+        <th>Kiểu</th>
+        <th>Giá trị</th>
+        <th>Hướng</th>
+        <th>Trạng thái</th>
+        <th>Thao tác</th>
+      </tr>
+    </thead>
+    <tbody>
+      {timeSlots.map((slot) => (
+        <tr key={slot.time_slot_modifier_id}>
+          {/* Name */}
+          <td>
+            {timeEditing ? (
+              <input
+                className="form-control"
+                value={slot.time_slot_name}
+                onChange={(e) =>
+                  setTimeSlots(
+                    timeSlots.map((t) =>
+                      t.time_slot_modifier_id === slot.time_slot_modifier_id
+                        ? { ...t, time_slot_name: e.target.value }
+                        : t
+                    )
+                  )
+                }
+              />
+            ) : (
+              slot.time_slot_name
+            )}
+          </td>
+
+          {/* Start time */}
+          <td>
+            {timeEditing ? (
+              <input
+                type="time"
+                step="60"
+                className="form-control"
+                value={slot.ts_start_time}
+                onChange={(e) =>
+                  setTimeSlots(
+                    timeSlots.map((t) =>
+                      t.time_slot_modifier_id === slot.time_slot_modifier_id
+                        ? { ...t, ts_start_time: e.target.value }
+                        : t
+                    )
+                  )
+                }
+              />
+            ) : (
+              slot.ts_start_time
+            )}
+          </td>
+
+          {/* End time */}
+          <td>
+            {timeEditing ? (
+              <input
+                type="time"
+                step="60"
+                className="form-control"
+                value={slot.ts_end_time}
+                onChange={(e) =>
+                  setTimeSlots(
+                    timeSlots.map((t) =>
+                      t.time_slot_modifier_id === slot.time_slot_modifier_id
+                        ? { ...t, ts_end_time: e.target.value }
+                        : t
+                    )
+                  )
+                }
+              />
+            ) : (
+              slot.ts_end_time
+            )}
+          </td>
+
+          {/* Modifier type */}
+          <td>
+            {timeEditing ? (
+              <select
+                className="form-select"
+                value={slot.modifier_type}
+                onChange={(e) =>
+                  setTimeSlots(
+                    timeSlots.map((t) =>
+                      t.time_slot_modifier_id === slot.time_slot_modifier_id
+                        ? { ...t, modifier_type: e.target.value }
+                        : t
+                    )
+                  )
+                }
+              >
+                <option value="percent">Percent</option>
+                <option value="fixed">Fixed</option>
+              </select>
+            ) : (
+              slot.modifier_type
+            )}
+          </td>
+
+          {/* Amount */}
+          <td>
+            {timeEditing ? (
+              <input
+                type="number"
+                className="form-control"
+                value={slot.ts_amount}
+                onChange={(e) =>
+                  setTimeSlots(
+                    timeSlots.map((t) =>
+                      t.time_slot_modifier_id === slot.time_slot_modifier_id
+                        ? { ...t, ts_amount: Number(e.target.value) }
+                        : t
+                    )
+                  )
+                }
+              />
+            ) : slot.modifier_type === "percent" ? (
+              `${slot.ts_amount}%`
+            ) : (
+              `${slot.ts_amount.toLocaleString()}₫`
+            )}
+          </td>
+
+          {/* Operation */}
+          <td>
+            {timeEditing ? (
+              <select
+                className="form-select"
+                value={slot.operation}
+                onChange={(e) =>
+                  setTimeSlots(
+                    timeSlots.map((t) =>
+                      t.time_slot_modifier_id === slot.time_slot_modifier_id
+                        ? { ...t, operation: e.target.value }
+                        : t
+                    )
+                  )
+                }
+              >
+                <option value="increase">Increase</option>
+                <option value="decrease">Decrease</option>
+              </select>
+            ) : (
+              slot.operation
+            )}
+          </td>
+
+          {/* Active switch */}
+          <td>
+            <div className="form-check form-switch d-flex justify-content-center">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                checked={Boolean(slot.is_active)}
+                onChange={(e) =>
+                  setTimeSlots(
+                    timeSlots.map((t) =>
+                      t.time_slot_modifier_id === slot.time_slot_modifier_id
+                        ? { ...t, is_active: e.target.checked }
+                        : t
+                    )
+                  )
+                }
+              />
+            </div>
+          </td>
+
+          {/* Delete */}
+          <td>
+            {timeEditing ? (
+              <button
+                className="btn btn-sm btn-outline-danger"
+                onClick={() =>
+                  handleDeleteTimeSlot(slot.time_slot_modifier_id)
+                }
+              >
+                Delete
+              </button>
+            ) : (
+              <span className="text-muted">—</span>
+            )}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
               </motion.div>
             </AnimatePresence>
           </div>
         )}
+
+
 
         {activeMenu === "Users" && (
           <div
