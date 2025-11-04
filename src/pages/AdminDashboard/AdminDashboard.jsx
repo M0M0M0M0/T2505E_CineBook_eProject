@@ -1777,140 +1777,123 @@ const handleAddTheaterSave = () => {
                   </select>
                 </div>
 
-                {/* --- BẢNG DANH SÁCH NGƯỜI DÙNG --- */}
-                <table className="table table-bordered align-middle text-center">
-                  <thead className="table-light">
-                    <tr>
-                      <th>ID</th>
-                      <th>Họ tên</th>
-                      <th>Email</th>
-                      <th>Điện thoại</th>
-                      <th>Gói đăng ký</th>
-                      <th>Ngày tham gia</th>
-                      <th>Trạng thái</th>
-                      <th>Thao tác</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {usersList
-                      .filter(
-                        (u) =>
-                          (userFilterStatus === "all" ||
-                            u.status === userFilterStatus) &&
-                          (u.fullname
-                            .toLowerCase()
-                            .includes(userSearch.toLowerCase()) ||
-                            u.email
-                              .toLowerCase()
-                              .includes(userSearch.toLowerCase()))
-                      )
-                      .map((u) => (
-                        <tr key={u.id}>
-                          <td>{u.id}</td>
-                          <td>{u.fullname}</td>
-                          <td>{u.email}</td>
-                          <td>{u.tel}</td>
-                          <td>{u.subscription}</td>
-                          <td>{u.date}</td>
-                          <td>
-                            <span
-                              className={`badge ${
-                                u.status === "active"
-                                  ? "bg-success"
-                                  : "bg-secondary"
-                              }`}
-                            >
-                              {u.status === "active" ? "Hoạt động" : "Đã khóa"}
-                            </span>
-                          </td>
-                          <td>
-                            <button
-                              className="btn btn-sm btn-outline-primary me-2"
-                              onClick={() => userSetSelected(u)}
-                            >
-                              Xem
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-warning me-2"
-                              onClick={() => {
-                                userSetSelected(u);
-                                userSetEditing(true);
-                              }}
-                            >
-                              Sửa
-                            </button>
-                            <button
-                              className={`btn btn-sm ${
-                                u.status === "active"
-                                  ? "btn-outline-danger"
-                                  : "btn-outline-success"
-                              }`}
-                              onClick={() => {
-                                usersSetList(
-                                  usersList.map((usr) =>
-                                    usr.id === u.id
-                                      ? {
-                                          ...usr,
-                                          status:
-                                            usr.status === "active"
-                                              ? "locked"
-                                              : "active",
-                                        }
-                                      : usr
-                                  )
-                                );
-                              }}
-                            >
-                              {u.status === "active" ? "Khóa" : "Mở khóa"}
-                            </button>
-                          </td>
+                  {/* --- BẢNG DANH SÁCH NGƯỜI DÙNG --- */}
+                    <table className="table table-bordered align-middle text-center">
+                      <thead className="table-light">
+                        <tr>
+                          <th>ID</th>
+                          <th>Họ tên</th>
+                          <th>Email</th>
+                          <th>Điện thoại</th>
+                          <th>Địa chỉ</th>
+                          <th>Ngày sinh</th>
+                          <th>Ngày tạo</th>
+                          <th>Trạng thái</th>
+                          <th>Thao tác</th>
                         </tr>
-                      ))}
-                  </tbody>
-                </table>
+                      </thead>
+                      <tbody>
+                        {usersList
+                          .filter(
+                            (u) =>
+                              (userFilterStatus === "all" || u.status === userFilterStatus) &&
+                              (u.full_name
+                                .toLowerCase()
+                                .includes(userSearch.toLowerCase()) ||
+                                u.email.toLowerCase().includes(userSearch.toLowerCase()))
+                          )
+                          .map((u) => (
+                            <tr key={u.web_user_id}>
+                              <td>{u.web_user_id}</td>
+                              <td>{u.full_name}</td>
+                              <td>{u.email}</td>
+                              <td>{u.phone_number}</td>
+                              <td>{u.address}</td>
+                              <td>{u.date_of_birth}</td>
+                              <td>{new Date(u.created_at).toLocaleDateString("vi-VN")}</td>
+                              <td>
+                                <span
+                                  className={`badge ${
+                                    u.status === "active" ? "bg-success" : "bg-secondary"
+                                  }`}
+                                >
+                                  {u.status === "active" ? "Hoạt động" : "Đã khóa"}
+                                </span>
+                              </td>
+                              <td>
+                                <button
+                                  className="btn btn-sm btn-outline-primary me-2"
+                                  onClick={() => userSetSelected(u)}
+                                >
+                                  Xem
+                                </button>
+                                <button
+                                  className="btn btn-sm btn-outline-warning me-2"
+                                  onClick={() => {
+                                    userSetSelected(u);
+                                    userSetEditing(true);
+                                  }}
+                                >
+                                  Sửa
+                                </button>
+                                <button
+                                  className={`btn btn-sm ${
+                                    u.status === "active"
+                                      ? "btn-outline-danger"
+                                      : "btn-outline-success"
+                                  }`}
+                                  onClick={() => {
+                                    usersSetList(
+                                      usersList.map((usr) =>
+                                        usr.web_user_id === u.web_user_id
+                                          ? {
+                                              ...usr,
+                                              status:
+                                                usr.status === "active" ? "locked" : "active",
+                                            }
+                                          : usr
+                                      )
+                                    );
+                                  }}
+                                >
+                                  {u.status === "active" ? "Khóa" : "Mở khóa"}
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
 
-                {/* --- CHI TIẾT NGƯỜI DÙNG --- */}
-                {userSelected && !userEditing && (
-                  <div className="border rounded p-3 mt-4">
-                    <h6 className="fw-bold mb-3">Chi tiết người dùng</h6>
-                    <p>
-                      <strong>ID:</strong> {userSelected.id}
-                    </p>
-                    <p>
-                      <strong>Họ tên:</strong> {userSelected.fullname}
-                    </p>
-                    <p>
-                      <strong>Email:</strong> {userSelected.email}
-                    </p>
-                    <p>
-                      <strong>Điện thoại:</strong> {userSelected.tel}
-                    </p>
-                    <p>
-                      <strong>Gói đăng ký:</strong> {userSelected.subscription}
-                    </p>
-                    <p>
-                      <strong>Ngày tham gia:</strong> {userSelected.date}
-                    </p>
-                    <p>
-                      <strong>Trạng thái:</strong> {userSelected.status}
-                    </p>
+                    {/* --- CHI TIẾT NGƯỜI DÙNG --- */}
+                    {userSelected && !userEditing && (
+                      <div className="border rounded p-3 mt-4">
+                        <h6 className="fw-bold mb-3">Chi tiết người dùng</h6>
+                        <p><strong>ID:</strong> {userSelected.web_user_id}</p>
+                        <p><strong>Họ tên:</strong> {userSelected.full_name}</p>
+                        <p><strong>Email:</strong> {userSelected.email}</p>
+                        <p><strong>Điện thoại:</strong> {userSelected.phone_number}</p>
+                        <p><strong>Địa chỉ:</strong> {userSelected.address}</p>
+                        <p><strong>Ngày sinh:</strong> {userSelected.date_of_birth}</p>
+                        <p><strong>Ngày tạo:</strong> {new Date(userSelected.created_at).toLocaleDateString("vi-VN")}</p>
+                        <p><strong>Trạng thái:</strong> {userSelected.status}</p>
 
-                    <div className="mt-3 d-flex gap-2">
-                      <button
-                        className="btn btn-outline-warning btn-sm"
-                        onClick={() => userSetEditing(true)}
-                      >
-                        Chỉnh sửa
-                      </button>
-                      <button
-                        className="btn btn-outline-secondary btn-sm"
-                        onClick={() => userSetSelected(null)}
-                      >
-                        Đóng
-                      </button>
-                    </div>
-                  </div>
-                )}
+                        <div className="mt-3 d-flex gap-2">
+                          <button
+                            className="btn btn-outline-warning btn-sm"
+                            onClick={() => userSetEditing(true)}
+                          >
+                            Chỉnh sửa
+                          </button>
+                          <button
+                            className="btn btn-outline-secondary btn-sm"
+                            onClick={() => userSetSelected(null)}
+                          >
+                            Đóng
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
 
                 {/* --- CHỈNH SỬA THÔNG TIN --- */}
                 {userSelected && userEditing && (
