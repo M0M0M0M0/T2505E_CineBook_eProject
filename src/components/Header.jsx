@@ -5,56 +5,61 @@ import "./Header.css";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [keyword, setKeyword] = useState("");
-
-  // dropdown state: null | 'movies' | 'theaters'
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [user, setUser] = useState(null);
 
-  const searchRef = useRef(null);
   const mobileRef = useRef(null);
   const navigate = useNavigate();
 
-  // ✅ Đóng menu / search khi click ngoài
+  // Load user từ localStorage khi mount và lắng nghe event login
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setUser(JSON.parse(storedUser));
+
+    const handleLogin = () => {
+      const updatedUser = localStorage.getItem("user");
+      if (updatedUser) setUser(JSON.parse(updatedUser));
+    };
+
+    window.addEventListener("login", handleLogin);
+
+    return () => window.removeEventListener("login", handleLogin);
+  }, []);
+
+  // Đóng menu khi click ngoài
   useEffect(() => {
     function onDocClick(e) {
-      if (searchOpen && searchRef.current && !searchRef.current.contains(e.target)) {
-        setSearchOpen(false);
-      }
-      if (mobileOpen && mobileRef.current && !mobileRef.current.contains(e.target)) {
+      if (
+        mobileOpen &&
+        mobileRef.current &&
+        !mobileRef.current.contains(e.target)
+      ) {
         setMobileOpen(false);
       }
     }
     document.addEventListener("click", onDocClick);
     return () => document.removeEventListener("click", onDocClick);
-  }, [searchOpen, mobileOpen]);
+  }, [mobileOpen]);
 
-  // ✅ Dropdown control
+  // Dropdown control
   let closeTimer = useRef(null);
   function handleOpenDropdown(name) {
-    if (closeTimer.current) {
-      clearTimeout(closeTimer.current);
-      closeTimer.current = null;
-    }
+    if (closeTimer.current) clearTimeout(closeTimer.current);
     setOpenDropdown(name);
   }
   function handleCloseDropdownDelayed() {
     closeTimer.current = setTimeout(() => setOpenDropdown(null), 120);
   }
   function handleCancelClose() {
-    if (closeTimer.current) {
-      clearTimeout(closeTimer.current);
-      closeTimer.current = null;
-    }
+    if (closeTimer.current) clearTimeout(closeTimer.current);
   }
 
-  // ✅ Search submit handler
-  function handleSearch(e) {
-    e.preventDefault();
-    if (keyword.trim() !== "") {
-      navigate(`/movies?search=${encodeURIComponent(keyword.trim())}`);
-      setSearchOpen(false);
-    }
+  // Logout
+  function handleLogout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+    navigate("/");
   }
 
   return (
@@ -75,7 +80,7 @@ export default function Header() {
                 openDropdown === "movies" ? "open" : ""
               }`}
               onMouseEnter={() => handleOpenDropdown("movies")}
-              onMouseLeave={() => handleCloseDropdownDelayed()}
+              onMouseLeave={handleCloseDropdownDelayed}
             >
               <button
                 className="dropdown-toggle-cb"
@@ -89,7 +94,6 @@ export default function Header() {
                   Movies
                 </Link>
               </button>
-
               <ul
                 className="dropdown-menu-cb"
                 onMouseEnter={handleCancelClose}
@@ -114,21 +118,22 @@ export default function Header() {
                 openDropdown === "theaters" ? "open" : ""
               }`}
               onMouseEnter={() => handleOpenDropdown("theaters")}
-              onMouseLeave={() => handleCloseDropdownDelayed()}
+              onMouseLeave={handleCloseDropdownDelayed}
             >
               <button
                 className="dropdown-toggle-cb"
                 aria-haspopup="true"
                 aria-expanded={openDropdown === "theaters"}
                 onClick={() =>
-                  setOpenDropdown(openDropdown === "theaters" ? null : "theaters")
+                  setOpenDropdown(
+                    openDropdown === "theaters" ? null : "theaters"
+                  )
                 }
               >
                 <Link to="/theaters" className="nav-link-cb">
                   Theaters
                 </Link>
               </button>
-
               <ul
                 className="dropdown-menu-cb"
                 onMouseEnter={handleCancelClose}
@@ -157,11 +162,7 @@ export default function Header() {
                 News & Offers
               </Link>
             </li>
-            <li className="nav-item-cb">
-              <Link to="/my-tickets" className="nav-link-cb">
-                My Tickets
-              </Link>
-            </li>
+
             <li className="nav-item-cb">
               <Link to="/profile" className="nav-link-cb">
                 Profile
@@ -177,62 +178,27 @@ export default function Header() {
 
         {/* ===== Right Actions ===== */}
         <div className="header-cb-actions">
-          {/* Search */}
-          <div className="search-wrapper-cb" ref={searchRef}>
-            <button
-              className="search-toggle-cb"
-              aria-label="Search"
-              onClick={() => setSearchOpen(!searchOpen)}
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                aria-hidden
-              >
-                <path
-                  d="M21 21l-4.35-4.35"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <circle
-                  cx="11"
-                  cy="11"
-                  r="6"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                />
-              </svg>
-            </button>
-
-            {searchOpen && (
-              <form className="search-box-cb" role="search" onSubmit={handleSearch}>
-                <input
-                  type="search"
-                  placeholder="Search movie title..."
-                  className="search-input-cb"
-                  autoFocus
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                />
-              </form>
+          {/* Auth / User */}
+          <div className="auth-links-cb">
+            {user ? (
+              <div className="user-info-cb">
+                <span className="user-name-cb">{user.full_name}</span>
+                <button className="logout-btn-cb" onClick={handleLogout}>
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <>
+                <Link to="/login" className="auth-link-cb">
+                  Login
+                </Link>
+                <Link to="/register" className="auth-cta-cb">
+                  Register
+                </Link>
+              </>
             )}
           </div>
 
-          {/* Auth */}
-          <div className="auth-links-cb">
-            <Link to="/login" className="auth-link-cb">
-              Login
-            </Link>
-            <Link to="/register" className="auth-cta-cb">
-              Register
-            </Link>
-          </div>
-
-          {/* Hamburger */}
           <button
             className={`hamburger-cb ${mobileOpen ? "is-open" : ""}`}
             aria-label="Open menu"
@@ -268,22 +234,21 @@ export default function Header() {
             </Link>
           </li>
           <li className="mobile-nav-item-cb">
-            <Link to="/my-tickets" onClick={() => setMobileOpen(false)}>
-              My Tickets
-            </Link>
-          </li>
-          <li className="mobile-nav-item-cb">
-            <Link to="/profile" onClick={() => setMobileOpen(false)}>
-              Profile
-            </Link>
-          </li>
-          <li className="mobile-nav-item-cb">
-            <Link to="/login" onClick={() => setMobileOpen(false)}>
-              Login
-            </Link>
-            <Link to="/register" onClick={() => setMobileOpen(false)}>
-              Register
-            </Link>
+            {user ? (
+              <div className="user-info-cb-mobile">
+                <span>{user.full_name}</span>
+                <button onClick={handleLogout}>Logout</button>
+              </div>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setMobileOpen(false)}>
+                  Login
+                </Link>
+                <Link to="/register" onClick={() => setMobileOpen(false)}>
+                  Register
+                </Link>
+              </>
+            )}
           </li>
         </ul>
       </div>

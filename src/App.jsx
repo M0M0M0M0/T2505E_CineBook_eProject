@@ -13,7 +13,7 @@ import Theaters from "./pages/TheaterPage/TheaterPage.jsx";
 
 import Login from "./pages/Auth/Login.jsx";
 import Register from "./pages/Auth/Register.jsx";
-import UserDashboard from "./pages/UserPage/UserDashboard.jsx";
+
 import ProfilePage from "./pages/ProfilePage/ProfilePage.jsx";
 
 import ForgotPassword from "./pages/Auth/ForgotPassword";
@@ -35,7 +35,6 @@ function App() {
         <Route path="/theaters" element={<Theaters/> }/>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/my-tickets" element={<UserDashboard />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="movies/:id" element={<MovieDetail />} />
