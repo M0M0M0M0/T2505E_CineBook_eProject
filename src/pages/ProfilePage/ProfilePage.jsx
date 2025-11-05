@@ -1,20 +1,103 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./ProfilePage.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState("profile");
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showChangePassword, setShowChangePassword] = useState(false);
 
-  const [fullName, setFullName] = useState("Nguyen Van Tien");
-  const [dob, setDob] = useState("1990-01-01");
-  const [phone, setPhone] = useState("+84 123 456 789");
-  const [address, setAddress] = useState("HCMC");
+  const [tickets, setTickets] = useState([]);
+  const [historyTickets, setHistoryTickets] = useState([]);
+  useEffect(() => {
+    setTickets([
+      {
+        id: 1,
+        movie: "Avatar 3",
+        theater: "CGV Aeon Mall",
+        date: "2025-05-10",
+        seats: ["C5", "C6"],
+        status: "Booked",
+        poster: "https://example.com/poster.jpg",
+      },
+    ]);
+
+    setHistoryTickets([]);
+  }, []);
+
+  const [fullName, setFullName] = useState("Name");
+  const [dob, setDob] = useState("1975-04-30");
+  const [phone, setPhone] = useState("Phone Number");
+  const [address, setAddress] = useState("City");
+  const [email, setEmail] = useState("Email");
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const token = localStorage.getItem("token");
+  const axiosConfig = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login"); // force redirect
+      return;
+    }
+
+    axios
+      .get("http://127.0.0.1:8000/api/user-profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        const user = res.data.user;
+        setFullName(user.full_name ?? "");
+        setDob(user.date_of_birth ?? "");
+        setPhone(user.phone_number ?? "");
+        setAddress(user.address ?? "");
+        setEmail(user.email ?? "");
+      })
+      .catch(console.log);
+  }, [token]);
+
+  const handleSaveProfile = () => {
+    axios
+      .patch(
+        "http://127.0.0.1:8000/api/user-profile",
+        {
+          full_name: fullName,
+          dob,
+          phone,
+          address,
+        },
+        axiosConfig
+      )
+      .then((res) => alert("Profile updated successfully"))
+      .catch((err) => console.log(err));
+  };
+
+  const handleChangePassword = () => {
+    axios
+      .patch(
+        "http://127.0.0.1:8000/api/user-profile/password",
+        {
+          current_password: currentPassword,
+          new_password: newPassword,
+          new_password_confirmation: confirmNewPassword,
+        },
+        axiosConfig
+      )
+      .then((res) => alert(res.data.message))
+      .catch((err) => {
+        if (err.response?.data?.message) alert(err.response.data.message);
+        else console.log(err);
+      });
+  };
 
   const handleSaveChanges = (e) => {
     e.preventDefault();
@@ -118,14 +201,22 @@ export default function Profile() {
               />
               <div>
                 <h3 className="profile-name">{fullName}</h3>
-                <p className="profile-email">tien@example.com</p>
+                <p className="profile-email">{email}</p>
               </div>
             </div>
 
             <hr className="divider" />
 
             <h4 className="section-title">Account Information</h4>
-            <form className="profile-form" onSubmit={handleSaveChanges}>
+
+            {/* FORM PROFILE */}
+            <form
+              className="profile-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSaveProfile();
+              }}
+            >
               <div className="row mb-3">
                 <div className="col-md-6">
                   <label>Full Name</label>
@@ -168,7 +259,18 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Change Password Button */}
+              <div className="text-end mt-4">
+                <button type="submit" className="btn btn-warning px-4">
+                  Save Profile
+                </button>
+              </div>
+            </form>
+
+            {/* PASSWORD */}
+            <div className="profile-form">
+              <hr className="my-4" />
+              <h4 className="section-title">Change Password</h4>
+
               {!showChangePassword && (
                 <div className="text-end mb-3">
                   <button
@@ -181,7 +283,6 @@ export default function Profile() {
                 </div>
               )}
 
-              {/* Change Password Fields */}
               {showChangePassword && (
                 <>
                   <div className="row mb-3">
@@ -213,18 +314,23 @@ export default function Profile() {
                       />
                     </div>
                   </div>
+
                   {passwordError && (
                     <p className="text-danger">{passwordError}</p>
                   )}
+
+                  <div className="text-end">
+                    <button
+                      type="button"
+                      className="btn btn-warning px-4"
+                      onClick={handleChangePassword}
+                    >
+                      Save Password
+                    </button>
+                  </div>
                 </>
               )}
-
-              <div className="text-end mt-4">
-                <button type="submit" className="btn btn-warning px-4">
-                  Save Changes
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
         )}
 
