@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -26,6 +26,8 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 
 import { demoMovies } from "./pricingData";
+
+import api from "../../api/config";
 
 export default function Dashboard() {
   const salesData = [
@@ -89,54 +91,67 @@ export default function Dashboard() {
   const [userExporting, userSetExporting] = useState(false);
   const [userChangingPassword, userSetChangingPassword] = useState(false);
 
+ // --- Showtime data (from Laravel API) ---
+const [cities, setCities] = useState([]);
+const [theaters, setTheaters] = useState([]);
+const [movies, setMovies] = useState([]);
+const [rooms, setRooms] = useState([]);
+const [filteredShowtimes, setFilteredShowtimes] = useState([]);
+
+const [selectedCity, setSelectedCity] = useState("");
+const [selectedTheater, setSelectedTheater] = useState("");
+const [selectedMovie, setSelectedMovie] = useState("");
+
+
+
   // Dữ liệu mẫu cho phim
-  const movies = [
-    {
-      poster: "https://via.placeholder.com/60x90?text=Poster",
-      title: "THE REAL GHOST",
-      genre: "Horror",
-      duration: "120 min",
-      release: "20 Jul 2024",
-      status: "Coming Soon",
-      statusColor: "warning",
-    },
-    {
-      poster: "https://via.placeholder.com/60x90?text=Poster",
-      title: "BLACK WIDOW",
-      genre: "Action",
-      duration: "135 min",
-      release: "10 Jun 2024",
-      status: "Now Showing",
-      statusColor: "success",
-    },
-    {
-      poster: "https://via.placeholder.com/60x90?text=Poster",
-      title: "AVATAR",
-      genre: "Sci-Fi",
-      duration: "150 min",
-      release: "01 May 2024",
-      status: "Ended",
-      statusColor: "secondary",
-    },
-    {
-      poster: "https://via.placeholder.com/60x90?text=Poster",
-      title: "SPIDER-MAN",
-      genre: "Adventure",
-      duration: "110 min",
-      release: "05 Jul 2024",
-      status: "Now Showing",
-      statusColor: "success",
-    },
-    {
-      poster: "https://via.placeholder.com/60x90?text=Poster",
-      title: "BARBIE",
-      genre: "Comedy",
-      duration: "95 min",
-      release: "30 Jul 2024",
-      status: "Coming Soon",
-      statusColor: "warning",
-    },
-  ];
+  // const movies = [
+  //   {
+  //     poster: "https://via.placeholder.com/60x90?text=Poster",
+  //     title: "THE REAL GHOST",
+  //     genre: "Horror",
+  //     duration: "120 min",
+  //     release: "20 Jul 2024",
+  //     status: "Coming Soon",
+  //     statusColor: "warning",
+  //   },
+  //   {
+  //     poster: "https://via.placeholder.com/60x90?text=Poster",
+  //     title: "BLACK WIDOW",
+  //     genre: "Action",
+  //     duration: "135 min",
+  //     release: "10 Jun 2024",
+  //     status: "Now Showing",
+  //     statusColor: "success",
+  //   },
+  //   {
+  //     poster: "https://via.placeholder.com/60x90?text=Poster",
+  //     title: "AVATAR",
+  //     genre: "Sci-Fi",
+  //     duration: "150 min",
+  //     release: "01 May 2024",
+  //     status: "Ended",
+  //     statusColor: "secondary",
+  //   },
+  //   {
+  //     poster: "https://via.placeholder.com/60x90?text=Poster",
+  //     title: "SPIDER-MAN",
+  //     genre: "Adventure",
+  //     duration: "110 min",
+  //     release: "05 Jul 2024",
+  //     status: "Now Showing",
+  //     statusColor: "success",
+  //   },
+  //   {
+  //     poster: "https://via.placeholder.com/60x90?text=Poster",
+  //     title: "BARBIE",
+  //     genre: "Comedy",
+  //     duration: "95 min",
+  //     release: "30 Jul 2024",
+  //     status: "Coming Soon",
+  //     statusColor: "warning",
+  //   },
+  // ];
 
   // State cho edit movie
   const [editMovie, setEditMovie] = useState(null);
@@ -158,88 +173,19 @@ export default function Dashboard() {
   const [isAddMovie, setIsAddMovie] = useState(false);
 
   // Thêm dữ liệu mẫu cho theaters
-  const theaters = [
-    {
-      name: "CGV Aeon Mall",
-      city: "Ho Chi Minh",
-      address: "30 Bo Bao Tan Thang, Son Ky Ward, Tan Phu District",
-      rooms: 5,
-      seatCapacity: 800,
-      status: "Active",
-      statusColor: "success",
-    },
-    {
-      name: "Galaxy Nguyen Du",
-      city: "Ho Chi Minh",
-      address: "116 Nguyen Du, Ben Thanh Ward, District 1",
-      rooms: 4,
-      seatCapacity: 600,
-      status: "Active",
-      statusColor: "success",
-    },
-    // Thêm theaters khác...
-  ];
-
+  
   // Dữ liệu mẫu
-  const cities = ["Hà Nội", "TP. Hồ Chí Minh"];
-  const theaters2 = [
-    { id: 1, name: "CGV Vincom", city: "Hà Nội" },
-    { id: 2, name: "BHD Bitexco", city: "TP. Hồ Chí Minh" },
-  ];
-  const movies2 = [
-    { id: 1, title: "Avengers: Endgame" },
-    { id: 2, title: "Inception" },
-  ];
-  const showtimes = [
-    {
-      title: "Avengers: Endgame",
-      city: "Hà Nội",
-      theater: "CGV Vincom",
-      date: "2025-10-18",
-      time: "18:30",
-      room: 3,
-      price: 120000,
-      status: "Available",
-      statusColor: "success",
-      sold: 45,
-      totalTicket: 100,
-    },
-    {
-      title: "Inception",
-      city: "TP. Hồ Chí Minh",
-      theater: "BHD Bitexco",
-      date: "2025-10-19",
-      time: "20:00",
-      room: 2,
-      price: 100000,
-      status: "Full",
-      statusColor: "danger",
-      sold: 100,
-      totalTicket: 100,
-    },
-  ];
+ 
 
   // State
-  const [selectedCity, setSelectedCity] = useState("");
-  const [selectedTheater, setSelectedTheater] = useState("");
-  const [selectedMovie, setSelectedMovie] = useState("");
-  const [filteredShowtimes, setFilteredShowtimes] = useState([]);
-  const [selectedShowtimeData, setSelectedShowtimeData] = useState(null);
+  // const [selectedCity, setSelectedCity] = useState("");
+  // const [selectedTheater, setSelectedTheater] = useState("");
+  // const [selectedMovie, setSelectedMovie] = useState("");
+  // const [filteredShowtimes, setFilteredShowtimes] = useState([]);
+  // const [selectedShowtimeData, setSelectedShowtimeData] = useState(null);
 
   // Xử lý khi nhấn Select
-  const handleSelectShowtime = () => {
-    const filtered = showtimes.filter((s) => {
-      const matchCity = selectedCity ? s.city === selectedCity : true;
-      const matchTheater = selectedTheater
-        ? s.theater === selectedTheater
-        : true;
-      const matchMovie = selectedMovie ? s.title === selectedMovie : true;
-      return matchCity && matchTheater && matchMovie;
-    });
-
-    setFilteredShowtimes(filtered);
-  };
-
+  
   // State cho theater
   const [editTheater, setEditTheater] = useState(null);
   const [isAddTheater, setIsAddTheater] = useState(false);
@@ -256,7 +202,7 @@ export default function Dashboard() {
 const [showManageRooms, setShowManageRooms] = useState(false);
 const [selectedTheaterForRooms, setSelectedTheaterForRooms] = useState(null);
 
-const [rooms, setRooms] = useState([]);
+// const [rooms, setRooms] = useState([]);
 const [newRoom, setNewRoom] = useState({ room_name: "", room_type: "" });
 
 const [selectedRoom, setSelectedRoom] = useState(null);
@@ -302,6 +248,42 @@ const handleAddDayModifier = () => {
   setDayModifiers([newRow, ...dayModifiers]);
 };
 
+  useEffect(() => {
+    const loadInitial = async () => {
+      try {
+        const [cityRes, theaterRes, movieRes] = await Promise.all([
+          api.get("/cities"),
+          api.get("/theaters"),
+          api.get("/movies"),
+        ]);
+        setCities(cityRes.data);
+        setTheaters(theaterRes.data);
+        setMovies(movieRes.data);
+      } catch (err) {
+        console.error("Failed to load initial data:", err);
+      }
+    };
+    loadInitial();
+  }, []);
+
+  // --- Load rooms when a theater is selected ---
+  useEffect(() => {
+    if (!selectedTheater) return;
+    api
+      .get(`/rooms?theater_id=${selectedTheater}`)
+      .then((res) => setRooms(res.data))
+      .catch((err) => console.error("Failed to load rooms:", err));
+  }, [selectedTheater]);
+
+  useEffect(() => {
+  if (!selectedCity) return;
+
+  api
+    .get(`/theaters/by-city/${encodeURIComponent(selectedCity)}`)
+    .then((res) => setTheaters(res.data))
+    .catch((err) => console.error("Failed to load theaters:", err));
+}, [selectedCity]);
+
 const handleDeleteDayModifier = (id) => {
   // If the row is a temporary new row (__isNew) just remove it,
   // otherwise remove it locally — later you can call DELETE /api/day-modifiers/:id
@@ -342,6 +324,44 @@ const handleDeleteTimeSlot = (id) => {
     // fetch(`/api/time-slot-modifiers/${id}`, { method: 'DELETE' })
   }
 };
+
+ const handleSelectShowtime = async () => {
+    if (!selectedMovie) return;
+    try {
+      const res = await api.get(
+  `/movies/${selectedMovie}/showtimes?room_id=${selectedRoom}`
+);
+
+      setFilteredShowtimes(res.data);
+    } catch (err) {
+      console.error("Failed to load showtimes:", err);
+    }
+  };
+
+  // --- Save (Add/Edit) ---
+  const handleSaveShowtime = async (showtime, idx) => {
+    try {
+      if (showtime.id) {
+        await api.put(`/showtimes/${showtime.id}`, showtime);
+      } else {
+        await api.post("/showtimes", showtime);
+      }
+      handleSelectShowtime();
+    } catch (err) {
+      console.error("Failed to save showtime:", err);
+    }
+  };
+
+  // --- Delete ---
+  const handleDeleteShowtime = async (id) => {
+    if (!window.confirm("Delete this showtime?")) return;
+    try {
+      await api.delete(`/showtimes/${id}`);
+      handleSelectShowtime();
+    } catch (err) {
+      console.error("Failed to delete showtime:", err);
+    }
+  };
 
 
   const handleMenuClick = (name) => {
@@ -559,8 +579,6 @@ const handleAddTheaterSave = () => {
       setTheaterError("Failed to save theater.");
     });
 };
-
-
 
 
   return (
@@ -1422,292 +1440,239 @@ const handleAddTheaterSave = () => {
           </div>
         )}
 
-        {activeMenu === "Showtimes" && (
-          <div
-            className="bg-white rounded shadow-sm p-4"
-            style={{ minHeight: 500 }}
-          >
-            <AnimatePresence mode="wait">
-              {selectedShowtimeData === null && (
-                <motion.div
-                  key="showtime-table"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {/* --- Bộ lọc chọn City, Theater, Movie --- */}
-                  <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-                    {/* --- Nhóm 1: City + Theater + nút lọc --- */}
-                    <div className="d-flex align-items-center gap-2 flex-wrap">
-                      <select
-                        className="form-select w-auto"
-                        value={selectedCity}
-                        onChange={(e) => setSelectedCity(e.target.value)}
-                      >
-                        <option value="">Select City</option>
-                        {cities.map((city, idx) => (
-                          <option key={idx} value={city}>
-                            {city}
-                          </option>
-                        ))}
-                      </select>
-
-                      <select
-                        className="form-select w-auto"
-                        value={selectedTheater}
-                        onChange={(e) => setSelectedTheater(e.target.value)}
-                      >
-                        <option value="">Select Theater</option>
-                        {theaters2
-                          .filter(
-                            (t) => !selectedCity || t.city === selectedCity
-                          )
-                          .map((t) => (
-                            <option key={t.id} value={t.name}>
-                              {t.name}
-                            </option>
-                          ))}
-                      </select>
-
-                      <button
-                        className="btn btn-outline-primary"
-                        onClick={handleSelectShowtime}
-                        disabled={!selectedCity || !selectedTheater}
-                      >
-                        Filter Theater
-                      </button>
-                    </div>
-
-                    {/* --- Nhóm 2: Movie + nút lọc --- */}
-                    <div className="d-flex align-items-center gap-2 flex-wrap">
-                      <select
-                        className="form-select w-auto"
-                        value={selectedMovie}
-                        onChange={(e) => setSelectedMovie(e.target.value)}
-                      >
-                        <option value="">Select Movie</option>
-                        {movies2.map((m) => (
-                          <option key={m.id} value={m.title}>
-                            {m.title}
-                          </option>
-                        ))}
-                      </select>
-
-                      <button
-                        className="btn btn-primary"
-                        onClick={handleSelectShowtime}
-                        disabled={!selectedMovie}
-                      >
-                        Filter Movie
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* --- Bảng danh sách showtime --- */}
-                  {/* --- Bảng danh sách showtime --- */}
-{filteredShowtimes.length > 0 ? (
-  <div>
-    {/* Add new showtime button */}
-    <div className="d-flex justify-content-between align-items-center mb-3">
-      <h6 className="fw-bold mb-0">Danh sách suất chiếu</h6>
-      <button
-        className="btn btn-primary btn-sm"
-        onClick={() => {
-          const newShowtime = {
-            title: selectedMovie || "New Movie",
-            city: selectedCity || "Hà Nội",
-            theater: selectedTheater || "CGV Vincom",
-            date: "2025-11-04",
-            time: "10:00",
-            room: 1,
-            price: 100000,
-            status: "Available",
-            statusColor: "success",
-            sold: 0,
-            totalTicket: 100,
-            isEditing: true,
-          };
-          setFilteredShowtimes([...filteredShowtimes, newShowtime]);
-        }}
+              {/* /*Show Time */}
+              {activeMenu === "Showtimes" && (
+  <div className="bg-white rounded shadow-sm p-4" style={{ minHeight: 500 }}>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key="showtime-admin"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.2 }}
       >
-        + Thêm suất chiếu
-      </button>
-    </div>
+        <h4 className="fw-bold text-primary mb-4">🎞 Manage Showtimes</h4>
 
-    <table className="table table-hover align-middle">
-      <thead className="table-light">
-        <tr>
-          <th>Title</th>
-          <th>Date</th>
-          <th>Time</th>
-          <th>Room</th>
-          <th>Price</th>
-          <th>Status</th>
-          <th>Tickets</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {filteredShowtimes.map((s, idx) => (
-          <tr key={idx}>
-            <td className="fw-semibold">{s.title}</td>
-            <td>
-              {s.isEditing ? (
-                <input
-                  type="date"
-                  className="form-control form-control-sm"
-                  value={s.date}
-                  onChange={(e) => {
-                    const updated = [...filteredShowtimes];
-                    updated[idx].date = e.target.value;
-                    setFilteredShowtimes(updated);
-                  }}
-                />
-              ) : (
-                s.date
-              )}
-            </td>
-            <td>
-              {s.isEditing ? (
-                <input
-                  type="time"
-                  className="form-control form-control-sm"
-                  value={s.time}
-                  onChange={(e) => {
-                    const updated = [...filteredShowtimes];
-                    updated[idx].time = e.target.value;
-                    setFilteredShowtimes(updated);
-                  }}
-                />
-              ) : (
-                s.time
-              )}
-            </td>
-            <td>
-              {s.isEditing ? (
-                <input
-                  type="number"
-                  className="form-control form-control-sm"
-                  value={s.room}
-                  onChange={(e) => {
-                    const updated = [...filteredShowtimes];
-                    updated[idx].room = e.target.value;
-                    setFilteredShowtimes(updated);
-                  }}
-                />
-              ) : (
-                s.room
-              )}
-            </td>
-            <td>
-              {s.isEditing ? (
-                <input
-                  type="number"
-                  className="form-control form-control-sm"
-                  value={s.price}
-                  onChange={(e) => {
-                    const updated = [...filteredShowtimes];
-                    updated[idx].price = e.target.value;
-                    setFilteredShowtimes(updated);
-                  }}
-                />
-              ) : (
-                `$${s.price}`
-              )}
-            </td>
-            <td>
-              {s.isEditing ? (
-                <select
-                  className="form-select form-select-sm"
-                  value={s.status}
-                  onChange={(e) => {
-                    const updated = [...filteredShowtimes];
-                    updated[idx].status = e.target.value;
-                    updated[idx].statusColor =
-                      e.target.value === "Available" ? "success" : "danger";
-                    setFilteredShowtimes(updated);
-                  }}
-                >
-                  <option value="Available">Available</option>
-                  <option value="Full">Full</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              ) : (
-                <span className={`badge bg-${s.statusColor}`}>{s.status}</span>
-              )}
-            </td>
-            <td>
-              {s.sold}/{s.totalTicket}
-            </td>
-            <td>
-              {!s.isEditing ? (
-                <>
-                  <button
-                    className="btn btn-sm btn-light me-1"
-                    title="Edit"
-                    onClick={() => {
-                      const updated = [...filteredShowtimes];
-                      updated[idx].isEditing = true;
-                      setFilteredShowtimes(updated);
-                    }}
-                  >
-                    <Pencil size={16} />
-                  </button>
-                  <button
-                    className="btn btn-sm btn-light"
-                    title="Delete"
-                    onClick={() => {
-                      const updated = filteredShowtimes.filter(
-                        (_, i) => i !== idx
-                      );
-                      setFilteredShowtimes(updated);
-                    }}
-                  >
-                    <XIcon size={16} color="#dc3545" />
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    className="btn btn-sm btn-success me-1"
-                    onClick={() => {
-                      const updated = [...filteredShowtimes];
-                      updated[idx].isEditing = false;
-                      setFilteredShowtimes(updated);
-                    }}
-                  >
-                    Save
-                  </button>
-                  <button
-                    className="btn btn-sm btn-secondary"
-                    onClick={() => {
-                      const updated = [...filteredShowtimes];
-                      updated[idx].isEditing = false;
-                      setFilteredShowtimes(updated);
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </>
-              )}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-) : (
-  <p className="text-muted mt-4">
-    No showtimes available for the selected options.
-  </p>
-)}
+        {/* --- FILTERS --- */}
+        <div className="d-flex flex-wrap align-items-center gap-3 mb-4">
+          <select
+            className="form-select w-auto"
+            value={selectedCity}
+            onChange={(e) => setSelectedCity(e.target.value)}
+          >
+            <option value="">Select City</option>
+            {cities.map((city, idx) => (
+              <option key={idx} value={city}>{city}</option>
+            ))}
+          </select>
 
-                </motion.div>
-              )}
-            </AnimatePresence>
+          <select
+            className="form-select w-auto"
+            value={selectedTheater}
+            onChange={(e) => setSelectedTheater(e.target.value)}
+            disabled={!selectedCity}
+          >
+            <option value="">Select Theater</option>
+            {theaters
+              .filter((t) => t.city === selectedCity)
+              .map((t) => (
+                <option key={t.theater_id} value={t.theater_id}>
+                  {t.theater_name}
+                </option>
+              ))}
+          </select>
+
+          <select
+            className="form-select w-auto"
+            value={selectedMovie}
+            onChange={(e) => setSelectedMovie(e.target.value)}
+            disabled={!selectedTheater}
+          >
+            <option value="">Select Movie</option>
+            {movies.map((m) => (
+              <option key={m.movie_id} value={m.movie_id}>
+                {m.title}
+              </option>
+            ))}
+          </select>
+
+          <button
+            className="btn btn-primary"
+            disabled={!selectedMovie}
+            onClick={handleSelectShowtime}
+          >
+            🔍 Load Showtimes
+          </button>
+        </div>
+
+        {/* --- ADD BUTTON --- */}
+        {filteredShowtimes.length > 0 && (
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h6 className="fw-semibold mb-0">Available Showtimes</h6>
+            <button
+              className="btn btn-success btn-sm"
+              onClick={() =>
+                setFilteredShowtimes([
+                  ...filteredShowtimes,
+                  {
+                    id: null,
+                    movie_id: selectedMovie,
+                    theater_id: selectedTheater,
+                    room_id: "",
+                    show_date: "",
+                    show_time: "",
+                    price: "",
+                    isEditing: true,
+                  },
+                ])
+              }
+            >
+              ➕ Add Showtime
+            </button>
           </div>
         )}
+
+        {/* --- TABLE --- */}
+        {filteredShowtimes.length === 0 ? (
+          <p className="text-muted mt-4">
+            No showtimes found. Select filters and load again.
+          </p>
+        ) : (
+          <table className="table table-hover align-middle">
+            <thead className="table-light">
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Room</th>
+                <th>Price</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredShowtimes.map((s, idx) => (
+                <tr key={idx}>
+                  <td>
+                    {s.isEditing ? (
+                      <input
+                        type="date"
+                        className="form-control form-control-sm"
+                        value={s.show_date}
+                        onChange={(e) => {
+                          const updated = [...filteredShowtimes];
+                          updated[idx].show_date = e.target.value;
+                          setFilteredShowtimes(updated);
+                        }}
+                      />
+                    ) : (
+                      s.show_date
+                    )}
+                  </td>
+                  <td>
+                    {s.isEditing ? (
+                      <input
+                        type="time"
+                        className="form-control form-control-sm"
+                        value={s.show_time}
+                        onChange={(e) => {
+                          const updated = [...filteredShowtimes];
+                          updated[idx].show_time = e.target.value;
+                          setFilteredShowtimes(updated);
+                        }}
+                      />
+                    ) : (
+                      s.show_time
+                    )}
+                  </td>
+                  <td>
+                    {s.isEditing ? (
+                      <select
+                        className="form-select form-select-sm"
+                        value={s.room_id}
+                        onChange={(e) => {
+                          const updated = [...filteredShowtimes];
+                          updated[idx].room_id = e.target.value;
+                          setFilteredShowtimes(updated);
+                        }}
+                      >
+                        <option value="">Select Room</option>
+                        {rooms.map((r) => (
+                          <option key={r.room_id} value={r.room_id}>
+                            {r.room_name}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      rooms.find((r) => r.room_id === s.room_id)?.room_name ||
+                      "-"
+                    )}
+                  </td>
+                  <td>
+                    {s.isEditing ? (
+                      <input
+                        type="number"
+                        className="form-control form-control-sm"
+                        value={s.price}
+                        onChange={(e) => {
+                          const updated = [...filteredShowtimes];
+                          updated[idx].price = e.target.value;
+                          setFilteredShowtimes(updated);
+                        }}
+                      />
+                    ) : (
+                      `${s.price}₫`
+                    )}
+                  </td>
+                  <td>
+                    {!s.isEditing ? (
+                      <>
+                        <button
+                          className="btn btn-sm btn-outline-primary me-2"
+                          onClick={() => {
+                            const updated = [...filteredShowtimes];
+                            updated[idx].isEditing = true;
+                            setFilteredShowtimes(updated);
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => handleDeleteShowtime(s.id)}
+                        >
+                          Delete
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          className="btn btn-sm btn-success me-2"
+                          onClick={() => handleSaveShowtime(s, idx)}
+                        >
+                          Save
+                        </button>
+                        <button
+                          className="btn btn-sm btn-secondary"
+                          onClick={() => {
+                            const updated = [...filteredShowtimes];
+                            updated[idx].isEditing = false;
+                            setFilteredShowtimes(updated);
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </motion.div>
+    </AnimatePresence>
+  </div>
+)}
+
 
                 {activeMenu === "Pricing" && (
           <div className="bg-white rounded shadow-sm p-4" style={{ minHeight: 500 }}>
