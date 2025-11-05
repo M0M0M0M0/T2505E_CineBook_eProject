@@ -34,7 +34,7 @@ export default function FoodSelection({
 
   return (
     <div className="food-selection">
-      <h4>Chọn đồ ăn</h4>
+      <h4>Food Selection</h4>
       <div className="food-list">
         {foodMenu.map((item) => (
           <div className="food-item" key={item.name}>
@@ -55,36 +55,34 @@ export default function FoodSelection({
       </div>
 
       <div className="food-summary">
-        <p>Tổng tiền ghế: {(seatTotal || 0).toLocaleString("vi-VN")} VND</p>
-        <p>Tổng tiền đồ ăn: {foodTotal.toLocaleString("vi-VN")} VND</p>
+        <p>Seat total: {(seatTotal || 0).toLocaleString("vi-VN")} VND</p>
+        <p>Food total: {foodTotal.toLocaleString("vi-VN")} VND</p>
         <p>
           <strong>
-            Tổng cộng: {((seatTotal || 0) + foodTotal).toLocaleString("vi-VN")}{" "}
-            VND
+            Grand total:{" "}
+            {((seatTotal || 0) + foodTotal).toLocaleString("vi-VN")} VND
           </strong>
         </p>
-
-        <div className="food-buttons">
-          {onBack && (
-            <button className="back-button" onClick={onBack}>
-              ← Quay lại
-            </button>
-          )}
-
-          <button
-            disabled={!selectedSeats.length}
-            onClick={() =>
-              onComplete({
-                foods: Object.entries(selectedFoods).map(
-                  ([name, qty]) => `${name} x${qty}`
-                ),
-                total: foodTotal,
-              })
-            }
-          >
-            Thanh toán
+      </div>
+      <div className="total-buttons">
+        {onBack && (
+          <button className="back-button" onClick={onBack}>
+            ← Back
           </button>
-        </div>
+        )}
+
+        <button
+          disabled={!selectedSeats.length}
+          onClick={() =>
+            onComplete({
+              foods: selectedFoods,
+              total: foodTotal,
+            })
+          }
+          className="total-button"
+        >
+          Confirm
+        </button>
       </div>
     </div>
   );

@@ -27,19 +27,19 @@ export default function TotalSection({
 
   return (
     <div className="total-summary">
-      <h4>Thanh toán vé phim</h4>
+      <h4>Movie Ticket Payment</h4>
 
       <p>
-        <strong>Phim:</strong> {movieTitle}
+        <strong>Movie:</strong> {movieTitle}
       </p>
       <p>
-  <strong>Suất chiếu:</strong>{" "}
-  {selectedShowtime
-    ? `${selectedShowtime.start_time} - ${selectedShowtime.end_time}`
-    : "Chưa chọn"}
-</p>
+        <strong>Showtime:</strong>{" "}
+        {selectedShowtime
+          ? `${selectedShowtime.start_time} - ${selectedShowtime.end_time}`
+          : "Not selected"}
+      </p>
 
-      <h5>Ghế đã chọn</h5>
+      <h5>Selected Seats</h5>
       {selectedSeats.length > 0 ? (
         <ul className="seat-list">
           {selectedSeats.map((seat) => (
@@ -47,38 +47,40 @@ export default function TotalSection({
           ))}
         </ul>
       ) : (
-        <p>Chưa chọn ghế</p>
+        <p>None</p>
       )}
       <p>
-        <strong>Tổng tiền ghế:</strong> {seatTotal.toLocaleString("vi-VN")} VND
+        <strong>Seat total:</strong> {seatTotal.toLocaleString("vi-VN")} VND
       </p>
 
-      <h5>Đồ ăn đã chọn</h5>
-      {selectedFoods.length > 0 ? (
+      <h5>Selected Foods</h5>
+      {Object.keys(selectedFoods).length > 0 ? (
         <ul className="food-list">
-          {selectedFoods.map((food) => (
-            <li key={food}>{food}</li>
+          {Object.entries(selectedFoods).map(([name, quantity]) => (
+            <li key={name}>
+              {name} x {quantity}
+            </li>
           ))}
         </ul>
       ) : (
-        <p>Không có</p>
+        <p>None</p>
       )}
       <p>
-        <strong>Tổng tiền đồ ăn:</strong> {foodTotal.toLocaleString("vi-VN")} VND
+        <strong>Food total:</strong> {foodTotal.toLocaleString("vi-VN")} VND
       </p>
 
       <h4 className="total-amount">
-        Tổng cộng: {(seatTotal + foodTotal).toLocaleString("vi-VN")} VND
+        Grand total: {(seatTotal + foodTotal).toLocaleString("vi-VN")} VND
       </h4>
 
       <div className="total-buttons">
         {onBack && (
           <button className="back-button" onClick={onBack}>
-            ← Quay lại
+            ← Back
           </button>
         )}
         <button className="total-button" onClick={handleTotal}>
-          Thanh toán
+          Confirm
         </button>
       </div>
     </div>

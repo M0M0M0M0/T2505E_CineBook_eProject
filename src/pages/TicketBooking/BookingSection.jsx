@@ -66,7 +66,7 @@ export default function BookingSection({
 
   const handleContinue = () => {
     if (!selectedSeats.length) {
-      alert("Vui lòng chọn ghế trước khi tiếp tục!");
+      alert("Please select seats before continuing!");
       return;
     }
     onSelectSeats({ seats: selectedSeats, total });
@@ -74,7 +74,7 @@ export default function BookingSection({
 
   return (
     <div className="booking-section">
-      <div className="screen">MÀN HÌNH</div>
+      <div className="screen">SCREEN</div>
 
       <div className="seat-map">
         {Object.entries(seats).map(([row, seatsInRow]) => (
@@ -116,29 +116,27 @@ export default function BookingSection({
           <span className="legend-box box"></span>Box (Couple)
         </div>
         <div>
-          <span className="legend-box selected"></span>Đang chọn
+          <span className="legend-box selected"></span>Selected
         </div>
         <div>
-          <span className="legend-box sold"></span>Đã bán
+          <span className="legend-box sold"></span>Sold
         </div>
       </div>
 
       <div className="booking-summary">
-        <h4>Tóm tắt đặt vé</h4>
-        <p>Ghế đã chọn: {selectedSeats.join(", ") || "Chưa chọn"}</p>
-        <p>Tổng tiền: {total.toLocaleString("vi-VN")} VND</p>
+        <h4>Booking Summary</h4>
+        <p>Selected seats: {selectedSeats.join(", ") || "None"}</p>
+        <p>Total: {total.toLocaleString("vi-VN")} VND</p>
 
-        <div className="booking-buttons">
+        <div className="total-buttons">
           {onBack && (
             <button className="back-button" onClick={onBack}>
-              ← Quay lại
+              ← Back
             </button>
           )}
 
-          <button
-            onClick={handleContinue} // chuyển sang bước chọn đồ ăn
-          >
-            Tiếp tục
+          <button className="total-button" onClick={handleContinue}>
+            Next
           </button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import "./MovieDetail.css";
 import ShowtimeSelector from "../TicketBooking/ShowtimeSelector";
@@ -6,7 +6,6 @@ import BookingSection from "../TicketBooking/BookingSection";
 import FoodSelection from "../TicketBooking/FoodSelection";
 import TotalSection from "../TicketBooking/TotalSection";
 import PaymentSection from "../TicketBooking/PaymentSection";
-import BookingFlow from "../TicketBooking/BookingFlow";
 
 export default function MovieDetail() {
   const { id } = useParams();
@@ -18,8 +17,15 @@ export default function MovieDetail() {
   const [selectedShowtime, setSelectedShowtime] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [seatTotal, setSeatTotal] = useState(0);
-  const [selectedFoods, setSelectedFoods] = useState([]);
+  const [selectedFoods, setSelectedFoods] = useState({});
   const [foodTotal, setFoodTotal] = useState(0);
+
+  // Tạo ref cho từng section
+  const showtimeRef = useRef(null);
+  const seatRef = useRef(null);
+  const foodRef = useRef(null);
+  const totalRef = useRef(null);
+  const paymentRef = useRef(null);
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -44,6 +50,19 @@ export default function MovieDetail() {
       }
     }
   }, [movie]);
+
+  useEffect(() => {
+    // Scroll tới đúng section khi step thay đổi
+    let ref = null;
+    if (step === "showtime") ref = showtimeRef;
+    else if (step === "seat") ref = seatRef;
+    else if (step === "food") ref = foodRef;
+    else if (step === "total") ref = totalRef;
+    else if (step === "payment") ref = paymentRef;
+    if (ref && ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [step]);
 
   if (!movie)
     return (
@@ -78,9 +97,9 @@ export default function MovieDetail() {
     setStep("total");
   };
   const handleNext = () => {
-  setStep("transition");
-  setTimeout(() => setStep("payment"), 400);
-};
+    setStep("transition");
+    setTimeout(() => setStep("payment"), 400);
+  };
 
   return (
     <div
@@ -125,7 +144,7 @@ export default function MovieDetail() {
               className="md-overview text-light mb-4"
               style={{ lineHeight: "1.6" }}
             >
-              <h5 className="mb-2 text-warning">Tóm tắt nội dung</h5>
+              <h5 className="mb-2 movie-detail-overview">Tóm tắt nội dung</h5>
               <p>{movie.overview || "Chưa có mô tả"}</p>
             </div>
 
@@ -134,7 +153,7 @@ export default function MovieDetail() {
                 className="detail-booknow-btn px-4 py-2"
                 onClick={handleBookNow}
               >
-                🎟 Đặt vé ngay
+                🎟 Book Now
               </button>
 
               {embedTrailer && (
@@ -142,7 +161,7 @@ export default function MovieDetail() {
                   className="btn btn-outline-light px-4 py-2"
                   onClick={() => setShowTrailer(true)}
                 >
-                  ▶ Xem trailer
+                  ▶ Watch Trailer
                 </button>
               )}
             </div>
@@ -151,19 +170,19 @@ export default function MovieDetail() {
 
         {/* STEPS */}
         {step === "showtime" && (
-          <div className="showtime-section">
-            <h3 style={{ color: "white" }}>Bước 1: Chọn suất chiếu</h3>
+          <div className="showtime-section" ref={showtimeRef}>
+            <h3 style={{ color: "white" }}>Step 1: Showtime</h3>
             <ShowtimeSelector onSelectShowtime={handleSelectShowtime} />
           </div>
         )}
 
         {step === "seat" && (
-          <div className="seat-section">
-            <h3 style={{ color: "white" }}>Bước 2: Chọn ghế</h3>
+          <div className="seat-section" ref={seatRef}>
+            <h3 style={{ color: "white" }}>Step 2: Seat</h3>
             <BookingSection
               movieTitle={movie.title}
-              selectedSeats={selectedSeats} // <-- thêm
-              setSelectedSeats={setSelectedSeats} // <-- thêm
+              selectedSeats={selectedSeats}
+              setSelectedSeats={setSelectedSeats}
               onSelectSeats={handleSelectSeats}
               onBack={() => setStep("showtime")}
             />
@@ -171,13 +190,13 @@ export default function MovieDetail() {
         )}
 
         {step === "food" && (
-          <div className="food-section">
-            <h3 style={{ color: "white" }}>Bước 3: Chọn đồ ăn</h3>
+          <div className="food-section" ref={foodRef}>
+            <h3 style={{ color: "white" }}>Step 3: Food</h3>
             <FoodSelection
               selectedSeats={selectedSeats}
               seatTotal={seatTotal}
-              selectedFoods={selectedFoods} // thêm
-              setSelectedFoods={setSelectedFoods} // thêm
+              selectedFoods={selectedFoods}
+              setSelectedFoods={setSelectedFoods}
               onComplete={handleSelectFoods}
               onBack={() => setStep("seat")}
             />
@@ -185,38 +204,36 @@ export default function MovieDetail() {
         )}
 
         {step === "total" && (
-  <div className="total-section">
-    <h3 style={{ color: "white" }}>Bước 4: Thanh toán</h3>
-    <TotalSection
-      movieTitle={movie.title}
-      selectedShowtime={selectedShowtime}
-      selectedSeats={selectedSeats}
-      seatTotal={seatTotal}
-      selectedFoods={selectedFoods}
-      foodTotal={foodTotal}
-      onBack={() => setStep("food")}     // quay lại chọn đồ ăn
-      onNext={() => setStep("payment")}  // ✅ chuyển sang bước PaymentSection
-    />
-  </div>
-)}
+          <div className="total-section" ref={totalRef}>
+            <h3 style={{ color: "white" }}>Step 4: Total</h3>
+            <TotalSection
+              movieTitle={movie.title}
+              selectedShowtime={selectedShowtime}
+              selectedSeats={selectedSeats}
+              seatTotal={seatTotal}
+              selectedFoods={selectedFoods}
+              foodTotal={foodTotal}
+              onBack={() => setStep("food")}
+              onNext={() => setStep("payment")}
+            />
+          </div>
+        )}
 
-{step === "payment" && (
-  <div className="total-section">
-    <h3 style={{ color: "white" }}>Bước 5: Xác nhận & Thanh toán</h3>
-    <PaymentSection
-      movieTitle={movie.title}
-      selectedShowtime={selectedShowtime}
-      selectedSeats={selectedSeats}
-      seatTotal={seatTotal}
-      selectedFoods={selectedFoods}
-      foodTotal={foodTotal}
-      onBack={() => setStep("total")}    // quay lại xem tổng
-      onFinish={() => setStep("done")}   // kết thúc / về trang chủ
-    />
-  </div>
-)}
-
-
+        {step === "payment" && (
+          <div className="total-section" ref={paymentRef}>
+            <h3 style={{ color: "white" }}>Step 5: Payment</h3>
+            <PaymentSection
+              movieTitle={movie.title}
+              selectedShowtime={selectedShowtime}
+              selectedSeats={selectedSeats}
+              seatTotal={seatTotal}
+              selectedFoods={selectedFoods}
+              foodTotal={foodTotal}
+              onBack={() => setStep("total")}
+              onFinish={() => setStep("done")}
+            />
+          </div>
+        )}
 
         {/* TRAILER POPUP */}
         {showTrailer && embedTrailer && (

@@ -1,3 +1,4 @@
+/* ===== Total Summary Box ===== */
 .total-summary {
   background-color: #1c1c1c;
   padding: 20px;
@@ -24,11 +25,16 @@
   margin: 6px 0;
 }
 
+/* ===== Lists ===== */
 .seat-list,
 .food-list {
   list-style: none;
   padding: 0;
   margin: 0 0 10px 0;
+}
+
+.food-list {
+  margin-bottom: 0;
 }
 
 .seat-list li,
@@ -39,24 +45,25 @@
   margin-bottom: 5px;
 }
 
+/* ===== Total Amount ===== */
 .total-amount {
   text-align: center;
   margin-top: 15px;
   color: #ffcc00;
 }
 
-/* Container cho các nút */
-.total-buttons {
+/* ===== Buttons Container (dùng chung) ===== */
+.total-buttons,
+.payment-buttons {
   display: flex;
   justify-content: space-between;
   margin-top: 15px;
   gap: 10px;
 }
 
-/* Nút quay lại */
+/* Back Btn */
 .back-button {
-  flex: 1;
-  padding: 12px 0;
+  padding: 12px 10px;
   border: none;
   border-radius: 8px;
   background-color: #555;
@@ -65,14 +72,14 @@
   cursor: pointer;
   transition: 0.2s;
 }
-
 .back-button:hover {
   background-color: #777;
 }
 
-/* Nút thanh toán */
-.total-button {
-  flex: 1;
+/* Pay / Next Buttons */
+.total-button,
+.payment-button {
+  display: flex;
   padding: 12px 0;
   border: none;
   border-radius: 8px;
@@ -81,8 +88,145 @@
   font-weight: bold;
   cursor: pointer;
   transition: 0.2s;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+.total-button:hover,
+.payment-button:hover {
+  background-color: #e6b800;
 }
 
-.total-button:hover {
-  background-color: #e6b800;
+/* --- Card Payment Layout --- */
+.card-payment-layout {
+  display: flex;
+  gap: 32px;
+  margin-top: 20px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.card-form {
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.card-preview {
+  flex: 1 1 260px;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.credit-card {
+  width: 320px;
+  height: 190px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #2d2d2d 60%, #ffcc00 100%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  color: #fff;
+  padding: 22px 28px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: "Segoe UI", "Roboto", sans-serif;
+}
+
+.card-chip {
+  width: 38px;
+  height: 28px;
+  background: linear-gradient(135deg, #e0e0e0 60%, #bdbdbd 100%);
+  border-radius: 6px;
+  position: absolute;
+  top: 24px;
+  left: 28px;
+}
+
+.card-logo {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #ffd700;
+  letter-spacing: 2px;
+}
+
+.card-number {
+  font-size: 1.3em;
+  letter-spacing: 2px;
+  margin-top: 48px;
+  margin-bottom: 12px;
+  font-family: "Courier New", monospace;
+}
+
+.card-name {
+  font-size: 1em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.card-email {
+  font-size: 0.95em;
+  color: #ffe;
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+
+.card-valid {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9em;
+  color: #ffe;
+  opacity: 0.8;
+}
+
+/* --- Form Group --- */
+.form-group {
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 0.98em;
+  color: #ffcc00;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.form-group input {
+  padding: 8px 12px;
+  border-radius: 7px;
+  border: 1px solid #444;
+  background: #232323;
+  color: #fff;
+  font-size: 1em;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.form-group input:focus {
+  border: 1.5px solid #ffcc00;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .card-payment-layout {
+    flex-direction: column;
+    gap: 18px;
+    align-items: stretch;
+  }
+  .card-preview {
+    justify-content: flex-start;
+  }
+  .credit-card {
+    width: 100%;
+    min-width: 220px;
+    max-width: 320px;
+  }
 }

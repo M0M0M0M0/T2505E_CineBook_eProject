@@ -169,23 +169,6 @@
   background: #151515;
   padding: 20px;
   border-radius: 12px;
-}
-
-.booking-summary button {
-  background: #ffcc00;
-  color: #000;
-  border: none;
-  padding: 10px 20px;
-  font-weight: bold;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: background 0.2s ease;
-}
-
-.booking-summary button:hover {
-  background: #ffd84a;
-}
-.back-button{
-  margin-right: 10px;
+  max-width: 600px;
+  margin: 40px auto 0 auto;
 }
