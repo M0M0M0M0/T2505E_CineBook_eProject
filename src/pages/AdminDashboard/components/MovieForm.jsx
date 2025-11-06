@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 export default function MovieForm({
   isAddMovie,
@@ -10,6 +10,26 @@ export default function MovieForm({
   handleAddCancel,
   handleEditCancel,
 }) {
+  const [genresList, setGenresList] = useState([]);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/genres")
+      .then((res) => res.json())
+      .then((data) => setGenresList(data))
+      .catch((err) => console.error("Failed to load genres:", err));
+  }, []);
+
+  useEffect(() => {
+    if (editForm.genres && editForm.genres.length > 0 && typeof editForm.genres[0] === "object") {
+      handleEditChange({
+        target: {
+          name: "genres",
+          value: editForm.genres.map((g) => g.genre_id),
+        },
+      });
+    }
+  }, [editForm.genres]);
+
   return (
     <div className="border rounded p-3 mt-4" style={{ color: "#000" }}>
       <h6 className="fw-bold mb-3">
@@ -77,7 +97,7 @@ export default function MovieForm({
         {/* Duration */}
         <div className="mb-3">
           <label className="form-label">
-            Duration (phút) <span className="text-danger">*</span>
+            Duration <span className="text-danger">*</span>
           </label>
           <input
             type="number"
@@ -127,18 +147,49 @@ export default function MovieForm({
 
         {/* Genres */}
         <div className="mb-3">
-          <label className="form-label">Genres </label>
-          <input
-            className="form-control"
-            name="genres"
-            value={
-              Array.isArray(editForm.genres)
-                ? editForm.genres.map((g) => g.name).join(", ")
-                : editForm.genres || ""
-            }
-            onChange={handleEditChange}
-          />
+          <label className="form-label">Genres</label>
+          <div className="d-flex flex-wrap gap-2">
+            {genresList.length > 0 ? (
+              genresList.map((genre) => (
+                <div key={genre.genre_id} className="form-check me-3">
+                  <input
+                    type="checkbox"
+                    className="form-check-input"
+                    id={`genre-${genre.genre_id}`}
+                    checked={Array.isArray(editForm.genres) && editForm.genres.includes(genre.genre_id)}
+
+                    onChange={(e) => {
+                      const selected = Array.isArray(editForm.genres)
+                        ? [...editForm.genres]
+                        : [];
+
+                      if (e.target.checked) {
+                        selected.push(genre.genre_id);
+                      } else {
+                        const idx = selected.indexOf(genre.genre_id);
+                        if (idx > -1) selected.splice(idx, 1);
+                      }
+
+                      handleEditChange({
+                        target: { name: "genres", value: selected },
+                      });
+                    }}
+                  />
+                  <label
+                    className="form-check-label ms-1"
+                    htmlFor={`genre-${genre.genre_id}`}
+                  >
+                    {genre.name}
+                  </label>
+                </div>
+              ))
+            ) : (
+              <p className="text-muted mb-0">Loading genres...</p>
+            )}
+          </div>
         </div>
+
+
 
         {/* Overview */}
         <div className="mb-3">
@@ -164,10 +215,15 @@ export default function MovieForm({
             type="date"
             className="form-control"
             name="release_date"
-            value={editForm.release_date || ""}
+            value={
+              editForm.release_date
+                ? editForm.release_date.slice(0, 10) // cắt chuỗi ISO "YYYY-MM-DDTHH:MM:SSZ" thành "YYYY-MM-DD"
+                : ""
+            }
             onChange={handleEditChange}
             required
           />
+
         </div>
 
         {/* Buttons */}
