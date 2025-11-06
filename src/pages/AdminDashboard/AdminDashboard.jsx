@@ -35,6 +35,8 @@ import RoomManager from "./components/RoomManager";
 import UserTable from "./components/UserTable";
 import UserDetail from "./components/UserDetail";
 import UserEdit from "./components/UserEdit";
+import ShowtimeTable from "./components/ShowtimeTable";
+import ShowtimeForm from "./components/ShowtimeForm";
 
 export default function Dashboard() {
   const salesData = [
@@ -98,18 +100,16 @@ export default function Dashboard() {
   const [userExporting, userSetExporting] = useState(false);
   const [userChangingPassword, userSetChangingPassword] = useState(false);
 
- // --- Showtime data (from Laravel API) ---
-const [cities, setCities] = useState([]);
-const [theaters, setTheaters] = useState([]);
-const [movies, setMovies] = useState([]);
-const [rooms, setRooms] = useState([]);
-const [filteredShowtimes, setFilteredShowtimes] = useState([]);
+  // --- Showtime data (from Laravel API) ---
+  const [cities, setCities] = useState([]);
+  const [theaters, setTheaters] = useState([]);
+  const [movies, setMovies] = useState([]);
 
-const [selectedCity, setSelectedCity] = useState("");
-const [selectedTheater, setSelectedTheater] = useState("");
-const [selectedMovie, setSelectedMovie] = useState("");
+  const [filteredShowtimes, setFilteredShowtimes] = useState([]);
 
-
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedTheater, setSelectedTheater] = useState("");
+  const [selectedMovie, setSelectedMovie] = useState("");
 
   // Dữ liệu mẫu cho phim
   // const movies = [
@@ -180,9 +180,8 @@ const [selectedMovie, setSelectedMovie] = useState("");
   const [isAddMovie, setIsAddMovie] = useState(false);
 
   // Thêm dữ liệu mẫu cho theaters
-  
+
   // Dữ liệu mẫu
- 
 
   // State
   // const [selectedCity, setSelectedCity] = useState("");
@@ -192,7 +191,7 @@ const [selectedMovie, setSelectedMovie] = useState("");
   // const [selectedShowtimeData, setSelectedShowtimeData] = useState(null);
 
   // Xử lý khi nhấn Select
-  
+
   // State cho theater
   const [editTheater, setEditTheater] = useState(null);
   const [isAddTheater, setIsAddTheater] = useState(false);
@@ -523,6 +522,89 @@ const [selectedMovie, setSelectedMovie] = useState("");
       });
   };
 
+  // State cho Showtime
+  const [showAddShowtime, setShowAddShowtime] = useState(false);
+  const [editingShowtime, setEditingShowtime] = useState(null);
+
+  // Load initial data
+  useEffect(() => {
+    // Load cities
+    fetch("http://127.0.0.1:8000/api/cities")
+      .then((res) => res.json())
+      .then((data) => setCities(data));
+
+    // Load theaters
+    fetch("http://127.0.0.1:8000/api/theaters")
+      .then((res) => res.json())
+      .then((data) => setTheaters(data));
+
+    // Load movies
+    fetch("http://127.0.0.1:8000/api/movies")
+      .then((res) => res.json())
+      .then((data) => setMovies(data));
+  }, []);
+
+  // Showtime handlers
+  const handleAddShowtime = () => {
+    setShowAddShowtime(true);
+    setEditingShowtime(null);
+  };
+
+  const handleEditShowtime = (showtime) => {
+    setEditingShowtime(showtime);
+    setShowAddShowtime(true);
+  };
+
+  const handleSaveShowtime = async (formData) => {
+    try {
+      const url = editingShowtime
+        ? `http://127.0.0.1:8000/api/showtimes/${editingShowtime.id}`
+        : "http://127.0.0.1:8000/api/showtimes";
+
+      const res = await fetch(url, {
+        method: editingShowtime ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) throw new Error("Failed to save");
+
+      // Reload showtimes
+      const data = await res.json();
+      setFilteredShowtimes((prev) => {
+        if (editingShowtime) {
+          return prev.map((s) => (s.id === data.id ? data : s));
+        }
+        return [...prev, data];
+      });
+
+      setShowAddShowtime(false);
+      setEditingShowtime(null);
+    } catch (err) {
+      console.error("Error saving showtime:", err);
+      alert("Failed to save showtime");
+    }
+  };
+
+  const handleDeleteShowtime = async (id) => {
+    if (!window.confirm("Are you sure?")) return;
+
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/api/showtimes/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error("Failed to delete");
+
+      setFilteredShowtimes((prev) => prev.filter((s) => s.id !== id));
+    } catch (err) {
+      console.error("Error deleting showtime:", err);
+      alert("Failed to delete showtime");
+    }
+  };
+
   return (
     <div className="d-flex bg-light">
       {/* Sidebar */}
@@ -661,7 +743,41 @@ const [selectedMovie, setSelectedMovie] = useState("");
           </>
         )}
 
-        {/* ...other menus... */}
+        {activeMenu === "Showtimes" && (
+          <>
+            {!showAddShowtime ? (
+              <ShowtimeTable
+                cities={cities}
+                theaters={theaters}
+                movies={movies}
+                selectedCity={selectedCity}
+                selectedTheater={selectedTheater}
+                selectedMovie={selectedMovie}
+                setSelectedCity={setSelectedCity}
+                setSelectedTheater={setSelectedTheater}
+                setSelectedMovie={setSelectedMovie}
+                filteredShowtimes={filteredShowtimes}
+                onAddShowtime={handleAddShowtime}
+                onEditShowtime={handleEditShowtime}
+                onDeleteShowtime={handleDeleteShowtime}
+              />
+            ) : (
+              <ShowtimeForm
+                movies={movies}
+                theaters={theaters}
+                rooms={rooms}
+                editingShowtime={editingShowtime}
+                onSave={handleSaveShowtime}
+                onCancel={() => {
+                  setShowAddShowtime(false);
+                  setEditingShowtime(null);
+                }}
+              />
+            )}
+          </>
+        )}
+
+        {/* ...existing code... */}
       </main>
     </div>
   );
