@@ -102,28 +102,7 @@
 }
 
 /* === 🧾 Phần thông tin phim === */
-.movie-info {
-  background: #0d0d0d;
-  padding: 10px 16px;
-  color: #fff;
-  width: 100%;
-  flex-grow: 1;
-  text-align: left;
-  border-top: 1px solid #000;
-}
 
-.movie-info h6 {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: #ffd27a;
-}
-
-.movie-info p {
-  font-size: 0.8rem;
-  color: #aaa;
-  margin-bottom: 0;
-}
 
 /* === 🎥 Trailer Modal (giống MovieCard.css) === */
 .trailer-modal {
