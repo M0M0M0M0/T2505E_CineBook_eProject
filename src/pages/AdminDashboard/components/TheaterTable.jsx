@@ -69,9 +69,7 @@ export default function TheaterTable({
                   <td>{theater.seatCapacity || theater.theater_capacity}</td>
                   <td>
                     <span
-                      className={`badge bg-${
-                        theater.statusColor || "success"
-                      }`}
+                      className={`badge bg-${theater.statusColor || "success"}`}
                     >
                       {theater.status || "Active"}
                     </span>
