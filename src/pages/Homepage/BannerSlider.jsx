@@ -1,63 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
-import { banners } from "../../components/utilities/constants";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import "bootstrap/dist/css/bootstrap.min.css";
+import "./BannerSlider.css";
 
 const BannerSlider = () => {
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/movies")
+      .then((res) => res.json())
+      .then((data) => setMovies(data.slice(-5))) // lấy 5 phim mới nhất
+      .catch((err) => console.error(err));
+  }, []);
+
   const settings = {
-    centerMode: true,
-    centerPadding: "0px",
-    slidesToShow: 1,
     infinite: true,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    speed: 800,
+    slidesToShow: 1,
     arrows: true,
     dots: true,
-    responsive: [
-      {
-        breakpoint: 1200,
-        settings: {
-          centerPadding: "150px",
-        },
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          centerPadding: "50px",
-        },
-      },
-      {
-        breakpoint: 576,
-        settings: {
-          centerPadding: "0px",
-        },
-      },
-    ],
+    autoplay: true,
+    autoplaySpeed: 3500,
+    speed: 800,
   };
 
   return (
-    <div className="container-fluid py-4">
-      <div className="mx-auto px-3">
-        <Slider {...settings}>
-          {banners.map((banner, i) => (
-            <div key={i} className="px-2">
-              <img
-                src={banner}
-                alt={`banner-${i}`}
-                className="img-fluid rounded-4 shadow-sm"
-                style={{
-                  height: "600px",
-                  objectFit: "cover",
-                  width: "100%",
-                }}
-              />
-            </div>
-          ))}
-        </Slider>
-      </div>
+    <div className="banner-slider-container">
+      <Slider {...settings} className="banner-slider">
+        {movies.map((movie) => (
+          <div key={movie.movie_id}>
+            <img
+              src={movie.backdrop_path}
+              alt={movie.title}
+              className="img-fluid"
+            />
+          </div>
+        ))}
+      </Slider>
     </div>
   );
 };
