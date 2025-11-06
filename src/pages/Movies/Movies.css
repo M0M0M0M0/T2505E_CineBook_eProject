@@ -46,6 +46,27 @@
   padding: 20px 0;
 
 }
+.movie-grid-container {
+    /* Sử dụng Grid để tạo 4 cột với minmax, tự động căn chỉnh */
+    display: grid;
+    /* Tạo cột: Tự động lấp đầy, chiều rộng tối thiểu là 240px cho mỗi card */
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    
+    /* Đặt khoảng cách giữa các card */
+    gap: 44px; 
+
+    /* Căn lề trái nếu số lượng item ít (mặc định grid đã làm tốt) */
+    width: 100%;
+    margin: 0;
+}
+
+/* Đảm bảo Movie Card không bị float hoặc position: absolute */
+.movie-card {
+    /* ... (các thuộc tính cũ) ... */
+    width: 100%; /* Đảm bảo card chiếm hết chiều rộng của ô grid */
+}
+
+
 /* CONTROLS */
 .movies-controls {
   display: flex;

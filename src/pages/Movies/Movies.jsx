@@ -98,9 +98,9 @@ function Movies() {
       </div>
 
       <div className="movies-list container pb-5">
-        <div className="row g-4">
+        <div className="movie-grid-container">
           {filteredMovies.map((movie) => (
-            <div key={movie.movie_id} className="col-6 col-md-4 col-lg-3">
+            <div key={movie.movie_id} className="movie-grid-item">
               <MovieCard
                 movie={{
                   title: movie.title,
