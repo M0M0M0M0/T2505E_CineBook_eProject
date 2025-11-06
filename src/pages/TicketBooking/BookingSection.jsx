@@ -66,7 +66,7 @@ export default function BookingSection({
 
   const handleContinue = () => {
     if (!selectedSeats.length) {
-      alert("Please select seats before continuing!");
+      alert("Please select seats before continue!");
       return;
     }
     onSelectSeats({ seats: selectedSeats, total });

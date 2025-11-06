@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function ShowtimeForm({
   movies,
   theaters,
-  rooms,
   editingShowtime,
   onSave,
   onCancel,
@@ -20,9 +19,54 @@ export default function ShowtimeForm({
     }
   );
 
+  const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Load rooms when theater is selected
+  useEffect(() => {
+    if (form.theater_id) {
+      setLoading(true);
+      fetch(`http://127.0.0.1:8000/api/theaters/${form.theater_id}/rooms`)
+        .then((res) => res.json())
+        .then((data) => {
+          setRooms(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Error loading rooms:", err);
+          setRooms([]);
+          setLoading(false);
+        });
+    } else {
+      setRooms([]);
+    }
+  }, [form.theater_id]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Validation
+    if (
+      !form.movie_id ||
+      !form.theater_id ||
+      !form.room_id ||
+      !form.date ||
+      !form.start_time ||
+      !form.price
+    ) {
+      alert("Please fill all required fields");
+      return;
+    }
+
     onSave(form);
+  };
+
+  const handleTheaterChange = (e) => {
+    setForm({
+      ...form,
+      theater_id: e.target.value,
+      room_id: "", // Reset room when theater changes
+    });
   };
 
   return (
@@ -34,7 +78,9 @@ export default function ShowtimeForm({
       <form onSubmit={handleSubmit}>
         <div className="row g-3">
           <div className="col-md-6">
-            <label className="form-label">Movie</label>
+            <label className="form-label">
+              Movie <span className="text-danger">*</span>
+            </label>
             <select
               className="form-select"
               value={form.movie_id}
@@ -43,7 +89,7 @@ export default function ShowtimeForm({
             >
               <option value="">Select Movie</option>
               {movies.map((m) => (
-                <option key={m.id} value={m.id}>
+                <option key={m.movie_id} value={m.movie_id}>
                   {m.title}
                 </option>
               ))}
@@ -51,52 +97,68 @@ export default function ShowtimeForm({
           </div>
 
           <div className="col-md-6">
-            <label className="form-label">Theater</label>
+            <label className="form-label">
+              Theater <span className="text-danger">*</span>
+            </label>
             <select
               className="form-select"
               value={form.theater_id}
-              onChange={(e) => setForm({ ...form, theater_id: e.target.value })}
+              onChange={handleTheaterChange}
               required
             >
               <option value="">Select Theater</option>
               {theaters.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
+                <option key={t.theater_id} value={t.theater_id}>
+                  {t.theater_name} - {t.theater_city}
                 </option>
               ))}
             </select>
           </div>
 
           <div className="col-md-4">
-            <label className="form-label">Room</label>
+            <label className="form-label">
+              Room <span className="text-danger">*</span>
+            </label>
             <select
               className="form-select"
               value={form.room_id}
               onChange={(e) => setForm({ ...form, room_id: e.target.value })}
               required
+              disabled={!form.theater_id || loading}
             >
-              <option value="">Select Room</option>
+              <option value="">
+                {loading
+                  ? "Loading..."
+                  : form.theater_id
+                  ? "Select Room"
+                  : "Select Theater First"}
+              </option>
               {rooms.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.name}
+                <option key={r.room_id} value={r.room_id}>
+                  {r.room_name} ({r.room_type})
                 </option>
               ))}
             </select>
           </div>
 
           <div className="col-md-4">
-            <label className="form-label">Date</label>
+            <label className="form-label">
+              Date <span className="text-danger">*</span>
+            </label>
             <input
               type="date"
               className="form-control"
               value={form.date}
               onChange={(e) => setForm({ ...form, date: e.target.value })}
+              min={new Date().toISOString().split("T")[0]}
               required
             />
           </div>
 
           <div className="col-md-4">
-            <label className="form-label">Time</label>
+            <label className="form-label">
+              Time <span className="text-danger">*</span>
+            </label>
             <input
               type="time"
               className="form-control"
@@ -107,12 +169,17 @@ export default function ShowtimeForm({
           </div>
 
           <div className="col-md-6">
-            <label className="form-label">Price (VND)</label>
+            <label className="form-label">
+              Base Price (VND) <span className="text-danger">*</span>
+            </label>
             <input
               type="number"
               className="form-control"
               value={form.price}
               onChange={(e) => setForm({ ...form, price: e.target.value })}
+              min="0"
+              step="1000"
+              placeholder="50000"
               required
             />
           </div>
@@ -124,23 +191,23 @@ export default function ShowtimeForm({
               value={form.status}
               onChange={(e) => setForm({ ...form, status: e.target.value })}
             >
-              <option>Available</option>
-              <option>Full</option>
-              <option>Cancelled</option>
+              <option value="Available">Available</option>
+              <option value="Full">Full</option>
+              <option value="Cancelled">Cancelled</option>
             </select>
           </div>
         </div>
 
         <div className="d-flex gap-2 justify-content-end mt-4">
-          <button type="submit" className="btn btn-primary">
-            Save
-          </button>
           <button
             type="button"
             className="btn btn-secondary"
             onClick={onCancel}
           >
             Cancel
+          </button>
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {editingShowtime ? "Update" : "Create"} Showtime
           </button>
         </div>
       </form>

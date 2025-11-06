@@ -37,6 +37,7 @@ import UserDetail from "./components/UserDetail";
 import UserEdit from "./components/UserEdit";
 import ShowtimeTable from "./components/ShowtimeTable";
 import ShowtimeForm from "./components/ShowtimeForm";
+import PricingManager from "./components/PricingManager";
 
 export default function Dashboard() {
   const salesData = [
@@ -111,55 +112,6 @@ export default function Dashboard() {
   const [selectedTheater, setSelectedTheater] = useState("");
   const [selectedMovie, setSelectedMovie] = useState("");
 
-  // Dữ liệu mẫu cho phim
-  // const movies = [
-  //   {
-  //     poster: "https://via.placeholder.com/60x90?text=Poster",
-  //     title: "THE REAL GHOST",
-  //     genre: "Horror",
-  //     duration: "120 min",
-  //     release: "20 Jul 2024",
-  //     status: "Coming Soon",
-  //     statusColor: "warning",
-  //   },
-  //   {
-  //     poster: "https://via.placeholder.com/60x90?text=Poster",
-  //     title: "BLACK WIDOW",
-  //     genre: "Action",
-  //     duration: "135 min",
-  //     release: "10 Jun 2024",
-  //     status: "Now Showing",
-  //     statusColor: "success",
-  //   },
-  //   {
-  //     poster: "https://via.placeholder.com/60x90?text=Poster",
-  //     title: "AVATAR",
-  //     genre: "Sci-Fi",
-  //     duration: "150 min",
-  //     release: "01 May 2024",
-  //     status: "Ended",
-  //     statusColor: "secondary",
-  //   },
-  //   {
-  //     poster: "https://via.placeholder.com/60x90?text=Poster",
-  //     title: "SPIDER-MAN",
-  //     genre: "Adventure",
-  //     duration: "110 min",
-  //     release: "05 Jul 2024",
-  //     status: "Now Showing",
-  //     statusColor: "success",
-  //   },
-  //   {
-  //     poster: "https://via.placeholder.com/60x90?text=Poster",
-  //     title: "BARBIE",
-  //     genre: "Comedy",
-  //     duration: "95 min",
-  //     release: "30 Jul 2024",
-  //     status: "Coming Soon",
-  //     statusColor: "warning",
-  //   },
-  // ];
-
   // State cho edit movie
   const [editMovie, setEditMovie] = useState(null);
   const [editForm, setEditForm] = useState({
@@ -178,17 +130,6 @@ export default function Dashboard() {
 
   // State cho add movie
   const [isAddMovie, setIsAddMovie] = useState(false);
-
-  // Thêm dữ liệu mẫu cho theaters
-
-  // Dữ liệu mẫu
-
-  // State
-  // const [selectedCity, setSelectedCity] = useState("");
-  // const [selectedTheater, setSelectedTheater] = useState("");
-  // const [selectedMovie, setSelectedMovie] = useState("");
-  // const [filteredShowtimes, setFilteredShowtimes] = useState([]);
-  // const [selectedShowtimeData, setSelectedShowtimeData] = useState(null);
 
   // Xử lý khi nhấn Select
 
@@ -542,6 +483,12 @@ export default function Dashboard() {
     fetch("http://127.0.0.1:8000/api/movies")
       .then((res) => res.json())
       .then((data) => setMovies(data));
+
+    // Load showtimes
+    fetch("http://127.0.0.1:8000/api/showtimes")
+      .then((res) => res.json())
+      .then((data) => setFilteredShowtimes(data))
+      .catch((err) => console.error("Failed to load showtimes:", err));
   }, []);
 
   // Showtime handlers
@@ -765,7 +712,6 @@ export default function Dashboard() {
               <ShowtimeForm
                 movies={movies}
                 theaters={theaters}
-                rooms={rooms}
                 editingShowtime={editingShowtime}
                 onSave={handleSaveShowtime}
                 onCancel={() => {
@@ -775,6 +721,17 @@ export default function Dashboard() {
               />
             )}
           </>
+        )}
+        {activeMenu === "Pricing" && (
+          <PricingManager
+            seatTypes={seatTypes}
+            setSeatTypes={setSeatTypes}
+            dayModifiers={dayModifiers}
+            setDayModifiers={setDayModifiers}
+            timeSlots={timeSlots}
+            setTimeSlots={setTimeSlots}
+            genTempId={genTempId} // Dùng helper ID từ component cha
+          />
         )}
 
         {/* ...existing code... */}
