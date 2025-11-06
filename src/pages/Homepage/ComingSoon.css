@@ -4,12 +4,6 @@
   overflow: hidden; /* chặn tràn nhưng vẫn cho nút nằm đè */
 }
 
-.banner-slider img {
-  width: 100%;
-  height: 60vh;
-  object-fit: cover;
-  display: block;
-}
 
 /* === Custom arrows styles === */
 .custom-arrow {
@@ -53,6 +47,17 @@
   right: 25px;
 }
 
+/* Dịch nút prev/next ra ngoài 40px cho ComingSoon */
+.comingsoon-slider .prev-arrow {
+  left: -60px;
+  background-color: rgba(255, 255, 255, 0.125);
+}
+
+.comingsoon-slider .next-arrow {
+  right: -60px;
+  background-color: rgba(255, 255, 255, 0.125);
+}
+
 /* === Dots chỉnh gọn === */
 .banner-slider-container .slick-dots {
   bottom: 20px;
@@ -75,3 +80,24 @@
   color: #ff7b00;
 }
 
+.slick-arrow {
+  display: block !important;
+  opacity: 1 !important;
+}
+
+.slick-prev:before,
+.slick-next:before {
+  display: none !important;
+}
+.custom-arrow:hover {
+  background: rgba(255, 123, 0, 0.85);
+  transform: translateY(-50%) scale(1.08);
+  opacity: 1;
+}
+
+.poster-wrapper,
+.poster-img,
+.card,
+img {
+  border-radius: 0 !important;
+}

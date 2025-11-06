@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
+import { PrevArrow, NextArrow } from "../../components/SliderArrow";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./BannerSlider.css";
-import { PrevArrow, NextArrow } from "../../components/SliderArrow";
 
 const BannerSlider = () => {
   const [movies, setMovies] = useState([]);

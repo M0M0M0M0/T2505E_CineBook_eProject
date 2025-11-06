@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import "./NowShowing.css"; // dùng chung CSS
+// import "slick-carousel/slick/slick.css";
+// import "slick-carousel/slick/slick-theme.css";
+import "./ComingSoon.css"; // dùng chung CSS
+import { PrevArrow, NextArrow } from "../../components/SliderArrow";
 
 const ComingSoon = () => {
   const navigate = useNavigate();
@@ -44,6 +45,8 @@ const ComingSoon = () => {
     autoplay: false,
     speed: 600,
     dots: false,
+    prevArrow: <PrevArrow />,
+    nextArrow: <NextArrow />,
     responsive: [
       { breakpoint: 1200, settings: { slidesToShow: 3 } },
       { breakpoint: 768, settings: { slidesToShow: 2 } },
@@ -53,7 +56,7 @@ const ComingSoon = () => {
 
   return (
     <div className="w-100 py-5">
-      <div className="container">
+      <div className="container comingsoon-slider">
         {/* --- Header --- */}
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2 className="fw-semibold text-white mb-0">Coming Soon</h2>
@@ -141,10 +144,7 @@ const ComingSoon = () => {
       {/* --- Modal trailer overlay --- */}
       {showTrailer && trailerLink && (
         <div className="trailer-modal" onClick={() => setShowTrailer(false)}>
-          <div
-            className="trailer-content"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="trailer-content" onClick={(e) => e.stopPropagation()}>
             <iframe
               src={getEmbedUrl(trailerLink)}
               title="Trailer"
