@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -98,54 +98,67 @@ export default function Dashboard() {
   const [userExporting, userSetExporting] = useState(false);
   const [userChangingPassword, userSetChangingPassword] = useState(false);
 
+ // --- Showtime data (from Laravel API) ---
+const [cities, setCities] = useState([]);
+const [theaters, setTheaters] = useState([]);
+const [movies, setMovies] = useState([]);
+const [rooms, setRooms] = useState([]);
+const [filteredShowtimes, setFilteredShowtimes] = useState([]);
+
+const [selectedCity, setSelectedCity] = useState("");
+const [selectedTheater, setSelectedTheater] = useState("");
+const [selectedMovie, setSelectedMovie] = useState("");
+
+
+
   // Dữ liệu mẫu cho phim
-  const movies = [
-    {
-      poster: "https://via.placeholder.com/60x90?text=Poster",
-      title: "THE REAL GHOST",
-      genre: "Horror",
-      duration: "120 min",
-      release: "20 Jul 2024",
-      status: "Coming Soon",
-      statusColor: "warning",
-    },
-    {
-      poster: "https://via.placeholder.com/60x90?text=Poster",
-      title: "BLACK WIDOW",
-      genre: "Action",
-      duration: "135 min",
-      release: "10 Jun 2024",
-      status: "Now Showing",
-      statusColor: "success",
-    },
-    {
-      poster: "https://via.placeholder.com/60x90?text=Poster",
-      title: "AVATAR",
-      genre: "Sci-Fi",
-      duration: "150 min",
-      release: "01 May 2024",
-      status: "Ended",
-      statusColor: "secondary",
-    },
-    {
-      poster: "https://via.placeholder.com/60x90?text=Poster",
-      title: "SPIDER-MAN",
-      genre: "Adventure",
-      duration: "110 min",
-      release: "05 Jul 2024",
-      status: "Now Showing",
-      statusColor: "success",
-    },
-    {
-      poster: "https://via.placeholder.com/60x90?text=Poster",
-      title: "BARBIE",
-      genre: "Comedy",
-      duration: "95 min",
-      release: "30 Jul 2024",
-      status: "Coming Soon",
-      statusColor: "warning",
-    },
-  ];
+  // const movies = [
+  //   {
+  //     poster: "https://via.placeholder.com/60x90?text=Poster",
+  //     title: "THE REAL GHOST",
+  //     genre: "Horror",
+  //     duration: "120 min",
+  //     release: "20 Jul 2024",
+  //     status: "Coming Soon",
+  //     statusColor: "warning",
+  //   },
+  //   {
+  //     poster: "https://via.placeholder.com/60x90?text=Poster",
+  //     title: "BLACK WIDOW",
+  //     genre: "Action",
+  //     duration: "135 min",
+  //     release: "10 Jun 2024",
+  //     status: "Now Showing",
+  //     statusColor: "success",
+  //   },
+  //   {
+  //     poster: "https://via.placeholder.com/60x90?text=Poster",
+  //     title: "AVATAR",
+  //     genre: "Sci-Fi",
+  //     duration: "150 min",
+  //     release: "01 May 2024",
+  //     status: "Ended",
+  //     statusColor: "secondary",
+  //   },
+  //   {
+  //     poster: "https://via.placeholder.com/60x90?text=Poster",
+  //     title: "SPIDER-MAN",
+  //     genre: "Adventure",
+  //     duration: "110 min",
+  //     release: "05 Jul 2024",
+  //     status: "Now Showing",
+  //     statusColor: "success",
+  //   },
+  //   {
+  //     poster: "https://via.placeholder.com/60x90?text=Poster",
+  //     title: "BARBIE",
+  //     genre: "Comedy",
+  //     duration: "95 min",
+  //     release: "30 Jul 2024",
+  //     status: "Coming Soon",
+  //     statusColor: "warning",
+  //   },
+  // ];
 
   // State cho edit movie
   const [editMovie, setEditMovie] = useState(null);
@@ -167,88 +180,19 @@ export default function Dashboard() {
   const [isAddMovie, setIsAddMovie] = useState(false);
 
   // Thêm dữ liệu mẫu cho theaters
-  const theaters = [
-    {
-      name: "CGV Aeon Mall",
-      city: "Ho Chi Minh",
-      address: "30 Bo Bao Tan Thang, Son Ky Ward, Tan Phu District",
-      rooms: 5,
-      seatCapacity: 800,
-      status: "Active",
-      statusColor: "success",
-    },
-    {
-      name: "Galaxy Nguyen Du",
-      city: "Ho Chi Minh",
-      address: "116 Nguyen Du, Ben Thanh Ward, District 1",
-      rooms: 4,
-      seatCapacity: 600,
-      status: "Active",
-      statusColor: "success",
-    },
-    // Thêm theaters khác...
-  ];
-
+  
   // Dữ liệu mẫu
-  const cities = ["Hà Nội", "TP. Hồ Chí Minh"];
-  const theaters2 = [
-    { id: 1, name: "CGV Vincom", city: "Hà Nội" },
-    { id: 2, name: "BHD Bitexco", city: "TP. Hồ Chí Minh" },
-  ];
-  const movies2 = [
-    { id: 1, title: "Avengers: Endgame" },
-    { id: 2, title: "Inception" },
-  ];
-  const showtimes = [
-    {
-      title: "Avengers: Endgame",
-      city: "Hà Nội",
-      theater: "CGV Vincom",
-      date: "2025-10-18",
-      time: "18:30",
-      room: 3,
-      price: 120000,
-      status: "Available",
-      statusColor: "success",
-      sold: 45,
-      totalTicket: 100,
-    },
-    {
-      title: "Inception",
-      city: "TP. Hồ Chí Minh",
-      theater: "BHD Bitexco",
-      date: "2025-10-19",
-      time: "20:00",
-      room: 2,
-      price: 100000,
-      status: "Full",
-      statusColor: "danger",
-      sold: 100,
-      totalTicket: 100,
-    },
-  ];
+ 
 
   // State
-  const [selectedCity, setSelectedCity] = useState("");
-  const [selectedTheater, setSelectedTheater] = useState("");
-  const [selectedMovie, setSelectedMovie] = useState("");
-  const [filteredShowtimes, setFilteredShowtimes] = useState([]);
-  const [selectedShowtimeData, setSelectedShowtimeData] = useState(null);
+  // const [selectedCity, setSelectedCity] = useState("");
+  // const [selectedTheater, setSelectedTheater] = useState("");
+  // const [selectedMovie, setSelectedMovie] = useState("");
+  // const [filteredShowtimes, setFilteredShowtimes] = useState([]);
+  // const [selectedShowtimeData, setSelectedShowtimeData] = useState(null);
 
   // Xử lý khi nhấn Select
-  const handleSelectShowtime = () => {
-    const filtered = showtimes.filter((s) => {
-      const matchCity = selectedCity ? s.city === selectedCity : true;
-      const matchTheater = selectedTheater
-        ? s.theater === selectedTheater
-        : true;
-      const matchMovie = selectedMovie ? s.title === selectedMovie : true;
-      return matchCity && matchTheater && matchMovie;
-    });
-
-    setFilteredShowtimes(filtered);
-  };
-
+  
   // State cho theater
   const [editTheater, setEditTheater] = useState(null);
   const [isAddTheater, setIsAddTheater] = useState(false);
