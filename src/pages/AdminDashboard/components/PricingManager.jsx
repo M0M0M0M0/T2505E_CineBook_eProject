@@ -504,7 +504,7 @@ export default function PricingManager({
 
   return (
     <div className="container-fluid p-0">
-      <h3 className="mb-4">💰 Pricing Rules Management</h3>
+      <h3 className="mb-4 text-dark">💰 Pricing Rules Management</h3>
 
       {/* Tab Navigation (English) */}
       <ul className="nav nav-tabs mb-4">
