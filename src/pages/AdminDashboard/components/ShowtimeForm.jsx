@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./ShowtimeForm.css";
 
 export default function ShowtimeForm({
   movies,
@@ -71,7 +72,7 @@ export default function ShowtimeForm({
 
   return (
     <div className="bg-white rounded shadow-sm p-4">
-      <h4 className="text-center mb-4">
+      <h4 className="text-center mb-4 text-dark">
         {editingShowtime ? "Edit Showtime" : "Add New Showtime"}
       </h4>
 
@@ -178,8 +179,7 @@ export default function ShowtimeForm({
               value={form.price}
               onChange={(e) => setForm({ ...form, price: e.target.value })}
               min="0"
-              step="1000"
-              placeholder="50000"
+              step="1"
               required
             />
           </div>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Pencil, Trash2, Plus } from "lucide-react";
+import "./ShowtimeForm.css";
 
 export default function ShowtimeTable({
   cities,
@@ -64,7 +65,7 @@ export default function ShowtimeTable({
   return (
     <div className="bg-white rounded shadow-sm p-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h4>Showtime Management</h4>
+        <h4 className="text-dark">Showtime Management</h4>
         <button className="btn btn-primary" onClick={onAddShowtime}>
           <Plus size={18} className="me-2" />
           Add Showtime
