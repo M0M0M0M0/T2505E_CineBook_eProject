@@ -258,7 +258,7 @@ export default function BookingSection({
       <div className="booking-summary">
         <h4>Booking Summary</h4>
         <p>Selected seats: {selectedSeats.join(", ") || "None"}</p>
-        <p>Base Price (from API): {basePrice.toLocaleString("vi-VN")} VND</p>
+        <p>Base Price : {basePrice.toLocaleString("vi-VN")} VND</p>
         <h4>Total: {total.toLocaleString("vi-VN")} VND</h4>
 
         <div className="total-buttons">

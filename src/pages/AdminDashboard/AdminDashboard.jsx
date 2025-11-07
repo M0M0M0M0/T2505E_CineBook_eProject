@@ -504,51 +504,90 @@ export default function Dashboard() {
 
   const handleSaveShowtime = async (formData) => {
     try {
-      const url = editingShowtime
-        ? `http://127.0.0.1:8000/api/showtimes/${editingShowtime.id}`
+      // Map form data to API format
+      const apiData = {
+        movie_id: formData.movie_id,
+        theater_id: formData.theater_id,
+        room_id: formData.room_id,
+        show_date: formData.show_date || formData.date,
+        show_time: formData.show_time || formData.start_time,
+        price: formData.price,
+        status: formData.status || "Available",
+      };
+
+      // Use correct ID field
+      const showtimeId = editingShowtime?.showtime_id;
+
+      const url = showtimeId
+        ? `http://127.0.0.1:8000/api/showtimes/${showtimeId}`
         : "http://127.0.0.1:8000/api/showtimes";
 
+      console.log("Saving showtime:", {
+        url,
+        method: showtimeId ? "PUT" : "POST",
+        data: apiData,
+      });
+
       const res = await fetch(url, {
-        method: editingShowtime ? "PUT" : "POST",
+        method: showtimeId ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(apiData),
       });
 
-      if (!res.ok) throw new Error("Failed to save");
+      const responseData = await res.json();
+      console.log("Response:", responseData);
 
-      // Reload showtimes
-      const data = await res.json();
-      setFilteredShowtimes((prev) => {
-        if (editingShowtime) {
-          return prev.map((s) => (s.id === data.id ? data : s));
-        }
-        return [...prev, data];
-      });
+      if (!res.ok) {
+        throw new Error(responseData.message || "Failed to save showtime");
+      }
+
+      // Reload all showtimes from API to ensure fresh data
+      const reloadRes = await fetch("http://127.0.0.1:8000/api/showtimes");
+      const allShowtimes = await reloadRes.json();
+      setFilteredShowtimes(allShowtimes);
 
       setShowAddShowtime(false);
       setEditingShowtime(null);
+
+      alert(
+        showtimeId
+          ? "Showtime updated successfully!"
+          : "Showtime created successfully!"
+      );
     } catch (err) {
       console.error("Error saving showtime:", err);
-      alert("Failed to save showtime");
+      alert(`Failed to save showtime: ${err.message}`);
     }
   };
 
-  const handleDeleteShowtime = async (id) => {
-    if (!window.confirm("Are you sure?")) return;
+  const handleDeleteShowtime = async (showtimeId) => {
+    if (!window.confirm("Are you sure you want to delete this showtime?"))
+      return;
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/showtimes/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/showtimes/${showtimeId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-      if (!res.ok) throw new Error("Failed to delete");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to delete showtime");
+      }
 
-      setFilteredShowtimes((prev) => prev.filter((s) => s.id !== id));
+      // Remove from state
+      setFilteredShowtimes((prev) =>
+        prev.filter((s) => s.showtime_id !== showtimeId)
+      );
+
+      alert("Showtime deleted successfully!");
     } catch (err) {
       console.error("Error deleting showtime:", err);
-      alert("Failed to delete showtime");
+      alert(`Failed to delete showtime: ${err.message}`);
     }
   };
 

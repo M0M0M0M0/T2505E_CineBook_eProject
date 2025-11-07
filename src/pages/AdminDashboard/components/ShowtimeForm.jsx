@@ -8,20 +8,46 @@ export default function ShowtimeForm({
   onSave,
   onCancel,
 }) {
-  const [form, setForm] = useState(
-    editingShowtime || {
-      movie_id: "",
-      theater_id: "",
-      room_id: "",
-      date: "",
-      start_time: "",
-      price: "",
-      status: "Available",
-    }
-  );
+  const [form, setForm] = useState({
+    movie_id: "",
+    theater_id: "",
+    room_id: "",
+    date: "",
+    start_time: "",
+    price: "",
+    status: "Available",
+  });
 
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // Update form when editingShowtime changes
+  useEffect(() => {
+    if (editingShowtime) {
+      setForm({
+        movie_id: editingShowtime.movie_id || "",
+        theater_id: editingShowtime.theater_id || "",
+        room_id: editingShowtime.room_id || "",
+        // Map API fields to form fields
+        date: editingShowtime.show_date || editingShowtime.date || "",
+        start_time:
+          editingShowtime.show_time || editingShowtime.start_time || "",
+        price: editingShowtime.price || "",
+        status: editingShowtime.status || "Available",
+      });
+    } else {
+      // Reset form for new showtime
+      setForm({
+        movie_id: "",
+        theater_id: "",
+        room_id: "",
+        date: "",
+        start_time: "",
+        price: "",
+        status: "Available",
+      });
+    }
+  }, [editingShowtime]);
 
   // Load rooms when theater is selected
   useEffect(() => {
@@ -59,7 +85,19 @@ export default function ShowtimeForm({
       return;
     }
 
-    onSave(form);
+    // Prepare data for API (map back to API format)
+    const showtimeData = {
+      ...form,
+      show_date: form.date,
+      show_time: form.start_time,
+    };
+
+    // Include showtime_id if editing
+    if (editingShowtime?.showtime_id) {
+      showtimeData.showtime_id = editingShowtime.showtime_id;
+    }
+
+    onSave(showtimeData);
   };
 
   const handleTheaterChange = (e) => {
