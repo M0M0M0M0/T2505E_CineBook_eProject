@@ -127,6 +127,8 @@ export default function Dashboard() {
     release: "",
   });
   const [editError, setEditError] = useState("");
+  //State cho tìm kiếm trong movie admin dash board
+  const [movieSearch, setMovieSearch] = useState("");
 
   // State cho add movie
   const [isAddMovie, setIsAddMovie] = useState(false);
@@ -245,20 +247,30 @@ export default function Dashboard() {
     setEditError("");
   };
 
+  const [genres, setGenres] = useState([]);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/genres")
+      .then((res) => res.json())
+      .then((data) => setGenres(data))
+      .catch((err) => console.error("Failed to load genres:", err));
+  }, []);
+
   const handleEdit = (movie, idx) => {
     setEditMovie(idx);
     setIsAddMovie(false);
     setEditForm({
-      movieId: idx + 1 + "",
-      title: movie.title,
-      poster: movie.poster,
-      genre: movie.genre,
-      duration: movie.duration,
-      trailer: movie.trailer || "",
+      movie_id: movie.movie_id || "",
+      title: movie.title || "",
+      original_title: movie.original_title || "",
+      original_language: movie.original_language || "",
+      duration: movie.duration || "",
+      poster_path: movie.poster_path || "",
+      backdrop_path: movie.backdrop_path || "",
+      trailer_link: movie.trailer_link || "",
+      genres: Array.isArray(movie.genres) ? movie.genres.map(g => g.genre_id) : [],
       overview: movie.overview || "",
-      originalLanguage: movie.originalLanguage || "",
-      originalTitle: movie.originalTitle || "",
-      release: movie.release,
+      release_date: movie.release_date || "",
     });
     setEditError("");
   };
@@ -267,17 +279,19 @@ export default function Dashboard() {
     setIsAddMovie(true);
     setEditMovie(null);
     setEditForm({
-      movieId: "",
+      movie_id: "",
       title: "",
-      poster: "",
-      genre: "",
+      original_title: "",
+      original_language: "",
       duration: "",
-      trailer: "",
+      poster_path: "",
+      backdrop_path: "",
+      trailer_link: "",
+      genres: "",
       overview: "",
-      originalLanguage: "",
-      originalTitle: "",
-      release: "",
+      release_date: "",
     });
+
     setEditError("");
   };
 
@@ -600,11 +614,10 @@ export default function Dashboard() {
           {menuItems.map((item, i) => (
             <div
               key={i}
-              className={`d-flex align-items-center gap-2 p-2 rounded cursor-pointer ${
-                activeMenu === item.name
-                  ? "bg-danger text-white"
-                  : "text-secondary hover-bg-light"
-              }`}
+              className={`d-flex align-items-center gap-2 p-2 rounded cursor-pointer ${activeMenu === item.name
+                ? "bg-danger text-white"
+                : "text-secondary hover-bg-light"
+                }`}
               style={{ cursor: "pointer" }}
               onClick={() => handleMenuClick(item.name)}
             >
@@ -636,7 +649,10 @@ export default function Dashboard() {
                 movies={movies}
                 handleEdit={handleEdit}
                 handleAddMovie={handleAddMovie}
+                movieSearch={movieSearch}
+                setMovieSearch={setMovieSearch}
               />
+
             ) : (
               <MovieForm
                 isAddMovie={isAddMovie}
@@ -647,6 +663,7 @@ export default function Dashboard() {
                 handleEditSave={handleEditSave}
                 handleAddCancel={handleAddCancel}
                 handleEditCancel={handleEditCancel}
+                genres={genres}
               />
             )}
           </>
