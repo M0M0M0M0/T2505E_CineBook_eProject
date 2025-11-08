@@ -511,9 +511,9 @@ export default function ShowtimeSelector({ onSelectShowtime }) {
                               : "#555",
                         }}
                       >
-                        {new Intl.NumberFormat("vi-VN", {
+                        {new Intl.NumberFormat("en-US", {
                           style: "currency",
-                          currency: "VND",
+                          currency: "USD",
                         }).format(showtime.base_price)}
                       </div>
                       {showtime.status !== "Available" && (
@@ -526,8 +526,8 @@ export default function ShowtimeSelector({ onSelectShowtime }) {
                           }}
                         >
                           {showtime.status === "Full"
-                            ? "❌ Hết vé"
-                            : "🚫 Đã hủy"}
+                            ? "❌ Sold Out"
+                            : "🚫 Cancelled"}
                         </div>
                       )}
                     </button>

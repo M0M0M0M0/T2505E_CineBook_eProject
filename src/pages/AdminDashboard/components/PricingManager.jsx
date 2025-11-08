@@ -9,8 +9,10 @@ import {
   RefreshCw,
   Pencil,
 } from "lucide-react";
+import { label } from "framer-motion/client";
+import "./PricingManager.css";
 
-// --- API Helper Functions (Giữ nguyên) ---
+// --- API Helper Functions ---
 const API_BASE = "http://127.0.0.1:8000/api";
 
 const fetchModifiers = async (endpoint, setState, setLoading) => {
@@ -40,7 +42,6 @@ const handleSave = async (
 ) => {
   const method = isNew ? "POST" : "PUT";
 
-  // ✅ Map endpoint sang tên bảng/model đúng
   const endpointToTableMap = {
     "seat-types": "seat_type",
     "day-modifiers": "day_modifier",
@@ -54,25 +55,20 @@ const handleSave = async (
     ? `${API_BASE}/${endpoint}`
     : `${API_BASE}/${endpoint}/${id}`;
 
-  // Tạo bản copy và loại bỏ các field internal
   const dataToSend = { ...data };
-  delete dataToSend.__isNew;
-  // delete dataToSend.__tempKey; // Không cần thiết nếu bạn đã bỏ __tempKey
+  delete dataToSend.__isNew; // Ensure numeric fields are cast to float
 
-  // Ensure numeric fields are cast to float before sending
   for (const key in dataToSend) {
     if (key.includes("price") || key.includes("amount")) {
       dataToSend[key] = parseFloat(dataToSend[key]) || 0;
     }
   }
 
-  // Nếu là bản ghi mới, kiểm tra ID. (Đây là logic đã sửa ở lần trước)
   if (isNew && !dataToSend[idKey]) {
     alert("Error: ID must be filled out!");
     return false;
   }
 
-  // --- BỔ SUNG LOGIC GỌI API VÀ XỬ LÝ KẾT QUẢ ---
   try {
     const response = await fetch(url, {
       method: method,
@@ -87,32 +83,30 @@ const handleSave = async (
       return false;
     }
 
-    const result = await response.json();
+    const result = await response.json(); // Nếu là update (không phải new), cập nhật trạng thái // Nếu là toggle, `result.data` có thể là `{ success: true }`, cần dùng dữ liệu đã gửi
 
-    // Cập nhật State (Dữ liệu hiển thị trên bảng)
+    const updatedData = result.data || { [idKey]: id, ...data };
+
     updateState((prev) => {
       if (isNew) {
-        // Thêm bản ghi mới vào đầu danh sách, loại bỏ ID tạm thời (nếu có)
-        return [result.data, ...prev.filter((r) => r[idKey] !== id)];
+        // Xóa row tạm thời và thêm row mới từ kết quả API
+        return [updatedData, ...prev.filter((r) => r[idKey] !== id)];
       } else {
-        // Thay thế bản ghi cũ bằng dữ liệu mới nhất từ API
-        return prev.map((r) => (r[idKey] === id ? result.data : r));
+        // Cập nhật row
+        return prev.map((r) =>
+          r[idKey] === id ? { ...r, ...updatedData } : r
+        );
       }
     });
 
-    // Trả về true để handleSaveClick biết rằng đã lưu thành công và có thể tắt chế độ chỉnh sửa
     return true;
   } catch (error) {
     console.error("Network Error:", error);
     alert("API connection error.");
     return false;
   }
-  // --- KẾT THÚC LOGIC BỔ SUNG ---
 };
 
-// --- ĐẦU FILE (NGOÀI COMPONENT) ---
-
-// SỬA: Thay thế updateState bằng reloadData
 const handleDelete = async (id, endpoint, reloadData) => {
   if (!window.confirm(`Are you sure you want to delete ID: ${id}?`)) return;
 
@@ -121,13 +115,8 @@ const handleDelete = async (id, endpoint, reloadData) => {
       method: "DELETE",
     });
 
-    // Không cần const idKey = ... nữa vì chúng ta sẽ reload toàn bộ
-
-    // Kiểm tra status 204 (No Content) hoặc response.ok
     if (response.status === 204 || response.ok) {
-      // --- LOGIC RELOAD ĐƠN GIẢN ---
-      reloadData(); // <--- GỌI HÀM RELOAD DỮ LIỆU TỪ SERVER
-
+      reloadData();
       alert("Deletion successful!");
     } else {
       let errorData = {};
@@ -146,16 +135,17 @@ const handleDelete = async (id, endpoint, reloadData) => {
 };
 
 // --- Custom Toggle Switch Component ---
+// Đã loại bỏ class 'disabled' khỏi label và chỉ dựa vào thuộc tính disabled của input
 const ToggleSwitch = ({ name, checked, onChange, disabled = false }) => (
-  <label className={`custom-toggle-switch ${disabled ? "disabled" : ""}`}>
+  <label className="switch">
     <input
       type="checkbox"
       name={name}
       checked={checked}
       onChange={onChange}
-      disabled={disabled}
+      disabled={disabled} // Dùng disabled trực tiếp trên input
     />
-    <span className="slider"></span>
+    <span className="slider round"></span>
   </label>
 );
 
@@ -179,27 +169,24 @@ const PricingTable = ({
       `PricingTable requires a column with isId: true for endpoint ${endpoint}`
     );
 
-  useEffect(() => {
-    fetchModifiers(endpoint, setData, setLoading);
-  }, [endpoint, setData]);
   const reloadData = () => {
     fetchModifiers(endpoint, setData, setLoading);
   };
 
   useEffect(() => {
-    // Sử dụng hàm mới này để tải dữ liệu ban đầu
     reloadData();
-  }, [endpoint, setData]);
+  }, [endpoint]);
+
   const handleAdd = () => {
     if (editingId) return;
 
     const newRow = {
-      [idKey]: "", // ID rỗng để người dùng nhập
+      [idKey]: "",
       ...newRowDefaults,
       __isNew: true,
     };
     setData([newRow, ...data]);
-    setEditingId("__NEW__"); // Dùng một ID đặc biệt cho hàng mới
+    setEditingId("__NEW__");
     setTempData(newRow);
   };
 
@@ -210,7 +197,6 @@ const PricingTable = ({
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     let finalValue = type === "checkbox" ? checked : value;
 
     setTempData((prev) => ({
@@ -220,15 +206,11 @@ const PricingTable = ({
   };
 
   const handleSaveClick = async () => {
-    // 1. Kiểm tra xem có đang thêm mới không
     const isNew = editingId === "__NEW__";
-
-    // 2. Lấy ID từ tempData
     const currentIdValue = tempData[idKey]
       ? String(tempData[idKey]).trim()
       : "";
 
-    // 3. Kiểm tra ID không được rỗng
     if (currentIdValue === "") {
       alert("Please fill in the ID field.");
       return;
@@ -240,7 +222,7 @@ const PricingTable = ({
       endpoint,
       isNew,
       setData,
-      reloadData()
+      reloadData
     );
 
     if (success) {
@@ -257,23 +239,51 @@ const PricingTable = ({
     setTempData({});
   };
 
-  // Hàm render input/select/switch dựa trên tên cột
+  // ✨ HÀM MỚI: Xử lý bật/tắt trạng thái is_active ngay trong chế độ xem
+  const handleStatusToggle = async (row) => {
+    const currentId = row[idKey];
+    const newStatus = !row.is_active;
+    const dataToUpdate = { is_active: newStatus }; // Cập nhật trạng thái tạm thời trên UI trước (Optimistic Update)
+
+    setData((prev) =>
+      prev.map((r) =>
+        r[idKey] === currentId ? { ...r, is_active: newStatus } : r
+      )
+    ); // Gọi hàm save (PUT request)
+
+    const success = await handleSave(
+      currentId,
+      dataToUpdate, // Chỉ gửi is_active
+      endpoint,
+      false, // Luôn là update, không phải new
+      setData,
+      reloadData
+    ); // Nếu save thất bại, rollback lại trạng thái cũ
+
+    if (!success) {
+      setData((prev) =>
+        prev.map((r) =>
+          r[idKey] === currentId ? { ...r, is_active: !newStatus } : r
+        )
+      );
+    }
+  };
+
   const renderEditField = (col) => {
     const name = col.accessor;
-    const value = tempData[name] !== undefined ? tempData[name] : "";
+    const value = tempData[name] !== undefined ? tempData[name] : ""; // ✅ Render Toggle Switch cho is_active (trong chế độ Edit)
 
-    // Render Toggle Switch cho is_active
     if (name === "is_active" && col.type === "boolean") {
       return (
         <ToggleSwitch
           name={name}
           checked={tempData[name] || false}
-          onChange={handleInputChange}
+          onChange={handleInputChange} // Dùng handleInputChange khi Edit
+          disabled={false}
         />
       );
     }
 
-    // Render Select for Modifier Type
     if (name === "modifier_type") {
       return (
         <select
@@ -287,7 +297,7 @@ const PricingTable = ({
         </select>
       );
     }
-    // Render Select for Operation
+
     if (name === "operation") {
       return (
         <select
@@ -302,7 +312,6 @@ const PricingTable = ({
       );
     }
 
-    // Render default Input (Text/Number)
     return (
       <input
         type={col.type === "number" ? "number" : "text"}
@@ -336,11 +345,12 @@ const PricingTable = ({
         <div>
           <button
             className="btn btn-sm btn-outline-info me-2"
-            onClick={() => fetchModifiers(endpoint, setData, setLoading)}
+            onClick={reloadData}
             disabled={loading || editingId !== null}
           >
             <RefreshCw size={16} /> Reload
           </button>
+
           <button
             className="btn btn-sm btn-warning"
             onClick={handleAdd}
@@ -350,6 +360,7 @@ const PricingTable = ({
           </button>
         </div>
       </div>
+
       {loading ? (
         <div className="p-4 text-center">Loading data...</div>
       ) : (
@@ -365,36 +376,36 @@ const PricingTable = ({
                 <th style={{ width: "120px" }}>Actions</th>
               </tr>
             </thead>
+
             <tbody>
-              {data.map((row, index) => (
+              {data.map((row) => (
                 <tr key={row.__isNew ? "__NEW__" : row[idKey]}>
                   {columns.map((col) => (
                     <td key={col.accessor}>
-                      {
-                        isRowEditing(row) ? (
-                          renderEditField(col)
-                        ) : col.render ? (
-                          col.render(row[col.accessor])
-                        ) : // Nếu là cột is_active ở chế độ xem, render Toggle Switch không tương tác
-                        col.accessor === "is_active" &&
-                          col.type === "boolean" ? (
-                          <ToggleSwitch
-                            name={col.accessor}
-                            checked={row[col.accessor]}
-                            onChange={() => {}}
-                            disabled={true}
-                          />
-                        ) : // Render giá tiền
-                        col.type === "number" &&
-                          (col.accessor.includes("price") ||
-                            col.accessor.includes("amount")) ? (
-                          `$${(parseFloat(row[col.accessor]) || 0).toFixed(2)}`
-                        ) : (
-                          row[col.accessor]
-                        ) // Render các trường còn lại
-                      }
+                      {isRowEditing(row) ? (
+                        renderEditField(col)
+                      ) : col.render ? (
+                        col.render(row[col.accessor])
+                      ) : col.accessor === "is_active" &&
+                        col.type === "boolean" ? (
+                        // ✅ Render Toggle Switch ở chế độ XEM (có thể tương tác)
+
+                        <ToggleSwitch
+                          name={col.accessor}
+                          checked={row[col.accessor] || false}
+                          onChange={() => handleStatusToggle(row)} // GỌI HÀM TOGGLE MỚI
+                          disabled={editingId !== null} // Disabled nếu đang edit row khác
+                        />
+                      ) : col.type === "number" &&
+                        (col.accessor.includes("price") ||
+                          col.accessor.includes("amount")) ? (
+                        `$${(parseFloat(row[col.accessor]) || 0).toFixed(2)}`
+                      ) : (
+                        row[col.accessor]
+                      )}
                     </td>
                   ))}
+
                   <td>
                     {isRowEditing(row) ? (
                       <>
@@ -405,6 +416,7 @@ const PricingTable = ({
                         >
                           <Save size={16} />
                         </button>
+
                         <button
                           className="btn btn-secondary btn-sm"
                           onClick={handleCancel}
@@ -419,15 +431,18 @@ const PricingTable = ({
                           className="btn btn-primary btn-sm me-1"
                           onClick={() => handleEditStart(row)}
                           title="Edit"
+                          disabled={editingId !== null} // Disabled nếu đang edit row khác
                         >
                           <Pencil size={16} />
                         </button>
+
                         <button
                           className="btn btn-danger btn-sm"
                           onClick={() =>
-                            handleDelete(row[idKey], endpoint, setData)
+                            handleDelete(row[idKey], endpoint, reloadData)
                           }
                           title="Delete"
+                          disabled={editingId !== null} // Disabled nếu đang edit row khác
                         >
                           <Trash2 size={16} />
                         </button>
@@ -445,7 +460,6 @@ const PricingTable = ({
 };
 
 // --- Parent PricingManager Component ---
-
 export default function PricingManager({
   seatTypes,
   setSeatTypes,
@@ -505,8 +519,6 @@ export default function PricingManager({
   return (
     <div className="container-fluid p-0">
       <h3 className="mb-4 text-dark">💰 Pricing Rules Management</h3>
-
-      {/* Tab Navigation (English) */}
       <ul className="nav nav-tabs mb-4">
         <li className="nav-item">
           <button
@@ -516,6 +528,7 @@ export default function PricingManager({
             Seat Types ({seatTypes.length})
           </button>
         </li>
+
         <li className="nav-item">
           <button
             className={`nav-link ${activeTab === "days" ? "active" : ""}`}
@@ -524,6 +537,7 @@ export default function PricingManager({
             Day Modifiers ({dayModifiers.length})
           </button>
         </li>
+
         <li className="nav-item">
           <button
             className={`nav-link ${activeTab === "times" ? "active" : ""}`}
@@ -534,7 +548,6 @@ export default function PricingManager({
         </li>
       </ul>
 
-      {/* Tab Content */}
       <div className="tab-content">
         {activeTab === "seats" && (
           <PricingTable

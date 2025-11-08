@@ -47,7 +47,7 @@ export default function BookingSection({
   showtimeId,
   currentUserId,
 }) {
-  console.log("DEBUG: Showtime ID received in BookingSection:", showtimeId);
+  // console.log("DEBUG: Showtime ID received in BookingSection:", showtimeId);
   const [soldSeats, setSoldSeats] = useState([]);
   const [basePrice, setBasePrice] = useState(0);
   const [seatPricesMap, setSeatPricesMap] = useState({});
@@ -80,20 +80,21 @@ export default function BookingSection({
       const soldCodes = data.reserved_seats.map((s) => s.code);
       setSoldSeats(soldCodes);
 
-      // 1. Ép kiểu Float cho Base Price
+      // ✅ Giá base giờ không cần thiết vì API đã trả về giá cuối cùng
       setBasePrice(parseFloat(data.base_showtime_price) || 0);
 
-      // 2. Xử lý Phụ phí: Ép kiểu giá từ String sang Number và tạo Map
+      // ✅ Xử lý giá ghế: API đã tính sẵn giá cuối cùng
       const processedPrices = {};
       if (data.seat_type_prices) {
         Object.keys(data.seat_type_prices).forEach((key) => {
           const priceData = data.seat_type_prices[key];
+          // Lưu giá CUỐI CÙNG đã áp dụng modifiers
           processedPrices[key] = parseFloat(priceData.seat_type_price) || 0;
         });
       }
       setSeatPricesMap(processedPrices);
 
-      console.log("DEBUG: API Response Data:", data);
+      console.log("✅ Processed Seat Prices:", processedPrices);
     } catch (err) {
       console.error("Error fetching data:", err);
       setError("Cannot load seating status.");
@@ -117,12 +118,13 @@ export default function BookingSection({
   // 2. LOGIC TÍNH TỔNG TIỀN (GIỮ NGUYÊN)
   // ====================================================================
   const calculateTotal = () => {
-    if (basePrice === 0 && Object.keys(seatPricesMap).length === 0) {
+    if (Object.keys(seatPricesMap).length === 0) {
       return 0;
     }
 
     let sum = 0;
 
+    // Tạo map từ seat code sang loại ghế
     const seatTypeMap = {};
     Object.entries(SEAT_LAYOUT).forEach(([row, seats]) => {
       seats.forEach((type, index) => {
@@ -133,8 +135,9 @@ export default function BookingSection({
     selectedSeats.forEach((seatCode) => {
       const localType = seatTypeMap[seatCode];
       const apiSeatName = mapLocalTypeToApiName(localType);
-      const extraPrice = seatPricesMap[apiSeatName] || 0;
-      const finalPrice = basePrice + extraPrice;
+
+      // ✅ Giá đã được tính sẵn từ API (bao gồm base + seat type + modifiers)
+      const finalPrice = seatPricesMap[apiSeatName] || 0;
       sum += finalPrice;
     });
 
@@ -148,8 +151,8 @@ export default function BookingSection({
   // ====================================================================
   const getSeatTypePrice = (localType) => {
     const apiSeatName = mapLocalTypeToApiName(localType);
-    const extraPrice = seatPricesMap[apiSeatName] || 0;
-    return basePrice + extraPrice;
+    // ✅ Trả về giá cuối cùng đã tính sẵn từ API
+    return seatPricesMap[apiSeatName] || 0;
   };
 
   // Danh sách các loại ghế để hiển thị trong legend
@@ -211,20 +214,60 @@ export default function BookingSection({
       return;
     }
 
+    // Kiểm tra user_id
+    if (!currentUserId) {
+      alert("User ID is missing. Please login again.");
+      return;
+    }
+
+    // console.log("🔍 DEBUG - Sending data:", {
+    //   showtime_id: showtimeId,
+    //   seat_codes: selectedSeats,
+    //   user_id: currentUserId,
+    // });
+
     // 1. GỌI API holdSeats (POST /api/bookings/hold)
     try {
+      // Lấy token từ localStorage
+      const token = localStorage.getItem("token");
+
+      // console.log("🔍 DEBUG - Token from localStorage:", token);
+
+      if (!token) {
+        alert("Token not found. Please login again.");
+        window.location.href = "/login";
+        return;
+      }
+
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // ⬅️ LUÔN GỬI TOKEN
+        Accept: "application/json", // ⬅️ THÊM ĐỂ BẢO ĐẢM RESPONSE LÀ JSON
+      };
+
+      // console.log("🔍 DEBUG - Request headers:", headers);
+
       const response = await fetch("http://127.0.0.1:8000/api/bookings/hold", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // LƯU Ý: Nếu bạn có hệ thống Authentication (token/session), cần thêm header:
-        // 'Authorization': `Bearer ${token}`
+        headers: headers,
         body: JSON.stringify({
           showtime_id: showtimeId,
           seat_codes: selectedSeats,
+          user_id: currentUserId, // ⬅️ Gửi kèm user_id nếu backend không dùng middleware
         }),
       });
 
+      // console.log("🔍 DEBUG - Response status:", response.status);
+
+      // Kiểm tra response trước khi parse JSON
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("🔍 DEBUG - Error response:", errorText);
+        throw new Error(`Server error: ${response.status}`);
+      }
+
       const result = await response.json();
+      // console.log("🔍 DEBUG - API Result:", result);
 
       if (response.ok && result.success) {
         // 2. Chuyển sang bước tiếp theo VÀ TRẢ VỀ booking_id
@@ -249,7 +292,13 @@ export default function BookingSection({
       }
     } catch (error) {
       console.error("Error holding seats:", error);
-      alert("An unexpected error occurred during seat reservation.");
+
+      // Hiển thị thông báo lỗi chi tiết hơn
+      if (error instanceof SyntaxError) {
+        alert("Server returned invalid response. Please try again.");
+      } else {
+        alert("An unexpected error occurred during seat reservation.");
+      }
     }
   };
 
@@ -306,7 +355,7 @@ export default function BookingSection({
               <span className="legend-text">
                 {item.label}:{" "}
                 <span className="legend-price">
-                  {price.toLocaleString("vi-VN")} VND
+                  ${price.toLocaleString("vi-VN")} 
                 </span>
               </span>
             </div>
@@ -325,7 +374,7 @@ export default function BookingSection({
       <div className="booking-summary">
         <h4>Booking Summary</h4>
         <p>Selected seats: {selectedSeats.join(", ") || "None"}</p>
-        <h4>Total: {total.toLocaleString("vi-VN")} VND </h4>
+        <h4>Total: ${total.toLocaleString("vi-VN")}  </h4>
 
         <div className="total-buttons">
           {onBack && (

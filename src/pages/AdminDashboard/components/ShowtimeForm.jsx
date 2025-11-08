@@ -209,7 +209,7 @@ export default function ShowtimeForm({
 
           <div className="col-md-6">
             <label className="form-label">
-              Base Price (VND) <span className="text-danger">*</span>
+              Base Price ($) <span className="text-danger">*</span>
             </label>
             <input
               type="number"

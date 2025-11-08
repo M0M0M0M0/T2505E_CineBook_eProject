@@ -203,7 +203,7 @@ export default function ShowtimeTable({
                     <td>{room?.room_name || showtime.room_id}</td>
                     <td>{showtime.show_date}</td>
                     <td>{showtime.show_time}</td>
-                    <td>{parseInt(showtime.price).toLocaleString()} VND</td>
+                    <td>{parseInt(showtime.price).toLocaleString()} $</td>
                     <td>
                       <span
                         className={`badge ${

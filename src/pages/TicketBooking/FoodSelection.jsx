@@ -3,11 +3,12 @@ import "./FoodSelection.css";
 
 export default function FoodSelection({
   selectedSeats,
-  seatTotal, // Lưu ý: VND
+  seatTotal, // Đã là USD
   onComplete,
   selectedFoods,
   setSelectedFoods,
   onBack,
+  bookingId, // ⬅️ THÊM PROP MỚI: Nhận Booking ID
 }) {
   const [foodMenu, setFoodMenu] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,7 +18,6 @@ export default function FoodSelection({
 
   useEffect(() => {
     const fetchFoods = async () => {
-      // ... (Phần gọi API giữ nguyên như trước, lấy giá USD)
       try {
         const response = await fetch(API_URL);
         if (!response.ok) {
@@ -65,23 +65,85 @@ export default function FoodSelection({
     });
   };
 
+  // ⬅️ THÊM HÀM MỚI: XỬ LÝ GỌI API TRƯỚC KHI CHUYỂN BƯỚC
+  const handleContinueWithApi = async () => {
+    if (!bookingId) {
+      alert("Lỗi: Booking ID không tìm thấy. Vui lòng chọn lại ghế.");
+      if (onBack) onBack();
+      return;
+    }
+
+    // Lấy token từ localStorage
+    const token = localStorage.getItem('token');
+    
+    // console.log("🔍 DEBUG Food - Token:", token);
+    // console.log("🔍 DEBUG Food - Booking ID:", bookingId);
+    
+    if (!token) {
+      alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      window.location.href = "/login";
+      return;
+    }
+
+    // Chuyển đổi format foods để gửi API
+    const foodsToSend = Object.entries(selectedFoods).map(
+      ([name, quantity]) => ({
+        food_name: name,
+        quantity: quantity,
+      })
+    );
+
+    // console.log("🔍 DEBUG Food - Data to send:", { foods: foodsToSend });
+
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/bookings/${bookingId}/foods`,
+        {
+          method: "PUT",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`, // ⬅️ THÊM TOKEN
+            "Accept": "application/json",
+          },
+          body: JSON.stringify({ foods: foodsToSend }),
+        }
+      );
+
+      // console.log("🔍 DEBUG Food - Response status:", response.status);
+      
+      const result = await response.json();
+      // console.log("🔍 DEBUG Food - Response data:", result);
+
+      if (response.ok && result.success) {
+        // API thành công → chuyển sang bước tiếp theo
+        onComplete({
+          foods: selectedFoods,
+          total: foodTotal,
+        });
+      } else {
+        alert(result.message || "Không thể lưu lựa chọn đồ ăn.");
+      }
+    } catch (error) {
+      console.error("Lỗi cập nhật snapshot đồ ăn:", error);
+      alert("Đã xảy ra lỗi không mong muốn khi cập nhật đồ ăn.");
+    }
+  };
+
   if (loading) return <div>Đang tải menu đồ ăn...</div>;
   if (error) return <div style={{ color: "red" }}>Lỗi: {error}</div>;
 
   return (
     <div className="food-selection">
-      <h4>Food Selection (Giá bằng USD)</h4>
+      <h4>Food Selection</h4>
       <div className="food-list">
         {foodMenu.map((item) => (
-          // Thêm lớp 'food-item-grid' để điều khiển căn chỉnh
           <div className="food-item food-item-grid" key={item.id || item.name}>
             <span className="food-name">{item.name}</span>
-            {/* Thêm lớp 'food-price-col' để căn chỉnh giá */}
+           
             <span className="food-price food-price-col">
               ${formatCurrency(item.price)}
             </span>
 
-            {/* THAY THẾ INPUT NUMBER BẰNG BỘ ĐẾM NGANG */}
             <div className="quantity-controls">
               {/* Nút TRỪ */}
               <button
@@ -93,7 +155,7 @@ export default function FoodSelection({
                 }
                 disabled={(selectedFoods[item.name] || 0) === 0}
               >
-                –
+                −
               </button>
 
               {/* Hiển thị số lượng */}
@@ -118,21 +180,19 @@ export default function FoodSelection({
       </div>
 
       <div className="food-summary">
-        {/* Giữ nguyên hiển thị tiền VND */}
-        <p>Seat total: {(seatTotal || 0).toLocaleString("vi-VN")} VND</p>
+        {/* ✅ Hiển thị USD (file mới đã sửa) */}
+        <p>Seat total: {formatCurrency(seatTotal || 0)}</p>
 
-        {/* Giữ nguyên hiển thị tiền Food USD */}
         <p>Food total: {formatCurrency(foodTotal)}</p>
 
         <p>
           <strong>
-            Grand total:{" "}
-            {/* ➡️ THỰC HIỆN PHÉP CỘNG TRỰC TIẾP và hiển thị theo định dạng USD */}
-            {formatCurrency((seatTotal || 0) + foodTotal)}
+            Grand total: {formatCurrency((seatTotal || 0) + foodTotal)}
           </strong>
         </p>
       </div>
-      {/* ... (Phần nút bấm giữ nguyên) ... */}
+
+      {/* Giữ nguyên class buttons từ file cũ */}
       <div className="total-buttons">
         {onBack && (
           <button className="back-button" onClick={onBack}>
@@ -142,12 +202,7 @@ export default function FoodSelection({
 
         <button
           disabled={!selectedSeats.length}
-          onClick={() =>
-            onComplete({
-              foods: selectedFoods,
-              total: foodTotal,
-            })
-          }
+          onClick={handleContinueWithApi} // ⬅️ ĐỔI: Gọi hàm mới thay vì onComplete trực tiếp
           className="total-button"
         >
           Confirm

@@ -5,11 +5,12 @@ export default function PaymentSection({
   movieTitle,
   selectedShowtime,
   selectedSeats = [],
-  seatTotal = 0,
+  seatTotal = 0, // ⬅️ ĐÃ LÀ USD
   selectedFoods = [],
-  foodTotal = 0,
-  onBack, // callback quay lại
-  onFinish, // callback sau khi thanh toán xong (ví dụ về trang chủ)
+  foodTotal = 0, // ⬅️ ĐÃ LÀ USD
+  onBack,
+  onFinish,
+  bookingId, // ⬅️ THÊM PROP MỚI: Nhận Booking ID
 }) {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [isPaid, setIsPaid] = useState(false);
@@ -28,27 +29,82 @@ export default function PaymentSection({
     return code;
   };
 
-  const handleConfirmPayment = () => {
-    const code = generateTicketCode();
-    setIsPaid(true);
-    alert("🎉 Payment successful!");
-    console.log("Payment successful:", {
-      movieTitle,
-      selectedShowtime,
-      selectedSeats,
-      selectedFoods,
-      total,
-      paymentMethod,
-      formData,
-      ticketCode: code,
-    });
-  };
-
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  // ⬅️ THÊM HÀM MỚI: GỌI API FINALIZE PAYMENT
+  const handleConfirmPayment = async () => {
+    if (!paymentMethod) {
+      alert("Vui lòng chọn phương thức thanh toán.");
+      return;
+    }
+
+    if (!bookingId) {
+      alert("Lỗi: Booking ID không tìm thấy. Không thể hoàn tất thanh toán.");
+      return;
+    }
+
+    // Lấy token từ localStorage
+    const token = localStorage.getItem("token");
+
+    console.log("🔍 DEBUG Payment - Token:", token);
+    console.log("🔍 DEBUG Payment - Booking ID:", bookingId);
+
+    if (!token) {
+      alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      window.location.href = "/login";
+      return;
+    }
+
+    // Gọi API finalizePayment
+    try {
+      const requestBody = {
+        booking_id: bookingId,
+        seat_codes: selectedSeats, // ⬅️ THÊM seat_codes (backend có thể cần)
+      };
+
+      console.log("🔍 DEBUG Payment - Request body:", requestBody);
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/bookings/finalize",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // ⬅️ GỬI TOKEN
+            Accept: "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
+
+      console.log("🔍 DEBUG Payment - Response status:", response.status);
+
+      const result = await response.json();
+      console.log("🔍 DEBUG Payment - Response data:", result);
+
+      if (response.ok && result.success) {
+        const code = generateTicketCode();
+        setIsPaid(true);
+        alert(
+          `🎉 Thanh toán thành công! Tổng tiền: $${total.toLocaleString(
+            "en-US"
+          )}`
+        );
+        console.log("Finalized booking:", result);
+
+        // Không gọi onFinish ngay, để hiển thị ticket trước
+      } else {
+        alert(result.message || "Thanh toán thất bại hoặc Booking đã hết hạn.");
+      }
+    } catch (error) {
+      console.error("Lỗi hoàn tất thanh toán:", error);
+      alert("Đã xảy ra lỗi không mong muốn khi thanh toán.");
+    }
   };
 
   return (
@@ -76,7 +132,7 @@ export default function PaymentSection({
         <p>None</p>
       )}
       <p>
-        <strong>Seat total:</strong> ${seatTotal.toLocaleString("vi-VN")} 
+        <strong>Seat total:</strong> ${seatTotal.toLocaleString("en-US")}
       </p>
 
       <h5>Selected Foods</h5>
@@ -92,11 +148,11 @@ export default function PaymentSection({
         <p>None</p>
       )}
       <p>
-        <strong>Food total:</strong> ${foodTotal.toLocaleString("vi-VN")} 
+        <strong>Food total:</strong> ${foodTotal.toLocaleString("en-US")}
       </p>
 
       <h4 className="total-amount">
-        Grand total: ${total.toLocaleString("vi-VN")} 
+        Grand total: ${total.toLocaleString("en-US")}
       </h4>
 
       {/* --- If no payment method selected --- */}
@@ -127,7 +183,7 @@ export default function PaymentSection({
         <div className="payment-method">
           <h5>Scan QR code to pay</h5>
           <img
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=Pay  $${total} `}
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=Pay $${total}`}
             alt="Fake QR"
             style={{ margin: "10px auto", display: "block" }}
           />
