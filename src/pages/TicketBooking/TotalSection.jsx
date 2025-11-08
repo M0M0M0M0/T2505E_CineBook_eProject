@@ -50,7 +50,7 @@ export default function TotalSection({
         <p>None</p>
       )}
       <p>
-        <strong>Seat total:</strong> {seatTotal.toLocaleString("vi-VN")} VND
+        <strong>Seat total:</strong> ${seatTotal.toLocaleString("vi-VN")}
       </p>
 
       <h5>Selected Foods</h5>
@@ -66,11 +66,11 @@ export default function TotalSection({
         <p>None</p>
       )}
       <p>
-        <strong>Food total:</strong> {foodTotal.toLocaleString("vi-VN")} VND
+        <strong>Food total:</strong> ${foodTotal.toLocaleString("vi-VN")} 
       </p>
 
       <h4 className="total-amount">
-        Grand total: {(seatTotal + foodTotal).toLocaleString("vi-VN")} VND
+        Grand total: ${(seatTotal + foodTotal).toLocaleString("vi-VN")}
       </h4>
 
       <div className="total-buttons">

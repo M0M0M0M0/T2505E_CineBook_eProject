@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./MovieDetail.css";
 import ShowtimeSelector from "../TicketBooking/ShowtimeSelector";
 import BookingSection from "../TicketBooking/BookingSection";
 import FoodSelection from "../TicketBooking/FoodSelection";
 import TotalSection from "../TicketBooking/TotalSection";
 import PaymentSection from "../TicketBooking/PaymentSection";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function MovieDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [movie, setMovie] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
   const [step, setStep] = useState("detail"); // detail → showtime → seat → food → toal → payment
@@ -19,7 +21,9 @@ export default function MovieDetail() {
   const [seatTotal, setSeatTotal] = useState(0);
   const [selectedFoods, setSelectedFoods] = useState({});
   const [foodTotal, setFoodTotal] = useState(0);
-
+  const [bookingId, setBookingId] = useState(null);
+  const { currentUserId, isAuthenticated } = useAuth();
+  
   // Tạo ref cho từng section
   const showtimeRef = useRef(null);
   const seatRef = useRef(null);
@@ -78,17 +82,28 @@ export default function MovieDetail() {
       </div>
     );
 
-  const handleBookNow = () => setStep("showtime");
+  // 🔒 KIỂM TRA ĐĂNG NHẬP TRƯỚC KHI CHO PHÉP ĐẶT VÉ
+  const handleBookNow = () => {
+    if (!isAuthenticated || !currentUserId) {
+      // Hiển thị thông báo và chuyển hướng đến trang đăng nhập
+      alert("Vui lòng đăng nhập để tiếp tục đặt vé!");
+      navigate("/login");
+      return;
+    }
+    // Nếu đã đăng nhập, chuyển sang bước chọn suất chiếu
+    setStep("showtime");
+  };
 
   const handleSelectShowtime = (showtime) => {
     setSelectedShowtime(showtime);
     setStep("seat");
   };
 
-  const handleSelectSeats = ({ seats, total }) => {
+  const handleSelectSeats = ({ seats, total, booking_id }) => {
     setSelectedSeats(seats);
     setSeatTotal(total);
     setStep("food");
+    setBookingId(booking_id);
   };
 
   const handleSelectFoods = ({ foods, total }) => {
@@ -96,6 +111,7 @@ export default function MovieDetail() {
     setFoodTotal(total);
     setStep("total");
   };
+  
   const handleNext = () => {
     setStep("transition");
     setTimeout(() => setStep("payment"), 400);
@@ -180,12 +196,14 @@ export default function MovieDetail() {
           <div className="seat-section" ref={seatRef}>
             <h3 style={{ color: "white" }}>Step 2: Seat</h3>
             <BookingSection
-              movieTitle={movie.title}
-              showtimeId={selectedShowtime?.showtime_id}
+              movieTitle={movie?.title}
+              selectedShowtime={selectedShowtime}
               selectedSeats={selectedSeats}
               setSelectedSeats={setSelectedSeats}
               onSelectSeats={handleSelectSeats}
               onBack={() => setStep("showtime")}
+              showtimeId={selectedShowtime.showtime_id}
+              currentUserId={currentUserId}
             />
           </div>
         )}
@@ -194,6 +212,7 @@ export default function MovieDetail() {
           <div className="food-section" ref={foodRef}>
             <h3 style={{ color: "white" }}>Step 3: Food</h3>
             <FoodSelection
+              bookingId={bookingId}
               selectedSeats={selectedSeats}
               seatTotal={seatTotal}
               selectedFoods={selectedFoods}
@@ -224,6 +243,7 @@ export default function MovieDetail() {
           <div className="total-section" ref={paymentRef}>
             <h3 style={{ color: "white" }}>Step 5: Payment</h3>
             <PaymentSection
+              bookingId={bookingId}
               movieTitle={movie.title}
               selectedShowtime={selectedShowtime}
               selectedSeats={selectedSeats}

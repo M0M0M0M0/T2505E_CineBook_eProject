@@ -76,7 +76,7 @@ export default function PaymentSection({
         <p>None</p>
       )}
       <p>
-        <strong>Seat total:</strong> {seatTotal.toLocaleString("vi-VN")} VND
+        <strong>Seat total:</strong> ${seatTotal.toLocaleString("vi-VN")} 
       </p>
 
       <h5>Selected Foods</h5>
@@ -92,11 +92,11 @@ export default function PaymentSection({
         <p>None</p>
       )}
       <p>
-        <strong>Food total:</strong> {foodTotal.toLocaleString("vi-VN")} VND
+        <strong>Food total:</strong> ${foodTotal.toLocaleString("vi-VN")} 
       </p>
 
       <h4 className="total-amount">
-        Grand total: {total.toLocaleString("vi-VN")} VND
+        Grand total: ${total.toLocaleString("vi-VN")} 
       </h4>
 
       {/* --- If no payment method selected --- */}
@@ -127,7 +127,7 @@ export default function PaymentSection({
         <div className="payment-method">
           <h5>Scan QR code to pay</h5>
           <img
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=Pay ${total} VND`}
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=Pay  $${total} `}
             alt="Fake QR"
             style={{ margin: "10px auto", display: "block" }}
           />

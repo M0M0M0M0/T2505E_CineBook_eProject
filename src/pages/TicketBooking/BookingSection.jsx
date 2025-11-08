@@ -22,10 +22,8 @@ SEAT_LAYOUT.B[15] = "standard";
 });
 
 // Hàm ánh xạ: Chuyển tên loại ghế tĩnh ('box') sang tên loại ghế trong API ('Box (Couple)')
-// Rất quan trọng vì tên key trong seatPricesMap phải khớp với tên trong API
 const mapLocalTypeToApiName = (localType) => {
   switch (localType) {
-    // Tên Tĩnh: Tên API
     case "box":
       return "Box (Couple)";
     case "standard":
@@ -41,16 +39,17 @@ const mapLocalTypeToApiName = (localType) => {
 
 export default function BookingSection({
   movieTitle,
+  selectedShowtime,
   selectedSeats,
   setSelectedSeats,
   onSelectSeats,
   onBack,
   showtimeId,
+  currentUserId,
 }) {
   console.log("DEBUG: Showtime ID received in BookingSection:", showtimeId);
   const [soldSeats, setSoldSeats] = useState([]);
   const [basePrice, setBasePrice] = useState(0);
-  // seatPricesMap sẽ lưu { 'Box (Couple)': 20, 'Gold': 15, ... } (Giá trị đã là số)
   const [seatPricesMap, setSeatPricesMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -89,18 +88,12 @@ export default function BookingSection({
       if (data.seat_type_prices) {
         Object.keys(data.seat_type_prices).forEach((key) => {
           const priceData = data.seat_type_prices[key];
-          // Key: "Box (Couple)", Value: Phụ phí (Đã là số)
           processedPrices[key] = parseFloat(priceData.seat_type_price) || 0;
         });
       }
       setSeatPricesMap(processedPrices);
 
       console.log("DEBUG: API Response Data:", data);
-      console.log(
-        "DEBUG: Final Base Price (Number):",
-        parseFloat(data.base_showtime_price) || 0
-      );
-      console.log("DEBUG: Processed Seat Prices Map:", processedPrices);
     } catch (err) {
       console.error("Error fetching data:", err);
       setError("Cannot load seating status.");
@@ -109,15 +102,21 @@ export default function BookingSection({
     }
   };
 
+  // ⬅️ THÊM LOGIC CẬP NHẬT TRẠNG THÁI GHẾ MỖI 30 GIÂY
   useEffect(() => {
-    fetchReservedSeats();
+    fetchReservedSeats(); // Chạy lần đầu
+
+    // Thiết lập interval chạy lại sau mỗi 30 giây
+    const intervalId = setInterval(fetchReservedSeats, 30000);
+
+    // Hàm dọn dẹp (cleanup) khi component bị unmount
+    return () => clearInterval(intervalId);
   }, [showtimeId]);
 
   // ====================================================================
-  // 2. LOGIC TÍNH TỔNG TIỀN (Sử dụng Ánh xạ tên ghế và Giá đã ép kiểu)
+  // 2. LOGIC TÍNH TỔNG TIỀN (GIỮ NGUYÊN)
   // ====================================================================
   const calculateTotal = () => {
-    // Cần phải có Base Price và dữ liệu phụ phí để tính
     if (basePrice === 0 && Object.keys(seatPricesMap).length === 0) {
       return 0;
     }
@@ -132,15 +131,9 @@ export default function BookingSection({
     });
 
     selectedSeats.forEach((seatCode) => {
-      const localType = seatTypeMap[seatCode]; // Ví dụ: 'box'
-
-      // Ánh xạ 'box' -> 'Box (Couple)' để khớp với key trong seatPricesMap
+      const localType = seatTypeMap[seatCode];
       const apiSeatName = mapLocalTypeToApiName(localType);
-
-      // Lấy phụ phí (đã là số) từ map
       const extraPrice = seatPricesMap[apiSeatName] || 0;
-
-      // Giá vé = Giá Cơ sở + Phụ phí loại ghế (Tất cả đã là số)
       const finalPrice = basePrice + extraPrice;
       sum += finalPrice;
     });
@@ -151,7 +144,24 @@ export default function BookingSection({
   const total = calculateTotal();
 
   // ====================================================================
-  // 3. LOGIC TOGGLE SEAT VÀ HANDLE CONTINUE
+  // 3. TẠO LEGEND VỚI GIÁ TIỀN (GIỮ NGUYÊN)
+  // ====================================================================
+  const getSeatTypePrice = (localType) => {
+    const apiSeatName = mapLocalTypeToApiName(localType);
+    const extraPrice = seatPricesMap[apiSeatName] || 0;
+    return basePrice + extraPrice;
+  };
+
+  // Danh sách các loại ghế để hiển thị trong legend
+  const legendItems = [
+    { type: "standard", label: "Standard", color: "#ddd" },
+    { type: "gold", label: "Gold", color: "#FFD700" },
+    { type: "platinum", label: "Platinum", color: "#E5E4E2" },
+    { type: "box", label: "Box (Couple)", color: "#FF69B4" },
+  ];
+
+  // ====================================================================
+  // 4. LOGIC TOGGLE SEAT VÀ HANDLE CONTINUE
   // ====================================================================
   const toggleSeat = (row, index) => {
     const seatId = `${row}${index + 1}`;
@@ -161,7 +171,6 @@ export default function BookingSection({
 
     // Logic ghế đôi (Box)
     if (seatType === "box") {
-      // ... (logic box giữ nguyên) ...
       const pairIndex = index % 2 === 0 ? index + 1 : index - 1;
       const pairSeatId = `${row}${pairIndex + 1}`;
 
@@ -195,20 +204,53 @@ export default function BookingSection({
     }
   };
 
-  const handleContinue = () => {
+  // ⬅️ CẬP NHẬT HÀM HANDLE CONTINUE ĐỂ GỌI API TẠO BOOKING
+  const handleContinue = async () => {
     if (!selectedSeats.length) {
       alert("Please select seats before continue!");
       return;
     }
 
-    // TRUYỀN TẤT CẢ DỮ LIỆU CẦN THIẾT lên component cha
-    onSelectSeats({
-      seats: selectedSeats,
-      total: total,
-      showtimeId: showtimeId,
-      basePrice: basePrice,
-      seatPricesMap: seatPricesMap, // Truyền map giá đã xử lý
-    });
+    // 1. GỌI API holdSeats (POST /api/bookings/hold)
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/bookings/hold", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // LƯU Ý: Nếu bạn có hệ thống Authentication (token/session), cần thêm header:
+        // 'Authorization': `Bearer ${token}`
+        body: JSON.stringify({
+          showtime_id: showtimeId,
+          seat_codes: selectedSeats,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        // 2. Chuyển sang bước tiếp theo VÀ TRẢ VỀ booking_id
+        onSelectSeats({
+          seats: selectedSeats,
+          total: total,
+          showtimeId: showtimeId,
+          basePrice: basePrice,
+          seatPricesMap: seatPricesMap,
+          booking_id: result.booking_id,
+        });
+        // Ngay sau khi hold thành công, cập nhật lại trạng thái ghế trên FE
+        fetchReservedSeats();
+      } else {
+        // Nếu hold thất bại (ví dụ: ghế vừa bị người khác giữ trước đó)
+        alert(
+          result.message ||
+            "Failed to hold seats. Please check the seat status."
+        );
+        // Cập nhật lại ngay lập tức để hiển thị ghế đã bị giữ
+        fetchReservedSeats();
+      }
+    } catch (error) {
+      console.error("Error holding seats:", error);
+      alert("An unexpected error occurred during seat reservation.");
+    }
   };
 
   if (loading) {
@@ -243,6 +285,7 @@ export default function BookingSection({
                       isSold ? "sold" : ""
                     }`}
                     onClick={() => toggleSeat(row, i)}
+                    style={{ cursor: isSold ? "not-allowed" : "pointer" }}
                   >
                     {i + 1}
                   </div>
@@ -253,13 +296,36 @@ export default function BookingSection({
         ))}
       </div>
 
-      <div className="legend">{/* ... (Legend) ... */}</div>
+      {/* LEGEND - Hiển thị màu sắc, tên và giá của từng loại ghế */}
+      <div className="legend">
+        {legendItems.map((item) => {
+          const price = getSeatTypePrice(item.type);
+          return (
+            <div key={item.type}>
+              <span className={`legend-box ${item.type}`}></span>
+              <span className="legend-text">
+                {item.label}:{" "}
+                <span className="legend-price">
+                  {price.toLocaleString("vi-VN")} VND
+                </span>
+              </span>
+            </div>
+          );
+        })}
+        <div>
+          <span className="legend-box selected"></span>
+          <span className="legend-text">Selected</span>
+        </div>
+        <div>
+          <span className="legend-box sold"></span>
+          <span className="legend-text">Sold/Reserved</span>
+        </div>
+      </div>
 
       <div className="booking-summary">
         <h4>Booking Summary</h4>
         <p>Selected seats: {selectedSeats.join(", ") || "None"}</p>
-        <p>Base Price : {basePrice.toLocaleString("vi-VN")} VND</p>
-        <h4>Total: {total.toLocaleString("vi-VN")} VND</h4>
+        <h4>Total: {total.toLocaleString("vi-VN")} VND </h4>
 
         <div className="total-buttons">
           {onBack && (
