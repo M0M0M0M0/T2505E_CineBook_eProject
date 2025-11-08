@@ -73,8 +73,8 @@ const promotionsData = [
             <h3 class="text-xl font-bold mb-2">A Tasty Upgrade for Extra Fun</h3>
             <p class="mb-4">When you purchase any popcorn combo, you can easily upgrade to this unique chocolate flavor for a special additional fee:</p>
             <ul class="list-disc list-inside mb-4 pl-4">
-                <li>Add only <strong>7,000 VND</strong> to upgrade to a small chocolate popcorn.</li>
-                <li>Add only <strong>10,000 VND</strong> to upgrade to a large chocolate popcorn.</li>
+                <li>Add only <strong>2$</strong> to upgrade to a small chocolate popcorn.</li>
+                <li>Add only <strong>5$</strong> to upgrade to a large chocolate popcorn.</li>
             </ul>
             <p class="mb-4">This is your one-of-a-kind opportunity to try this new flavor while enjoying the best movies.</p> <p><strong>This is a limited-time offer. Visit our cinema and try it today!</strong></p>
         `
@@ -111,7 +111,7 @@ const promotionsData = [
       <p class="mb-4">On the occasion of Vietnamese Women's Day 20/10, the cinema sends special offers to the beautiful half of the world:</p>
       <ul class="list-disc list-inside mb-4 pl-4"> 
       <li>50% off ticket prices for all female customers.</li> 
-      <li>Receive a free 100,000VND shopping voucher.</li> 
+      <li>Receive a free 20$ shopping voucher.</li> 
       <li>A special gift for groups of 3 or more female customers.</li> </ul>
       <p><strong>Come and enjoy memorable moments!</strong></p>
         `
