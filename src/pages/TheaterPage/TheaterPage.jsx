@@ -3,6 +3,8 @@ import { Container, Row, Col, Card, Button, Form, ListGroup, Image } from 'react
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css'
 import { CalendarEvent } from 'react-bootstrap-icons'
+// Import hook để đọc URL
+import { useSearchParams } from 'react-router-dom';
 import backgroundImage from '../../assets/img/background-theater.jpg';
 import './TheaterPage.css';
 
@@ -88,11 +90,20 @@ const TheaterCard = ({ theater, selectedDate }) => {
 };
 
 export default function Theaters() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Đổi tên hàm để rõ nghĩa hơn: nó lấy region từ URL
+  const getRegionFromUrl = () => {
+    const regionFromUrl = searchParams.get('region');
+    return regionFromUrl || 'All Cities';
+  };
+
   const [allTheatersData, setAllTheatersData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [selectedRegion, setSelectedRegion] = useState('All Cities');
+  // Dùng hàm getRegionFromUrl để set state ban đầu
+  const [selectedRegion, setSelectedRegion] = useState(getRegionFromUrl);
   const [selectedDate, setSelectedDate] = useState(new Date()); 
   const [selectedTheaterId, setSelectedTheaterId] = useState('All Theaters');
 
@@ -105,6 +116,7 @@ export default function Theaters() {
 
   const selectedDateString = useMemo(() => formatDateToString(selectedDate), [selectedDate]);
 
+  // useEffect để tải data (không đổi)
   useEffect(() => {
     const fetchShowtimes = async () => {
       try {
@@ -129,6 +141,20 @@ export default function Theaters() {
     fetchShowtimes();
   }, []);
 
+  // === CẬP NHẬT QUAN TRỌNG ===
+  // useEffect này lắng nghe sự thay đổi của [searchParams]
+  // (Khi bạn bấm link trên Header, searchParams thay đổi)
+  useEffect(() => {
+    const regionFromUrl = getRegionFromUrl();
+    
+    // Nếu region từ URL khác với region đang chọn trong state
+    if (regionFromUrl !== selectedRegion) {
+      setSelectedRegion(regionFromUrl); // Cập nhật state
+      setSelectedTheaterId('All Theaters'); // Reset chọn rạp
+    }
+  }, [searchParams]); // Phụ thuộc vào searchParams
+  // ==========================
+
   const regions = useMemo(() => {
     return ['All Cities', ...new Set(allTheatersData.map(t => t.region))];
   }, [allTheatersData]);
@@ -140,9 +166,19 @@ export default function Theaters() {
     return allTheatersData.filter(t => t.region === selectedRegion);
   }, [selectedRegion, allTheatersData]);
 
+  // Hàm này (khi người dùng tự đổi) sẽ cập nhật state VÀ URL
   const handleRegionChange = (e) => {
-    setSelectedRegion(e.target.value);
+    const newRegion = e.target.value;
+    setSelectedRegion(newRegion);
     setSelectedTheaterId('All Theaters');
+
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (newRegion === 'All Cities') {
+      newSearchParams.delete('region');
+    } else {
+      newSearchParams.set('region', newRegion);
+    }
+    setSearchParams(newSearchParams); // Cập nhật URL
   }; 
 
   const filteredTheaters = useMemo(() => {
@@ -201,6 +237,9 @@ export default function Theaters() {
             
             <Row className="mb-5 g-3">
               <Col md={4}>
+                {/* Giờ đây, `value={selectedRegion}` sẽ luôn được cập nhật
+                  dù bạn đổi bằng dropdown NÀY hay bấm link trên HEADER
+                */}
                 <Form.Select value={selectedRegion} onChange={handleRegionChange} className="custom-select-dark">
                   {regions.map(region => <option key={region} value={region}>{region}</option>)}
                 </Form.Select>
