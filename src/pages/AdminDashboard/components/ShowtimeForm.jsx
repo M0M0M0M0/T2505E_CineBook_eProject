@@ -200,6 +200,7 @@ export default function ShowtimeForm({
             </label>
             <input
               type="time"
+              step="1"
               className="form-control"
               value={form.start_time}
               onChange={(e) => setForm({ ...form, start_time: e.target.value })}

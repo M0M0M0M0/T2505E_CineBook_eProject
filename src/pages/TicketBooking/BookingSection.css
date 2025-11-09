@@ -172,3 +172,69 @@
   max-width: 600px;
   margin: 40px auto 0 auto;
 }
+.pending-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.pending-dialog {
+  background: #1a1a1a;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 500px;
+  color: white;
+  text-align: center;
+}
+
+.pending-dialog h3 {
+  color: #ffc107;
+  margin-bottom: 15px;
+}
+
+.pending-dialog p {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.pending-dialog-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.btn-continue {
+  background: #28a745;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-continue:hover {
+  background: #218838;
+}
+
+.btn-cancel {
+  background: #dc3545;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-cancel:hover {
+  background: #c82333;
+}

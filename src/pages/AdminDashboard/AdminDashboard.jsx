@@ -268,7 +268,9 @@ export default function Dashboard() {
       poster_path: movie.poster_path || "",
       backdrop_path: movie.backdrop_path || "",
       trailer_link: movie.trailer_link || "",
-      genres: Array.isArray(movie.genres) ? movie.genres.map(g => g.genre_id) : [],
+      genres: Array.isArray(movie.genres)
+        ? movie.genres.map((g) => g.genre_id)
+        : [],
       overview: movie.overview || "",
       release_date: movie.release_date || "",
     });
@@ -523,12 +525,12 @@ export default function Dashboard() {
         movie_id: formData.movie_id,
         theater_id: formData.theater_id,
         room_id: formData.room_id,
-        show_date: formData.show_date || formData.date,
-        show_time: formData.show_time || formData.start_time,
+        date: formData.date || formData.show_date,
+        start_time: formData.start_time || formData.show_time,
         price: formData.price,
         status: formData.status || "Available",
       };
-
+      
       // Use correct ID field
       const showtimeId = editingShowtime?.showtime_id;
 
@@ -614,10 +616,11 @@ export default function Dashboard() {
           {menuItems.map((item, i) => (
             <div
               key={i}
-              className={`d-flex align-items-center gap-2 p-2 rounded cursor-pointer ${activeMenu === item.name
-                ? "bg-danger text-white"
-                : "text-secondary hover-bg-light"
-                }`}
+              className={`d-flex align-items-center gap-2 p-2 rounded cursor-pointer ${
+                activeMenu === item.name
+                  ? "bg-danger text-white"
+                  : "text-secondary hover-bg-light"
+              }`}
               style={{ cursor: "pointer" }}
               onClick={() => handleMenuClick(item.name)}
             >
@@ -652,7 +655,6 @@ export default function Dashboard() {
                 movieSearch={movieSearch}
                 setMovieSearch={setMovieSearch}
               />
-
             ) : (
               <MovieForm
                 isAddMovie={isAddMovie}

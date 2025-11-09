@@ -23,7 +23,7 @@ export default function MovieDetail() {
   const [foodTotal, setFoodTotal] = useState(0);
   const [bookingId, setBookingId] = useState(null);
   const { currentUserId, isAuthenticated } = useAuth();
-  
+
   // Tạo ref cho từng section
   const showtimeRef = useRef(null);
   const seatRef = useRef(null);
@@ -102,8 +102,10 @@ export default function MovieDetail() {
   const handleSelectSeats = ({ seats, total, booking_id }) => {
     setSelectedSeats(seats);
     setSeatTotal(total);
-    setStep("food");
     setBookingId(booking_id);
+    if (seats && seats.length > 0) {
+      setStep("food");
+    }
   };
 
   const handleSelectFoods = ({ foods, total }) => {
@@ -111,7 +113,7 @@ export default function MovieDetail() {
     setFoodTotal(total);
     setStep("total");
   };
-  
+
   const handleNext = () => {
     setStep("transition");
     setTimeout(() => setStep("payment"), 400);
@@ -204,6 +206,7 @@ export default function MovieDetail() {
               onBack={() => setStep("showtime")}
               showtimeId={selectedShowtime.showtime_id}
               currentUserId={currentUserId}
+              bookingId={bookingId}
             />
           </div>
         )}
