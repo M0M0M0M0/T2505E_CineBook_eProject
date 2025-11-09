@@ -140,17 +140,17 @@ export default function Header() {
                 onMouseLeave={handleCloseDropdownDelayed}
               >
                 <li>
-                  <Link to="/theaters?city=Hanoi" className="dropdown-link-cb">
+                  <Link to="/theaters?region=Hanoi" className="dropdown-link-cb">
                     Ha Noi
                   </Link>
                 </li>
                 <li>
-                  <Link to="/theaters?city=DaNang" className="dropdown-link-cb">
+                  <Link to="/theaters?region=Da+Nang" className="dropdown-link-cb">
                     Da Nang
                   </Link>
                 </li>
                 <li>
-                  <Link to="/theaters?city=HCM" className="dropdown-link-cb">
+                  <Link to="/theaters?region=Ho+Chi+Minh+City" className="dropdown-link-cb">
                     Ho Chi Minh
                   </Link>
                 </li>

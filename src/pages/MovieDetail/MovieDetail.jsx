@@ -150,19 +150,19 @@ export default function MovieDetail() {
               {movie.vote_count ? ` (${movie.vote_count} votes)` : ""}
             </p>
             <p className="md-extra mb-1">
-              <strong>Thời lượng:</strong>{" "}
-              {movie.duration ? `${movie.duration} phút` : "N/A"}
+              <strong>Duration:</strong>{" "}
+              {movie.duration ? `${movie.duration} minutes` : "N/A"}
             </p>
             <p className="md-extra mb-4">
-              <strong>Ngày phát hành:</strong>{" "}
-              {movie.release_date || "Chưa cập nhật"}
+              <strong>Release Date:</strong>{" "}
+              {movie.release_date || "TBA"}
             </p>
 
             <div
               className="md-overview text-light mb-4"
               style={{ lineHeight: "1.6" }}
             >
-              <h5 className="mb-2 movie-detail-overview">Tóm tắt nội dung</h5>
+              <h5 className="mb-2 movie-detail-overview">Plot Summary</h5>
               <p>{movie.overview || "Chưa có mô tả"}</p>
             </div>
 

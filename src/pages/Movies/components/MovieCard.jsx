@@ -46,7 +46,7 @@ export default function MovieCard({ movie }) {
             navigate(`/movies/${movie.movie_id}`);
           }}
         >
-          MUA VÉ NGAY 🎟️
+          BOOK NOW 🎟️
         </button>
 
         <div className="movie-info">

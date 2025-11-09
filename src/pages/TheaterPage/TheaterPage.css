@@ -26,34 +26,80 @@
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236c757d' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 }
 
-
-.date-filter-container .btn-outline-secondary {
-  color: #000000;         
-  border-color: #000000;   
+.react-datepicker-wrapper input.form-control.custom-select-dark {
+  background-color: #212529; /* Màu nền tối */
+  color: #ffd27a;           /* Màu chữ */
+  border: 1px solid #ffd27a; /* Màu viền */
 }
 
-.date-filter-container .btn-outline-secondary:hover {
-  color: #ffffff;
-  background-color: #000000;
-  border-color: #ffd27a;
-  box-shadow: 0 0 10px #000000;
+/* Tùy chỉnh popup lịch */
+.react-datepicker-popper {
+  z-index: 1050; /* Đảm bảo nó nổi lên trên */
 }
 
-
-.date-filter-container .btn-primary {
-  color: #000;           
-  background-color: #ffd54f; 
-  border-color: #ffd27a;   
+.react-datepicker {
+  background-color: #1a1a1a; /* Nền tối cho lịch */
+  border: 1px solid #ffd27a;
+  border-radius: 0.375rem;
+  color: #fff;
 }
 
-.date-filter-container .btn-primary:hover,
-.date-filter-container .btn-primary:focus {
+.react-datepicker__header {
+  background-color: #212529;
+  border-bottom: 1px solid #ffd27a;
+}
+
+.react-datepicker__current-month{
+  color: #ffd27a;
+}
+
+.react-datepicker-time__header{
+   background-color: #000; 
+}
+.react-datepicker__day-name {
+  color: #ffd27a; /* Màu chữ header */
+  font-weight: bold;
+}
+
+.react-datepicker__day {
+  color: #e0e0e0; /* Màu chữ ngày */
+}
+
+.react-datepicker__day:hover {
+  background-color: #ffd27a20;
+  color: #ffc757;
+}
+
+.react-datepicker__day--selected {
+  background-color: #ffd27a;
   color: #000;
-  background-color: #ffca28; 
-  border-color: #ffd27a;
-  box-shadow: 0 0 10px #ffd27a;
+  font-weight: bold;
 }
 
-.date-filter-container .btn:focus {
-  box-shadow: 0 0 0 0.25rem rgba(255, 213, 79, 0.25);
+.react-datepicker__day--disabled {
+  color: #555;
+  text-decoration: line-through;
+}
+
+/* Tùy chỉnh mũi tên điều hướng */
+.react-datepicker__navigation-icon::before {
+  border-color: #ffd27a;
+}
+
+.datepicker-wrapper {
+  position: relative;
+  width: 100%; /* Đảm bảo nó chiếm toàn bộ Col */
+}
+
+/* 2. Định vị và tạo kiểu cho icon */
+.datepicker-icon {
+  position: absolute;         /* Đặt icon "nổi" lên trên */
+  top: 50%;                   /* Căn giữa theo chiều dọc */
+  right: 15px;                /* Căn lề phải */
+  transform: translateY(-50%);
+  color: #ffd27a;            /* Màu vàng giống theme */
+  font-size: 1rem;          /* Kích cỡ icon (có thể điều chỉnh) */
+  
+  /* QUAN TRỌNG: Cho phép click "xuyên qua" icon */
+  pointer-events: none;
 }
