@@ -118,7 +118,7 @@ export default function Dashboard() {
     movieId: "",
     title: "",
     poster: "",
-    genre: "",
+    genre: [],
     duration: "",
     trailer: "",
     overview: "",
@@ -277,6 +277,48 @@ export default function Dashboard() {
     setEditError("");
   };
 
+  const handleDeleteMovie = async (movieId, movieTitle) => {
+    // Confirm trước khi xóa
+    if (
+      !window.confirm(
+        `Are you sure you want to delete "${movieTitle}"?\n\nThis action cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      console.log(`=== Deleting movie ID: ${movieId} ===`);
+
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/movies/${movieId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+      console.log("Delete response:", data);
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || "Failed to delete movie");
+      }
+
+      // Refresh movies list sau khi xóa thành công
+      const moviesRes = await fetch("http://127.0.0.1:8000/api/movies");
+      const moviesData = await moviesRes.json();
+      setMovies(moviesData);
+
+      alert(`Movie "${movieTitle}" deleted successfully!`);
+    } catch (error) {
+      console.error("Error deleting movie:", error);
+      alert(`Failed to delete movie: ${error.message}`);
+    }
+  };
+
   const handleAddMovie = () => {
     setIsAddMovie(true);
     setEditMovie(null);
@@ -289,60 +331,165 @@ export default function Dashboard() {
       poster_path: "",
       backdrop_path: "",
       trailer_link: "",
-      genres: "",
+      genres: [],
       overview: "",
       release_date: "",
+      vote_average: "",
     });
-
     setEditError("");
   };
 
   // Khi nhấn Save
-  const handleEditSave = () => {
-    // Validate 8 trường bắt buộc
+  const handleEditSave = async () => {
+    // Validate 6 trường bắt buộc
     const required = [
-      "movieId",
+      "movie_id",
       "title",
-      "poster",
-      "genre",
+      "poster_path",
       "duration",
-      "trailer",
       "overview",
-      "release",
+      "release_date",
     ];
     for (let key of required) {
-      if (!editForm[key] || editForm[key].trim() === "") {
+      if (!editForm[key] || editForm[key].toString().trim() === "") {
         setEditError("Please fill all required fields.");
         return;
       }
     }
-    // Lưu lại (ở đây chỉ đóng form, thực tế sẽ cập nhật state)
-    setEditMovie(null);
-    setEditError("");
-    // Có thể cập nhật movies ở đây nếu muốn
+
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/movies/${editForm.movie_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: editForm.title,
+            original_title: editForm.original_title || null,
+            original_language: editForm.original_language || null,
+            duration: parseInt(editForm.duration),
+            poster_path: editForm.poster_path,
+            backdrop_path: editForm.backdrop_path || null,
+            trailer_link: editForm.trailer_link || null,
+            genres: editForm.genres || [],
+            overview: editForm.overview,
+            release_date: editForm.release_date,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update movie");
+      }
+
+      // Refresh movies list
+      const moviesRes = await fetch("http://127.0.0.1:8000/api/movies");
+      const moviesData = await moviesRes.json();
+      setMovies(moviesData);
+
+      setEditMovie(null);
+      setEditError("");
+      alert("Movie updated successfully!");
+    } catch (error) {
+      console.error("Error updating movie:", error);
+      setEditError(error.message || "Failed to update movie");
+    }
   };
 
   // Khi nhấn Save ở form Add
-  const handleAddSave = () => {
+  const handleAddSave = async () => {
     const required = [
-      "movieId",
+      "movie_id",
       "title",
-      "poster",
-      "genre",
+      "poster_path",
       "duration",
-      "trailer",
       "overview",
-      "release",
+      "release_date",
     ];
+
+    // Check required fields
     for (let key of required) {
-      if (!editForm[key] || editForm[key].trim() === "") {
-        setEditError("Please fill all required fields.");
+      if (!editForm[key] || editForm[key].toString().trim() === "") {
+        setEditError(`Please fill all required fields. Missing: ${key}`);
         return;
       }
     }
-    // Thực tế: thêm vào danh sách movies ở đây nếu muốn
-    setIsAddMovie(false);
-    setEditError("");
+
+    // Debug: Log data being sent
+    const requestData = {
+      movie_id: parseInt(editForm.movie_id),
+      title: editForm.title,
+      original_title: editForm.original_title || null,
+      original_language: editForm.original_language || null,
+      duration: parseInt(editForm.duration),
+      poster_path: editForm.poster_path,
+      backdrop_path: editForm.backdrop_path || null,
+      trailer_link: editForm.trailer_link || null,
+      genres: editForm.genres || [],
+      overview: editForm.overview,
+      release_date: editForm.release_date,
+      vote_average: editForm.vote_average
+        ? parseFloat(editForm.vote_average)
+        : null,
+    };
+
+    console.log("=== DEBUG: Request Data ===");
+    console.log(JSON.stringify(requestData, null, 2));
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/movies", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      const data = await response.json();
+
+      console.log("=== DEBUG: Response Status ===");
+      console.log(response.status);
+
+      console.log("=== DEBUG: Response Data ===");
+      console.log(JSON.stringify(data, null, 2));
+
+      if (!response.ok) {
+        // Display detailed validation errors
+        if (data.errors) {
+          const errorMessages = Object.entries(data.errors)
+            .map(([field, messages]) => `${field}: ${messages.join(", ")}`)
+            .join("\n");
+
+          console.error("=== VALIDATION ERRORS ===");
+          console.error(errorMessages);
+
+          setEditError(`Validation failed:\n${errorMessages}`);
+        } else {
+          setEditError(data.message || "Failed to add movie");
+        }
+        throw new Error(data.message || "Failed to add movie");
+      }
+
+      // Refresh movies list
+      const moviesRes = await fetch("http://127.0.0.1:8000/api/movies");
+      const moviesData = await moviesRes.json();
+      setMovies(moviesData);
+
+      setIsAddMovie(false);
+      setEditError("");
+      alert("Movie added successfully!");
+    } catch (error) {
+      console.error("=== ERROR ADDING MOVIE ===");
+      console.error(error);
+
+      if (!editError) {
+        setEditError(error.message || "Failed to add movie");
+      }
+    }
   };
 
   // Khi nhấn Cancel
@@ -530,7 +677,7 @@ export default function Dashboard() {
         price: formData.price,
         status: formData.status || "Available",
       };
-      
+
       // Use correct ID field
       const showtimeId = editingShowtime?.showtime_id;
 
@@ -652,6 +799,7 @@ export default function Dashboard() {
                 movies={movies}
                 handleEdit={handleEdit}
                 handleAddMovie={handleAddMovie}
+                handleDeleteMovie={handleDeleteMovie}
                 movieSearch={movieSearch}
                 setMovieSearch={setMovieSearch}
               />

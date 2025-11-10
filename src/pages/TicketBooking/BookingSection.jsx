@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import "./BookingSection.css";
 
 // Sơ đồ ghế tĩnh (GIỮ NGUYÊN)
@@ -21,7 +21,6 @@ SEAT_LAYOUT.B[15] = "standard";
   }
 });
 
-// Hàm ánh xạ: Chuyển tên loại ghế tĩnh ('box') sang tên loại ghế trong API ('Box (Couple)')
 const mapLocalTypeToApiName = (localType) => {
   switch (localType) {
     case "box":
@@ -47,9 +46,9 @@ export default function BookingSection({
   showtimeId,
   currentUserId,
   bookingId,
+  setBookingId,
 }) {
-  // console.log("DEBUG: Showtime ID received in BookingSection:", showtimeId);
-  const [soldSeats, setSoldSeats] = useState([]);
+  const [allReservedSeats, setAllReservedSeats] = useState([]); // ✅ Đổi tên để phân biệt
   const [basePrice, setBasePrice] = useState(0);
   const [seatPricesMap, setSeatPricesMap] = useState({});
   const [loading, setLoading] = useState(true);
@@ -57,16 +56,83 @@ export default function BookingSection({
   const [pendingBooking, setPendingBooking] = useState(null);
   const [showPendingDialog, setShowPendingDialog] = useState(false);
 
-  // ====================================================================
-  // 1. FETCH DỮ LIỆU GHẾ ĐÃ BÁN, GIÁ CƠ SỞ VÀ PHỤ PHÍ (API GET)
-  // ====================================================================
-  useEffect(() => {
-    if (showtimeId && currentUserId) {
-      checkPendingBooking();
-    }
-  }, [showtimeId, currentUserId]);
+  const hasCheckedPending = useRef(false);
 
-  // Hàm check pending booking
+  // ✅ Tính toán soldSeats từ allReservedSeats, loại bỏ ghế đang chọn
+  const soldSeats = useMemo(() => {
+    if (bookingId && selectedSeats.length > 0) {
+      return allReservedSeats.filter((seat) => !selectedSeats.includes(seat));
+    }
+    return allReservedSeats;
+  }, [allReservedSeats, bookingId, selectedSeats]);
+
+  // ✅ THÊM: Lưu bookingId vào sessionStorage mỗi khi thay đổi
+  useEffect(() => {
+    if (bookingId && showtimeId) {
+      sessionStorage.setItem(`booking_${showtimeId}`, bookingId);
+    }
+  }, [bookingId, showtimeId]);
+
+  // ✅ THÊM: Đánh dấu đã xử lý pending nếu có bookingId từ props
+  useEffect(() => {
+    if (bookingId) {
+      hasCheckedPending.current = true;
+    }
+  }, [bookingId]);
+
+  // ✅ THÊM: Khôi phục bookingId từ sessionStorage NHƯNG validate nó còn hợp lệ không
+  useEffect(() => {
+    const validateAndRestoreBooking = async () => {
+      if (!bookingId && showtimeId) {
+        const savedBookingId = sessionStorage.getItem(`booking_${showtimeId}`);
+        if (savedBookingId) {
+          // Kiểm tra booking có còn valid không
+          try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(
+              `http://127.0.0.1:8000/api/bookings/${savedBookingId}/validate`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            if (response.ok) {
+              const result = await response.json();
+              if (result.success && result.is_valid) {
+                console.log("🔄 Khôi phục bookingId hợp lệ:", savedBookingId);
+                setBookingId(savedBookingId);
+                return;
+              }
+            }
+          } catch (error) {
+            console.log("⚠️ Không thể validate booking:", error);
+          }
+
+          // Nếu không valid, xóa đi
+          console.log("🗑️ Xóa bookingId không hợp lệ");
+          sessionStorage.removeItem(`booking_${showtimeId}`);
+        }
+      }
+    };
+
+    validateAndRestoreBooking();
+  }, [showtimeId]);
+
+  // ✅ CHỈ check pending booking khi CHƯA có bookingId từ props
+  useEffect(() => {
+    if (
+      showtimeId &&
+      currentUserId &&
+      !hasCheckedPending.current &&
+      !bookingId
+    ) {
+      checkPendingBooking();
+      hasCheckedPending.current = true;
+    }
+  }, [showtimeId, currentUserId, bookingId]);
+
   const checkPendingBooking = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -97,12 +163,10 @@ export default function BookingSection({
     }
   };
 
-  // Hàm xử lý tiếp tục booking cũ
   const handleContinuePending = () => {
     setSelectedSeats(pendingBooking.seats);
-    // setBookingId(pendingBooking.booking_id);
+    setBookingId(pendingBooking.booking_id);
     setShowPendingDialog(false);
-    // Tự động chuyển sang bước tiếp theo
     onSelectSeats({
       seats: pendingBooking.seats,
       total: calculateTotalForSeats(pendingBooking.seats),
@@ -110,7 +174,6 @@ export default function BookingSection({
     });
   };
 
-  // Hàm xử lý hủy booking cũ
   const handleCancelPending = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -132,15 +195,26 @@ export default function BookingSection({
       if (result.success) {
         setPendingBooking(null);
         setShowPendingDialog(false);
-        // Refresh trạng thái ghế
-        fetchReservedSeats();
+        setSelectedSeats([]);
+
+        if (setBookingId) {
+          setBookingId(null);
+          // ✅ Xóa bookingId khỏi sessionStorage
+          if (showtimeId) {
+            sessionStorage.removeItem(`booking_${showtimeId}`);
+          }
+        }
+
+        await fetchReservedSeats();
+      } else {
+        alert(result.message || "Failed to cancel booking");
       }
     } catch (error) {
       console.error("Error cancelling booking:", error);
+      alert("An error occurred while cancelling booking");
     }
   };
 
-  // Hàm tính total cho danh sách ghế
   const calculateTotalForSeats = (seats) => {
     const seatTypeMap = {};
     Object.entries(SEAT_LAYOUT).forEach(([row, seatsInRow]) => {
@@ -165,7 +239,6 @@ export default function BookingSection({
       setLoading(false);
       return;
     }
-    console.log("Fetching reserved seats for showtimeId:", showtimeId);
 
     setLoading(true);
     setError(null);
@@ -179,24 +252,20 @@ export default function BookingSection({
       const result = await response.json();
       const data = result.data;
 
+      // ✅ Lưu TẤT CẢ ghế reserved từ server
       const soldCodes = data.reserved_seats.map((s) => s.code);
-      setSoldSeats(soldCodes);
+      setAllReservedSeats(soldCodes);
 
-      // ✅ Giá base giờ không cần thiết vì API đã trả về giá cuối cùng
       setBasePrice(parseFloat(data.base_showtime_price) || 0);
 
-      // ✅ Xử lý giá ghế: API đã tính sẵn giá cuối cùng
       const processedPrices = {};
       if (data.seat_type_prices) {
         Object.keys(data.seat_type_prices).forEach((key) => {
           const priceData = data.seat_type_prices[key];
-          // Lưu giá CUỐI CÙNG đã áp dụng modifiers
           processedPrices[key] = parseFloat(priceData.seat_type_price) || 0;
         });
       }
       setSeatPricesMap(processedPrices);
-
-      console.log("✅ Processed Seat Prices:", processedPrices);
     } catch (err) {
       console.error("Error fetching data:", err);
       setError("Cannot load seating status.");
@@ -205,28 +274,19 @@ export default function BookingSection({
     }
   };
 
-  // ⬅️ THÊM LOGIC CẬP NHẬT TRẠNG THÁI GHẾ MỖI 30 GIÂY
+  // ✅ CHỈ phụ thuộc vào showtimeId
   useEffect(() => {
-    fetchReservedSeats(); // Chạy lần đầu
-
-    // Thiết lập interval chạy lại sau mỗi 30 giây
+    fetchReservedSeats();
     const intervalId = setInterval(fetchReservedSeats, 30000);
-
-    // Hàm dọn dẹp (cleanup) khi component bị unmount
     return () => clearInterval(intervalId);
   }, [showtimeId]);
 
-  // ====================================================================
-  // 2. LOGIC TÍNH TỔNG TIỀN (GIỮ NGUYÊN)
-  // ====================================================================
   const calculateTotal = () => {
     if (Object.keys(seatPricesMap).length === 0) {
       return 0;
     }
 
     let sum = 0;
-
-    // Tạo map từ seat code sang loại ghế
     const seatTypeMap = {};
     Object.entries(SEAT_LAYOUT).forEach(([row, seats]) => {
       seats.forEach((type, index) => {
@@ -237,8 +297,6 @@ export default function BookingSection({
     selectedSeats.forEach((seatCode) => {
       const localType = seatTypeMap[seatCode];
       const apiSeatName = mapLocalTypeToApiName(localType);
-
-      // ✅ Giá đã được tính sẵn từ API (bao gồm base + seat type + modifiers)
       const finalPrice = seatPricesMap[apiSeatName] || 0;
       sum += finalPrice;
     });
@@ -248,16 +306,11 @@ export default function BookingSection({
 
   const total = calculateTotal();
 
-  // ====================================================================
-  // 3. TẠO LEGEND VỚI GIÁ TIỀN (GIỮ NGUYÊN)
-  // ====================================================================
   const getSeatTypePrice = (localType) => {
     const apiSeatName = mapLocalTypeToApiName(localType);
-    // ✅ Trả về giá cuối cùng đã tính sẵn từ API
     return seatPricesMap[apiSeatName] || 0;
   };
 
-  // Danh sách các loại ghế để hiển thị trong legend
   const legendItems = [
     { type: "standard", label: "Standard", color: "#ddd" },
     { type: "gold", label: "Gold", color: "#FFD700" },
@@ -265,16 +318,12 @@ export default function BookingSection({
     { type: "box", label: "Box (Couple)", color: "#FF69B4" },
   ];
 
-  // ====================================================================
-  // 4. LOGIC TOGGLE SEAT VÀ HANDLE CONTINUE
-  // ====================================================================
   const toggleSeat = (row, index) => {
     const seatId = `${row}${index + 1}`;
     if (soldSeats.includes(seatId)) return;
 
     const seatType = SEAT_LAYOUT[row][index];
 
-    // Logic ghế đôi (Box)
     if (seatType === "box") {
       const pairIndex = index % 2 === 0 ? index + 1 : index - 1;
       const pairSeatId = `${row}${pairIndex + 1}`;
@@ -300,7 +349,6 @@ export default function BookingSection({
         setSelectedSeats((prev) => [...new Set([...prev, ...seatsToToggle])]);
       }
     } else {
-      // Logic ghế đơn
       setSelectedSeats((prev) =>
         prev.includes(seatId)
           ? prev.filter((s) => s !== seatId)
@@ -309,7 +357,6 @@ export default function BookingSection({
     }
   };
 
-  // ⬅️ CẬP NHẬT HÀM HANDLE CONTINUE ĐỂ GỌI API TẠO BOOKING
   const handleContinue = async () => {
     if (!selectedSeats.length) {
       alert("Please select seats before continue!");
@@ -328,97 +375,114 @@ export default function BookingSection({
       return;
     }
 
-    console.log("🎯 handleContinue - START");
-    console.log("📌 bookingId:", bookingId);
-    console.log("📌 showtimeId:", showtimeId);
-    console.log("📌 selectedSeats:", selectedSeats);
-    console.log("📌 currentUserId:", currentUserId);
-    console.log("📌 token:", token ? "EXISTS" : "MISSING");
+    // ✅ KIỂM TRA: Khôi phục bookingId từ sessionStorage nếu bị mất
+    let currentBookingId = bookingId;
+    if (!currentBookingId && showtimeId) {
+      currentBookingId = sessionStorage.getItem(`booking_${showtimeId}`);
+      if (currentBookingId) {
+        console.log(
+          "🔄 Khôi phục bookingId trước khi update:",
+          currentBookingId
+        );
+        setBookingId(currentBookingId);
+      }
+    }
 
-    try {
-      let response, result;
+    if (currentBookingId) {
+      try {
+        console.log("📤 Updating seats với bookingId:", currentBookingId);
 
-      // ✅ Nếu đã có booking_id → UPDATE seats
-      if (bookingId) {
-        const updateUrl = "http://127.0.0.1:8000/api/bookings/update-seats";
-        const updateBody = {
-          booking_id: bookingId,
+        const updateEndpoint =
+          "http://127.0.0.1:8000/api/bookings/update-seats";
+        const updatePayload = {
+          booking_id: currentBookingId,
           seat_codes: selectedSeats,
         };
 
-        console.log("🔄 UPDATING seats");
-        console.log("📤 URL:", updateUrl);
-        console.log("📤 Body:", updateBody);
-
-        response = await fetch(updateUrl, {
+        const apiResponse = await fetch(updateEndpoint, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(updateBody),
+          body: JSON.stringify(updatePayload),
         });
+
+        if (!apiResponse.ok) {
+          const errorText = await apiResponse.text();
+          throw new Error(`Server error: ${apiResponse.status} - ${errorText}`);
+        }
+
+        const apiResult = await apiResponse.json();
+
+        if (apiResult.success) {
+          onSelectSeats({
+            seats: selectedSeats,
+            total: total,
+            showtimeId: showtimeId,
+            basePrice: basePrice,
+            seatPricesMap: seatPricesMap,
+            booking_id: currentBookingId,
+          });
+          await fetchReservedSeats();
+        } else {
+          alert(apiResult.message || "Failed to update seats.");
+          await fetchReservedSeats();
+        }
+      } catch (error) {
+        console.error("UPDATE Error:", error);
+        alert(`Failed to update seats: ${error.message}`);
       }
-      // ✅ Nếu chưa có booking_id → HOLD seats (tạo mới)
-      else {
-        const holdUrl = "http://127.0.0.1:8000/api/bookings/hold";
-        const holdBody = {
+    } else {
+      try {
+        console.log("📤 Creating new booking...");
+
+        const holdEndpoint = "http://127.0.0.1:8000/api/bookings/hold";
+        const holdPayload = {
           showtime_id: showtimeId,
           seat_codes: selectedSeats,
           user_id: currentUserId,
         };
 
-        console.log("🆕 CREATING new booking");
-        console.log("📤 URL:", holdUrl);
-        console.log("📤 Body:", holdBody);
-
-        response = await fetch(holdUrl, {
+        const apiResponse = await fetch(holdEndpoint, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(holdBody),
+          body: JSON.stringify(holdPayload),
         });
+
+        if (!apiResponse.ok) {
+          const errorText = await apiResponse.text();
+          throw new Error(`Server error: ${apiResponse.status} - ${errorText}`);
+        }
+
+        const apiResult = await apiResponse.json();
+
+        if (apiResult.success) {
+          const finalBookingId = apiResult.booking_id;
+
+          // ✅ Lưu bookingId mới vào sessionStorage
+          sessionStorage.setItem(`booking_${showtimeId}`, finalBookingId);
+
+          onSelectSeats({
+            seats: selectedSeats,
+            total: total,
+            showtimeId: showtimeId,
+            basePrice: basePrice,
+            seatPricesMap: seatPricesMap,
+            booking_id: finalBookingId,
+          });
+          await fetchReservedSeats();
+        } else {
+          alert(apiResult.message || "Failed to hold seats.");
+          await fetchReservedSeats();
+        }
+      } catch (error) {
+        console.error("HOLD Error:", error);
+        alert(`Failed to hold seats: ${error.message}`);
       }
-
-      console.log("📥 Response status:", response.status);
-      console.log("📥 Response ok:", response.ok);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("❌ Error response text:", errorText);
-        throw new Error(`Server error: ${response.status} - ${errorText}`);
-      }
-
-      result = await response.json();
-      console.log("✅ API Result:", result);
-
-      if (result.success) {
-        const finalBookingId = result.booking_id || bookingId;
-        console.log("✅ Final booking_id:", finalBookingId);
-
-        // Chuyển sang bước tiếp theo
-        onSelectSeats({
-          seats: selectedSeats,
-          total: total,
-          showtimeId: showtimeId,
-          basePrice: basePrice,
-          seatPricesMap: seatPricesMap,
-          booking_id: finalBookingId,
-        });
-        // Refresh trạng thái ghế
-        fetchReservedSeats();
-      } else {
-        console.error("❌ API returned success=false:", result.message);
-        alert(result.message || "Failed to hold/update seats.");
-        fetchReservedSeats();
-      }
-    } catch (error) {
-      console.error("❌ CATCH Error:", error);
-      console.error("❌ Error message:", error.message);
-      console.error("❌ Error stack:", error.stack);
-      alert(`An unexpected error occurred: ${error.message}`);
     }
   };
 
@@ -492,7 +556,6 @@ export default function BookingSection({
         ))}
       </div>
 
-      {/* LEGEND - Hiển thị màu sắc, tên và giá của từng loại ghế */}
       <div className="legend">
         {legendItems.map((item) => {
           const price = getSeatTypePrice(item.type);

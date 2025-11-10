@@ -1,11 +1,13 @@
 import React, { useState, useMemo } from "react";
-import { Film, Pencil, X as XIcon, ChevronDown } from "lucide-react";
+import { Film, Pencil, Trash2, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import "./MovieTable.css";
 
 export default function MovieTable({
   movies,
   handleEdit,
   handleAddMovie,
+  handleDeleteMovie, // ✅ Thêm prop này
   movieSearch,
   setMovieSearch,
 }) {
@@ -34,7 +36,7 @@ export default function MovieTable({
     const matchesGenre =
       selectedGenres.length > 0
         ? Array.isArray(movie.genres) &&
-        movie.genres.some((g) => selectedGenres.includes(g.name))
+          movie.genres.some((g) => selectedGenres.includes(g.name))
         : true;
 
     const duration = Number(movie.duration) || 0;
@@ -70,9 +72,7 @@ export default function MovieTable({
 
   const toggleGenre = (genre) => {
     setSelectedGenres((prev) =>
-      prev.includes(genre)
-        ? prev.filter((g) => g !== genre)
-        : [...prev, genre]
+      prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre]
     );
     setCurrentPage(1);
   };
@@ -122,7 +122,7 @@ export default function MovieTable({
 
                 {genreDropdownOpen && (
                   <div
-                    className="position-absolute border rounded shadow-sm p-3 mt-1"
+                    className="position-absolute border rounded shadow-sm p-3 mt-1 movietable-genre-dropdown"
                     style={{
                       zIndex: 100,
                       minWidth: 250,
@@ -130,7 +130,7 @@ export default function MovieTable({
                       color: "#212529",
                       display: "grid",
                       gridTemplateColumns: "repeat(3, 1fr)",
-                      gap: "6px 12px", // khoảng cách hàng & cột
+                      gap: "6px 12px",
                     }}
                   >
                     {genreOptions.map((g) => (
@@ -142,7 +142,10 @@ export default function MovieTable({
                           checked={selectedGenres.includes(g)}
                           onChange={() => toggleGenre(g)}
                         />
-                        <label className="form-check-label ms-1" htmlFor={`genre-${g}`}>
+                        <label
+                          className="form-check-label ms-1"
+                          htmlFor={`genre-${g}`}
+                        >
                           {g}
                         </label>
                       </div>
@@ -193,7 +196,6 @@ export default function MovieTable({
                   handleDurationInput(e.target.value, setDurationTo)
                 }
               />
-
             </div>
 
             {/* Release */}
@@ -241,7 +243,7 @@ export default function MovieTable({
             <tbody>
               {currentMovies.length > 0 ? (
                 currentMovies.map((movie, idx) => (
-                  <tr key={idx}>
+                  <tr key={movie.movie_id || idx}>
                     <td style={{ width: 80 }}>
                       <img
                         src={movie.poster_path}
@@ -269,14 +271,20 @@ export default function MovieTable({
                     </td>
                     <td>
                       <button
-                        className="btn btn-sm btn-light me-1"
+                        className="btn btn-sm btn-outline-primary me-2"
                         title="Edit"
                         onClick={() => handleEdit(movie, idx)}
                       >
                         <Pencil size={16} />
                       </button>
-                      <button className="btn btn-sm btn-light" title="Delete">
-                        <XIcon size={16} color="#dc3545" />
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        title="Delete"
+                        onClick={() =>
+                          handleDeleteMovie(movie.movie_id, movie.title)
+                        }
+                      >
+                        <Trash2 size={16} />
                       </button>
                     </td>
                   </tr>
@@ -300,8 +308,9 @@ export default function MovieTable({
               <nav>
                 <ul className="pagination pagination-sm mb-0">
                   <li
-                    className={`page-item ${currentPage === 1 ? "disabled" : ""
-                      }`}
+                    className={`page-item ${
+                      currentPage === 1 ? "disabled" : ""
+                    }`}
                   >
                     <button
                       className="page-link"
@@ -313,8 +322,9 @@ export default function MovieTable({
                   {Array.from({ length: totalPages }, (_, i) => (
                     <li
                       key={i}
-                      className={`page-item ${currentPage === i + 1 ? "active" : ""
-                        }`}
+                      className={`page-item ${
+                        currentPage === i + 1 ? "active" : ""
+                      }`}
                     >
                       <button
                         className="page-link"
@@ -325,8 +335,9 @@ export default function MovieTable({
                     </li>
                   ))}
                   <li
-                    className={`page-item ${currentPage === totalPages ? "disabled" : ""
-                      }`}
+                    className={`page-item ${
+                      currentPage === totalPages ? "disabled" : ""
+                    }`}
                   >
                     <button
                       className="page-link"

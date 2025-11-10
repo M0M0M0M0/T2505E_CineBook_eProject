@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import "./MovieDetail.css";
 import ShowtimeSelector from "../TicketBooking/ShowtimeSelector";
 import BookingSection from "../TicketBooking/BookingSection";
@@ -11,9 +11,10 @@ import { useAuth } from "../../contexts/AuthContext";
 export default function MovieDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation(); // ✅ THÊM để nhận state từ navigation
   const [movie, setMovie] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
-  const [step, setStep] = useState("detail"); // detail → showtime → seat → food → toal → payment
+  const [step, setStep] = useState("detail");
   const [embedTrailer, setEmbedTrailer] = useState("");
 
   const [selectedShowtime, setSelectedShowtime] = useState(null);
@@ -24,12 +25,16 @@ export default function MovieDetail() {
   const [bookingId, setBookingId] = useState(null);
   const { currentUserId, isAuthenticated } = useAuth();
 
-  // Tạo ref cho từng section
   const showtimeRef = useRef(null);
   const seatRef = useRef(null);
   const foodRef = useRef(null);
   const totalRef = useRef(null);
   const paymentRef = useRef(null);
+
+  // ✅ THÊM: Nhận state từ navigation (khi user click "Tiếp tục đặt vé" từ global dialog)
+  const resumeBooking = location.state?.resumeBooking;
+  const resumeBookingId = location.state?.bookingId;
+  const resumeShowtimeId = location.state?.showtimeId;
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -55,8 +60,51 @@ export default function MovieDetail() {
     }
   }, [movie]);
 
+  // Chỉ chạy effect khi CÓ resumeBooking = true
   useEffect(() => {
-    // Scroll tới đúng section khi step thay đổi
+    //  KIỂM TRA CHẶT CHẼ: Phải có resumeBooking === true VÀ có đầy đủ IDs
+    if (resumeBooking === true && resumeShowtimeId && resumeBookingId) {
+      console.log("🔄 Resuming booking:", {
+        showtimeId: resumeShowtimeId,
+        bookingId: resumeBookingId,
+      });
+      fetchShowtimeAndResume(resumeShowtimeId, resumeBookingId);
+    }
+  }, [resumeBooking, resumeShowtimeId, resumeBookingId]);
+
+  // ✅ Hàm fetch showtime và resume booking
+  const fetchShowtimeAndResume = async (showtimeId, bookingIdToResume) => {
+    if (!showtimeId || !bookingIdToResume) {
+      console.log("⚠️ Invalid params for resume");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/showtimes/${showtimeId}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // ✅ API trả về data trực tiếp, không có wrapper { success, data }
+      if (result && result.showtime_id) {
+        setSelectedShowtime(result);
+        setBookingId(bookingIdToResume);
+        setStep("seat");
+      } else {
+        throw new Error("Invalid showtime data");
+      }
+    } catch (error) {
+      console.error("❌ Error fetching showtime:", error);
+      alert("Không thể tải thông tin suất chiếu. Vui lòng thử lại.");
+    }
+  };
+
+  useEffect(() => {
     let ref = null;
     if (step === "showtime") ref = showtimeRef;
     else if (step === "seat") ref = seatRef;
@@ -67,6 +115,37 @@ export default function MovieDetail() {
       ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [step]);
+
+  // ✅ Helper function để format date
+  const formatReleaseDate = (dateString) => {
+    if (!dateString) return "TBA";
+
+    try {
+      // Nếu là ISO format (2025-11-26T00:00:00.000000Z)
+      const date = new Date(dateString);
+
+      // Format thành DD/MM/YYYY hoặc định dạng khác tùy ý
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = date.getFullYear();
+
+      return `${day}/${month}/${year}`;
+    } catch (error) {
+      // Fallback: chỉ lấy phần YYYY-MM-DD
+      return dateString.slice(0, 10);
+    }
+  };
+
+  // ✅ Kiểm tra xem phim có phải Coming Soon không
+  const isComingSoon = () => {
+    if (!movie?.release_date) return false;
+
+    const releaseDate = new Date(movie.release_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time để so sánh chỉ ngày
+
+    return releaseDate > today;
+  };
 
   if (!movie)
     return (
@@ -82,15 +161,12 @@ export default function MovieDetail() {
       </div>
     );
 
-  // 🔒 KIỂM TRA ĐĂNG NHẬP TRƯỚC KHI CHO PHÉP ĐẶT VÉ
   const handleBookNow = () => {
     if (!isAuthenticated || !currentUserId) {
-      // Hiển thị thông báo và chuyển hướng đến trang đăng nhập
       alert("Vui lòng đăng nhập để tiếp tục đặt vé!");
       navigate("/login");
       return;
     }
-    // Nếu đã đăng nhập, chuyển sang bước chọn suất chiếu
     setStep("showtime");
   };
 
@@ -102,6 +178,15 @@ export default function MovieDetail() {
   const handleSelectSeats = ({ seats, total, booking_id }) => {
     setSelectedSeats(seats);
     setSeatTotal(total);
+
+    // ✅ Validate booking_id trước khi chuyển step
+    if (!booking_id) {
+      console.error("❌ No booking_id received");
+      alert("Lỗi: Không có booking ID. Vui lòng thử lại từ đầu.");
+      setStep("showtime");
+      return;
+    }
+
     setBookingId(booking_id);
     if (seats && seats.length > 0) {
       setStep("food");
@@ -117,6 +202,12 @@ export default function MovieDetail() {
   const handleNext = () => {
     setStep("transition");
     setTimeout(() => setStep("payment"), 400);
+  };
+
+  // ✅ Hàm back từ food về seat - RESET bookingId nếu cần
+  const handleBackToSeat = () => {
+    // Không reset bookingId ở đây vì user có thể muốn giữ booking
+    setStep("seat");
   };
 
   return (
@@ -145,6 +236,14 @@ export default function MovieDetail() {
           </div>
           <div className="col-md-8">
             <h2 className="md-title mb-3">{movie.title}</h2>
+
+            {/* ✅ Hiển thị badge Coming Soon nếu phim chưa ra */}
+            {isComingSoon() && (
+              <span className="badge bg-warning text-dark me-2 mb-2">
+                Coming Soon
+              </span>
+            )}
+
             <p className="md-meta text-secondary mb-2">
               {movie.genre && <>{movie.genre} | </>}⭐ {movie.vote_average}
               {movie.vote_count ? ` (${movie.vote_count} votes)` : ""}
@@ -155,7 +254,7 @@ export default function MovieDetail() {
             </p>
             <p className="md-extra mb-4">
               <strong>Release Date:</strong>{" "}
-              {movie.release_date || "TBA"}
+              {formatReleaseDate(movie.release_date)}
             </p>
 
             <div
@@ -167,12 +266,23 @@ export default function MovieDetail() {
             </div>
 
             <div className="md-actions d-flex gap-3 mt-4">
-              <button
-                className="detail-booknow-btn px-4 py-2"
-                onClick={handleBookNow}
-              >
-                🎟 Book Now
-              </button>
+              {/* ✅ Chỉ hiển thị nút Book Now nếu KHÔNG phải Coming Soon */}
+              {!isComingSoon() ? (
+                <button
+                  className="detail-booknow-btn px-4 py-2"
+                  onClick={handleBookNow}
+                >
+                  🎟 Book Now
+                </button>
+              ) : (
+                <button
+                  className="btn btn-secondary px-4 py-2"
+                  disabled
+                  title="This movie is not available for booking yet"
+                >
+                  Coming Soon
+                </button>
+              )}
 
               {embedTrailer && (
                 <button
@@ -207,6 +317,7 @@ export default function MovieDetail() {
               showtimeId={selectedShowtime.showtime_id}
               currentUserId={currentUserId}
               bookingId={bookingId}
+              setBookingId={setBookingId}
             />
           </div>
         )}
@@ -221,7 +332,7 @@ export default function MovieDetail() {
               selectedFoods={selectedFoods}
               setSelectedFoods={setSelectedFoods}
               onComplete={handleSelectFoods}
-              onBack={() => setStep("seat")}
+              onBack={handleBackToSeat}
             />
           </div>
         )}

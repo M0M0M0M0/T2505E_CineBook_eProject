@@ -17,11 +17,13 @@ import Register from "./pages/Auth/Register.jsx";
 import ProfilePage from "./pages/ProfilePage/ProfilePage.jsx";
 
 import ForgotPassword from "./pages/Auth/ForgotPassword";
+import PendingBookingDialog from "./components/PendingBookingDialog.jsx";
 
 function App() {
   const [count, setCount] = useState(0);
   return (
     <BrowserRouter>
+      <PendingBookingDialog />
       <Header />
 
       {/* <Dashboard /> */}
@@ -32,15 +34,14 @@ function App() {
         <Route path="/movie/:id" element={<MovieDetail />} />
         <Route path="/admin" element={<Dashboard />} />
         <Route path="/offers" element={<Offers />} />
-        <Route path="/theaters" element={<Theaters/> }/>
+        <Route path="/theaters" element={<Theaters />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="movies/:id" element={<MovieDetail />} />
 
-
-      {/* <Movies /> */}
+        {/* <Movies /> */}
       </Routes>
       <Footer />
     </BrowserRouter>
