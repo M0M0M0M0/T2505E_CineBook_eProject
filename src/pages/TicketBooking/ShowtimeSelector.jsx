@@ -30,7 +30,7 @@ export default function ShowtimeSelector({ onSelectShowtime }) {
         }
 
         const data = await response.json();
-        console.log("Received data:", data);
+        // console.log("Received data:", data);
 
         setShowtimesData(data);
 

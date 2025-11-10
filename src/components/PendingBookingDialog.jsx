@@ -130,7 +130,7 @@ export default function PendingBookingDialog() {
     <div className="global-pending-dialog-overlay">
       <div className="global-pending-dialog">
         <div className="dialog-header">
-          <h3>⏰ Bạn có booking đang chờ!</h3>
+          <h3>⏰ Pending Booking</h3>
           <button className="close-btn" onClick={handleDismiss}>
             ×
           </button>
@@ -160,9 +160,6 @@ export default function PendingBookingDialog() {
           </button>
           <button className="btn-cancel" onClick={handleCancel}>
             Cancel Booking
-          </button>
-          <button className="btn-dismiss" onClick={handleDismiss}>
-            Dismiss
           </button>
         </div>
       </div>

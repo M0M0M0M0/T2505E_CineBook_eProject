@@ -57,21 +57,72 @@ export default function BookingSection({
   const [showPendingDialog, setShowPendingDialog] = useState(false);
 
   const hasCheckedPending = useRef(false);
+  const updateTimeoutRef = useRef(null);
+  const [currentBookingSeats, setCurrentBookingSeats] = useState([]); // seats that belong to current bookingId
 
-  // ✅ Tính toán soldSeats từ allReservedSeats, loại bỏ ghế đang chọn
   const soldSeats = useMemo(() => {
-    if (bookingId && selectedSeats.length > 0) {
-      return allReservedSeats.filter((seat) => !selectedSeats.includes(seat));
-    }
-    return allReservedSeats;
-  }, [allReservedSeats, bookingId, selectedSeats]);
+    const bookingSeats = pendingBooking?.seats || [];
 
-  // ✅ Lưu bookingId vào sessionStorage mỗi khi thay đổi
+    return allReservedSeats.filter(
+      (seat) => !bookingSeats.includes(seat) && !selectedSeats.includes(seat)
+    );
+  }, [allReservedSeats, pendingBooking, selectedSeats]);
+  // ✅ Debug soldSeats và các biến liên quan
+  // useEffect(() => {
+  //   console.log("DEBUG allReservedSeats:", allReservedSeats);
+  //   console.log("DEBUG currentBookingSeats:", currentBookingSeats);
+  //   console.log("DEBUG selectedSeats:", selectedSeats);
+  //   console.log("DEBUG computed soldSeats:", soldSeats);
+  // }, [allReservedSeats, currentBookingSeats, selectedSeats, soldSeats]);
+
   useEffect(() => {
-    if (bookingId && showtimeId) {
-      sessionStorage.setItem(`booking_${showtimeId}`, bookingId);
-    }
-  }, [bookingId, showtimeId]);
+    const fetchBookingSeats = async () => {
+      if (!bookingId) {
+        setCurrentBookingSeats([]);
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+          `http://127.0.0.1:8000/api/bookings/${bookingId}/validate`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token ? `Bearer ${token}` : undefined,
+            },
+          }
+        );
+
+        if (!res.ok) {
+          console.warn(
+            "Cannot fetch booking details for bookingId:",
+            bookingId
+          );
+          setCurrentBookingSeats([]);
+          return;
+        }
+
+        const data = await res.json();
+
+        // Tùy API shape: nếu API trả { data: { seats: [...] } } hoặc { seats: [...] }
+        const seatsFromBooking =
+          (data && data.data && data.data.seats) ||
+          data.seats ||
+          data.seat_codes ||
+          [];
+
+        setCurrentBookingSeats(
+          Array.isArray(seatsFromBooking) ? seatsFromBooking : []
+        );
+      } catch (err) {
+        console.error("Error fetching booking seats:", err);
+        setCurrentBookingSeats([]);
+      }
+    };
+
+    fetchBookingSeats();
+  }, [bookingId]);
 
   // ✅ Đánh dấu đã xử lý pending nếu có bookingId từ props
   useEffect(() => {
@@ -128,6 +179,22 @@ export default function BookingSection({
       if (result.success && result.has_pending) {
         setPendingBooking(result.booking);
         setShowPendingDialog(true);
+      } else {
+        // ✅ THÊM LOGIC NÀY VÀO ĐÂY: DỌN DẸP BOOKING CŨ
+        if (bookingId) {
+          console.warn(
+            `Booking ID ${bookingId} recovered from storage is not pending. Clearing.`
+          );
+
+          // 1. Xóa khỏi state React
+          if (setBookingId) {
+            setBookingId(null);
+          }
+          // 2. Xóa khỏi Session Storage
+          if (showtimeId) {
+            sessionStorage.removeItem(`booking_${showtimeId}`);
+          }
+        }
       }
     } catch (error) {
       console.error("Error checking pending booking:", error);
@@ -286,11 +353,12 @@ export default function BookingSection({
     { type: "box", label: "Box (Couple)", color: "#FF69B4" },
   ];
 
-  const toggleSeat = (row, index) => {
+  const toggleSeat = async (row, index) => {
     const seatId = `${row}${index + 1}`;
     if (soldSeats.includes(seatId)) return;
 
     const seatType = SEAT_LAYOUT[row][index];
+    let newSelectedSeats;
 
     if (seatType === "box") {
       const pairIndex = index % 2 === 0 ? index + 1 : index - 1;
@@ -310,22 +378,69 @@ export default function BookingSection({
       const allSelected = seatsToToggle.every((s) => selectedSeats.includes(s));
 
       if (allSelected) {
-        setSelectedSeats((prev) =>
-          prev.filter((s) => !seatsToToggle.includes(s))
+        newSelectedSeats = selectedSeats.filter(
+          (s) => !seatsToToggle.includes(s)
         );
       } else {
-        setSelectedSeats((prev) => [...new Set([...prev, ...seatsToToggle])]);
+        newSelectedSeats = [...new Set([...selectedSeats, ...seatsToToggle])];
       }
     } else {
-      setSelectedSeats((prev) =>
-        prev.includes(seatId)
-          ? prev.filter((s) => s !== seatId)
-          : [...prev, seatId]
+      if (selectedSeats.includes(seatId)) {
+        newSelectedSeats = selectedSeats.filter((s) => s !== seatId);
+      } else {
+        newSelectedSeats = [...selectedSeats, seatId];
+      }
+    }
+
+    // ✅ Cập nhật state trước
+    setSelectedSeats(newSelectedSeats);
+  };
+
+  // ✅ Hàm update seats lên server
+  const updateSeatsOnServer = async (seats) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/bookings/update-seats",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            booking_id: bookingId,
+            seat_codes: seats,
+          }),
+        }
       );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.message && errorData.message.includes("completed")) {
+          console.log("⚠️ Booking đã completed");
+          sessionStorage.removeItem(`booking_${showtimeId}`);
+          setBookingId(null);
+        }
+        throw new Error(errorData.message || "Failed to update seats");
+      }
+
+      // ✅ Refresh danh sách ghế đã bán
+      await fetchReservedSeats();
+    } catch (error) {
+      console.error("Error updating seats:", error);
     }
   };
 
   const handleContinue = async () => {
+    // 1. DEBUG CÁC GIÁ TRỊ BAN ĐẦU
+    console.log("--- BẮT ĐẦU handleContinue ---");
+    console.log("selectedSeats:", selectedSeats);
+    console.log("currentUserId:", currentUserId);
+    console.log("showtimeId:", showtimeId);
+
     if (!selectedSeats.length) {
       alert("Please select seats before continue!");
       return;
@@ -337,94 +452,30 @@ export default function BookingSection({
     }
 
     const token = localStorage.getItem("token");
+    console.log(
+      "Token status:",
+      token ? "Token loaded" : "Token is null/missing"
+    );
+
     if (!token) {
       alert("Token not found. Please login again.");
       window.location.href = "/login";
       return;
     }
 
-    // ✅ Khôi phục bookingId từ sessionStorage nếu bị mất
-    let currentBookingId = bookingId;
-    if (!currentBookingId && showtimeId) {
-      currentBookingId = sessionStorage.getItem(`booking_${showtimeId}`);
-      if (currentBookingId) {
-        console.log(
-          "🔄 Khôi phục bookingId trước khi update:",
-          currentBookingId
-        );
-        setBookingId(currentBookingId);
-      }
-    }
+    // Khôi phục bookingId từ sessionStorage (hoặc giá trị prop)
+    let currentBookingId = bookingId || null;
+    let isNewBooking = false;
 
-    if (currentBookingId) {
+    // 1. Logic HOẶC TẠO MỚI (POST /hold) HOẶC SỬ DỤNG BOOKING CŨ
+    if (!currentBookingId) {
       try {
-        console.log("📤 Updating seats với bookingId:", currentBookingId);
-
-        const updateEndpoint =
-          "http://127.0.0.1:8000/api/bookings/update-seats";
-        const updatePayload = {
-          booking_id: currentBookingId,
-          seat_codes: selectedSeats,
-        };
-
-        const apiResponse = await fetch(updateEndpoint, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(updatePayload),
-        });
-
-        if (!apiResponse.ok) {
-          const errorData = await apiResponse.json();
-
-          // ✅ Nếu booking đã completed, xóa sessionStorage và tạo mới
-          if (errorData.message && errorData.message.includes("completed")) {
-            console.log("⚠️ Booking đã completed, tạo booking mới");
-            sessionStorage.removeItem(`booking_${showtimeId}`);
-            setBookingId(null);
-
-            // Tạo booking mới
-            return handleContinue();
-          }
-
-          throw new Error(
-            errorData.message || `Server error: ${apiResponse.status}`
-          );
-        }
-
-        const apiResult = await apiResponse.json();
-
-        if (apiResult.success) {
-          onSelectSeats({
-            seats: selectedSeats,
-            total: total,
-            showtimeId: showtimeId,
-            basePrice: basePrice,
-            seatPricesMap: seatPricesMap,
-            booking_id: currentBookingId,
-          });
-          await fetchReservedSeats();
-        } else {
-          alert(apiResult.message || "Failed to update seats.");
-          await fetchReservedSeats();
-        }
-      } catch (error) {
-        console.error("UPDATE Error:", error);
-        alert(`Failed to update seats: ${error.message}`);
-      }
-    } else {
-      try {
-        console.log("📤 Creating new booking...");
-
         const holdEndpoint = "http://127.0.0.1:8000/api/bookings/hold";
         const holdPayload = {
           showtime_id: showtimeId,
           seat_codes: selectedSeats,
           user_id: currentUserId,
         };
-
         const apiResponse = await fetch(holdEndpoint, {
           method: "POST",
           headers: {
@@ -433,36 +484,65 @@ export default function BookingSection({
           },
           body: JSON.stringify(holdPayload),
         });
-
-        if (!apiResponse.ok) {
-          const errorText = await apiResponse.text();
-          throw new Error(`Server error: ${apiResponse.status} - ${errorText}`);
-        }
-
         const apiResult = await apiResponse.json();
 
         if (apiResult.success) {
-          const finalBookingId = apiResult.booking_id;
-
-          sessionStorage.setItem(`booking_${showtimeId}`, finalBookingId);
-
-          onSelectSeats({
-            seats: selectedSeats,
-            total: total,
-            showtimeId: showtimeId,
-            basePrice: basePrice,
-            seatPricesMap: seatPricesMap,
-            booking_id: finalBookingId,
-          });
+          currentBookingId = apiResult.booking_id;
+          setBookingId(currentBookingId);
+          sessionStorage.setItem(`booking_${showtimeId}`, currentBookingId);
+          isNewBooking = true;
           await fetchReservedSeats();
         } else {
           alert(apiResult.message || "Failed to hold seats.");
-          await fetchReservedSeats();
+          return; // THOÁT NẾU HOLD THẤT BẠI
         }
-      } catch (error) {
-        console.error("HOLD Error:", error);
-        alert(`Failed to hold seats: ${error.message}`);
+      } catch (err) {
+        console.error("Failed to create booking:", err);
+        alert("Failed to create booking.");
+        return; // THOÁT NẾU LỖI MẠNG
       }
+    }
+
+    // 2. Logic CẬP NHẬT GHẾ (PUT /update-seats)
+    // Chỉ cập nhật nếu:
+    // a) Đã có bookingId hợp lệ
+    // b) Đây KHÔNG PHẢI là booking vừa được tạo (vì API hold đã giữ chỗ rồi)
+    if (currentBookingId && !isNewBooking) {
+      try {
+        const updateEndpoint =
+          "http://127.0.0.1:8000/api/bookings/update-seats";
+
+        // Dòng này phải chứa URL đầy đủ
+        console.log("UPDATE SEATS URL:", updateEndpoint);
+
+        const updatePayload = {
+          booking_id: currentBookingId, // DỮ LIỆU BẮT BUỘC ĐƯỢC GỬI
+          seat_codes: selectedSeats,
+        };
+
+        const updateResponse = await fetch(updateEndpoint, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatePayload),
+        });
+
+        if (!updateResponse.ok) throw new Error("Failed to update seats");
+        await fetchReservedSeats();
+      } catch (err) {
+        console.error("Failed to update seats:", err);
+      }
+    }
+
+    // 3. Chuyển sang bước tiếp theo
+    if (currentBookingId) {
+      onSelectSeats({
+        seats: selectedSeats,
+        total: calculateTotal(),
+        booking_id: currentBookingId,
+      });
     }
   };
 
@@ -483,24 +563,24 @@ export default function BookingSection({
       {showPendingDialog && pendingBooking && (
         <div className="pending-dialog-overlay">
           <div className="pending-dialog">
-            <h3>Bạn có booking đang chờ!</h3>
+            <h3>You have an unfinished booking</h3>
             <p>
-              Bạn đã chọn {pendingBooking.seats.length} ghế:{" "}
+              You have chosen {pendingBooking.seats.length} seats:{" "}
               <strong>{pendingBooking.seats.join(", ")}</strong>
             </p>
             <p>
-              Thời gian còn lại:{" "}
+              Remaining time:{" "}
               <strong>
-                {Math.floor(pendingBooking.time_remaining / 60)} phút{" "}
-                {pendingBooking.time_remaining % 60} giây
+                {Math.floor(pendingBooking.time_remaining / 60)} minutes{" "}
+                {pendingBooking.time_remaining % 60} seconds
               </strong>
             </p>
             <div className="pending-dialog-buttons">
               <button className="btn-continue" onClick={handleContinuePending}>
-                Tiếp tục booking này
+                Continue Booking
               </button>
               <button className="btn-cancel" onClick={handleCancelPending}>
-                Hủy và chọn lại
+                Cancel Booking
               </button>
             </div>
           </div>
