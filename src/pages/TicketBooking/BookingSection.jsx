@@ -48,7 +48,7 @@ export default function BookingSection({
   bookingId,
   setBookingId,
 }) {
-  const [allReservedSeats, setAllReservedSeats] = useState([]); // ✅ Đổi tên để phân biệt
+  const [allReservedSeats, setAllReservedSeats] = useState([]);
   const [basePrice, setBasePrice] = useState(0);
   const [seatPricesMap, setSeatPricesMap] = useState({});
   const [loading, setLoading] = useState(true);
@@ -66,59 +66,30 @@ export default function BookingSection({
     return allReservedSeats;
   }, [allReservedSeats, bookingId, selectedSeats]);
 
-  // ✅ THÊM: Lưu bookingId vào sessionStorage mỗi khi thay đổi
+  // ✅ Lưu bookingId vào sessionStorage mỗi khi thay đổi
   useEffect(() => {
     if (bookingId && showtimeId) {
       sessionStorage.setItem(`booking_${showtimeId}`, bookingId);
     }
   }, [bookingId, showtimeId]);
 
-  // ✅ THÊM: Đánh dấu đã xử lý pending nếu có bookingId từ props
+  // ✅ Đánh dấu đã xử lý pending nếu có bookingId từ props
   useEffect(() => {
     if (bookingId) {
       hasCheckedPending.current = true;
     }
   }, [bookingId]);
 
-  // ✅ THÊM: Khôi phục bookingId từ sessionStorage NHƯNG validate nó còn hợp lệ không
+  // ✅ Khôi phục bookingId từ sessionStorage (nếu có)
   useEffect(() => {
-    const validateAndRestoreBooking = async () => {
-      if (!bookingId && showtimeId) {
-        const savedBookingId = sessionStorage.getItem(`booking_${showtimeId}`);
-        if (savedBookingId) {
-          // Kiểm tra booking có còn valid không
-          try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(
-              `http://127.0.0.1:8000/api/bookings/${savedBookingId}/validate`,
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            );
-
-            if (response.ok) {
-              const result = await response.json();
-              if (result.success && result.is_valid) {
-                console.log("🔄 Khôi phục bookingId hợp lệ:", savedBookingId);
-                setBookingId(savedBookingId);
-                return;
-              }
-            }
-          } catch (error) {
-            console.log("⚠️ Không thể validate booking:", error);
-          }
-
-          // Nếu không valid, xóa đi
-          console.log("🗑️ Xóa bookingId không hợp lệ");
-          sessionStorage.removeItem(`booking_${showtimeId}`);
-        }
+    if (!bookingId && showtimeId) {
+      const savedBookingId = sessionStorage.getItem(`booking_${showtimeId}`);
+      if (savedBookingId) {
+        console.log("🔄 Khôi phục bookingId:", savedBookingId);
+        setBookingId(savedBookingId);
       }
-    };
-
-    validateAndRestoreBooking();
-  }, [showtimeId]);
+    }
+  }, [showtimeId, bookingId, setBookingId]);
 
   // ✅ CHỈ check pending booking khi CHƯA có bookingId từ props
   useEffect(() => {
@@ -199,7 +170,6 @@ export default function BookingSection({
 
         if (setBookingId) {
           setBookingId(null);
-          // ✅ Xóa bookingId khỏi sessionStorage
           if (showtimeId) {
             sessionStorage.removeItem(`booking_${showtimeId}`);
           }
@@ -252,7 +222,6 @@ export default function BookingSection({
       const result = await response.json();
       const data = result.data;
 
-      // ✅ Lưu TẤT CẢ ghế reserved từ server
       const soldCodes = data.reserved_seats.map((s) => s.code);
       setAllReservedSeats(soldCodes);
 
@@ -274,7 +243,6 @@ export default function BookingSection({
     }
   };
 
-  // ✅ CHỈ phụ thuộc vào showtimeId
   useEffect(() => {
     fetchReservedSeats();
     const intervalId = setInterval(fetchReservedSeats, 30000);
@@ -375,7 +343,7 @@ export default function BookingSection({
       return;
     }
 
-    // ✅ KIỂM TRA: Khôi phục bookingId từ sessionStorage nếu bị mất
+    // ✅ Khôi phục bookingId từ sessionStorage nếu bị mất
     let currentBookingId = bookingId;
     if (!currentBookingId && showtimeId) {
       currentBookingId = sessionStorage.getItem(`booking_${showtimeId}`);
@@ -409,8 +377,21 @@ export default function BookingSection({
         });
 
         if (!apiResponse.ok) {
-          const errorText = await apiResponse.text();
-          throw new Error(`Server error: ${apiResponse.status} - ${errorText}`);
+          const errorData = await apiResponse.json();
+
+          // ✅ Nếu booking đã completed, xóa sessionStorage và tạo mới
+          if (errorData.message && errorData.message.includes("completed")) {
+            console.log("⚠️ Booking đã completed, tạo booking mới");
+            sessionStorage.removeItem(`booking_${showtimeId}`);
+            setBookingId(null);
+
+            // Tạo booking mới
+            return handleContinue();
+          }
+
+          throw new Error(
+            errorData.message || `Server error: ${apiResponse.status}`
+          );
         }
 
         const apiResult = await apiResponse.json();
@@ -463,7 +444,6 @@ export default function BookingSection({
         if (apiResult.success) {
           const finalBookingId = apiResult.booking_id;
 
-          // ✅ Lưu bookingId mới vào sessionStorage
           sessionStorage.setItem(`booking_${showtimeId}`, finalBookingId);
 
           onSelectSeats({
@@ -500,7 +480,6 @@ export default function BookingSection({
 
   return (
     <div className="booking-section">
-      {/* Dialog pending booking */}
       {showPendingDialog && pendingBooking && (
         <div className="pending-dialog-overlay">
           <div className="pending-dialog">
