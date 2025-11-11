@@ -127,11 +127,14 @@ export default function ShowtimeForm({
               required
             >
               <option value="">Select Movie</option>
-              {movies.map((m) => (
-                <option key={m.movie_id} value={m.movie_id}>
-                  {m.title}
-                </option>
-              ))}
+              {movies               
+                .slice(-20)
+                .map((m) => (
+                  <option key={m.movie_id} value={m.movie_id}>
+                    {m.title}
+                  </option>
+                ))}
+
             </select>
           </div>
 
@@ -169,8 +172,8 @@ export default function ShowtimeForm({
                 {loading
                   ? "Loading..."
                   : form.theater_id
-                  ? "Select Room"
-                  : "Select Theater First"}
+                    ? "Select Room"
+                    : "Select Theater First"}
               </option>
               {rooms.map((r) => (
                 <option key={r.room_id} value={r.room_id}>

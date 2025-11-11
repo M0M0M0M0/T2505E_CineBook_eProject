@@ -24,6 +24,7 @@ export default function MovieDetail() {
   const [foodTotal, setFoodTotal] = useState(0);
   const [bookingId, setBookingId] = useState(null);
   const { currentUserId, isAuthenticated } = useAuth();
+  const [allMovies, setAllMovies] = useState([]); // LƯU Ý: allMovies để kiểm tra Coming Soon
 
   const showtimeRef = useRef(null);
   const seatRef = useRef(null);
@@ -59,7 +60,19 @@ export default function MovieDetail() {
       }
     }
   }, [movie]);
-
+  // ✅ Fetch all movies để kiểm tra Coming Soon
+  useEffect(() => {
+    const fetchAllMovies = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/movies");
+        const data = await res.json();
+        setAllMovies(data);
+      } catch (err) {
+        console.error("Error fetching all movies:", err);
+      }
+    };
+    fetchAllMovies();
+  }, []);
   // Chỉ chạy effect khi CÓ resumeBooking = true
   useEffect(() => {
     if (resumeBooking === true && resumeShowtimeId && resumeBookingId) {
@@ -137,13 +150,9 @@ export default function MovieDetail() {
 
   // ✅ Kiểm tra xem phim có phải Coming Soon không
   const isComingSoon = () => {
-    if (!movie?.release_date) return false;
-
-    const releaseDate = new Date(movie.release_date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time để so sánh chỉ ngày
-
-    return releaseDate > today;
+    if (!movie || allMovies.length === 0) return false;
+    const nowShowingIds = allMovies.slice(-20).map((m) => m.movie_id);
+    return !nowShowingIds.includes(movie.movie_id);
   };
 
   if (!movie)
