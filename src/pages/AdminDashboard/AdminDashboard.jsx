@@ -600,9 +600,12 @@ const getNextRoomName = () => {
 
 // ➕ Add Room
 const handleAddRoom = async () => {
-  const nextRoomName = getNextRoomName();
+  // Use your typed name if provided, otherwise auto-generate one
+  const customName = newRoom.room_name?.trim();
+  const roomName = customName && customName.length > 0 ? customName : getNextRoomName();
+
   const newRoomData = {
-    room_name: nextRoomName,
+    room_name: roomName,
     room_type: newRoom.room_type || "Standard",
     theater_id: selectedTheaterForRooms.theater_id,
   };
@@ -814,6 +817,16 @@ const handleDeleteSeat = async (seat_id) => {
         return;
       }
     }
+
+    useEffect(() => {
+  fetch("http://127.0.0.1:8000/api/users", {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  })
+    .then((res) => res.json())
+    .then((data) => usersSetList(data))
+    .catch((err) => console.error("Failed to load users:", err));
+}, []);
+
 
     // Example API POST to Laravel backend
     fetch("http://localhost:8000/api/theaters", {

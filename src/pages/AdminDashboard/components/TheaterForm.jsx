@@ -100,8 +100,8 @@ export default function TheaterForm({
             required
           >
             <option value="">Select a city</option>
-            <option value="HaNoi">Ha Noi</option>
-            <option value="Ho Chi Minh City">Ho Chi Minh</option>
+            <option value="HaNoi">Hanoi</option>
+            <option value="Ho Chi Minh City">Ho Chi Minh City</option>
             <option value="Da Nang">Da Nang</option>
           </select>
         </div>

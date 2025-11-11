@@ -1,25 +1,146 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 export default function UserTable({
   usersList,
+  usersSetList,
   userSearch,
-  userFilterStatus,
   userSetSearch,
+  userFilterStatus,
   userSetFilterStatus,
   userSetSelected,
   userSetEditing,
-  usersSetList,
 }) {
+  const [autoRefresh, setAutoRefresh] = useState(true);
+
+  // --- Fetch users from backend ---
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/users");
+      const data = await res.json();
+      usersSetList(data);
+    } catch (err) {
+      console.error("❌ Failed to load users:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // Optional: auto-refresh every 5 seconds
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(fetchUsers, 5000);
+    return () => clearInterval(interval);
+  }, [autoRefresh]);
+
+  // --- Export CSV ---
+  const handleExportExcel = () => {
+    const headers = [
+      "ID",
+      "Họ tên",
+      "Email",
+      "Điện thoại",
+      "Địa chỉ",
+      "Ngày sinh",
+      "Trạng thái",
+      "Ngày tạo",
+    ];
+    const rows = usersList.map((u) => [
+      u.web_user_id,
+      u.full_name,
+      u.email,
+      u.phone_number,
+      u.address,
+      u.date_of_birth,
+      u.status,
+      new Date(u.created_at).toLocaleDateString("vi-VN"),
+    ]);
+    const csv =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const link = document.createElement("a");
+    link.href = encodeURI(csv);
+    link.download = "users_report.csv";
+    link.click();
+  };
+
+  // --- Toggle user status ---
+  const handleToggleStatus = async (user) => {
+    try {
+      await fetch(`http://127.0.0.1:8000/api/users/${user.web_user_id}/toggle`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
+      usersSetList(
+        usersList.map((u) =>
+          u.web_user_id === user.web_user_id
+            ? {
+                ...u,
+                status: u.status === "active" ? "locked" : "active",
+              }
+            : u
+        )
+      );
+    } catch (err) {
+      console.error("❌ Failed to toggle user status:", err);
+      alert("Không thể cập nhật trạng thái người dùng.");
+    }
+  };
+
+  // --- Delete user ---
+  const handleDeleteUser = async (user) => {
+    if (!window.confirm(`Bạn có chắc muốn xóa ${user.full_name}?`)) return;
+
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/users/${user.web_user_id}`,
+        { method: "DELETE" }
+      );
+
+      if (!res.ok) throw new Error("Failed to delete user");
+
+      usersSetList(usersList.filter((u) => u.web_user_id !== user.web_user_id));
+      alert("✅ Xóa người dùng thành công!");
+    } catch (err) {
+      console.error("❌ Delete user failed:", err);
+      alert("Không thể xóa người dùng.");
+    }
+  };
+
+  // --- Filter + Search ---
+  const filteredUsers = usersList.filter(
+    (u) =>
+      (userFilterStatus === "all" || u.status === userFilterStatus) &&
+      (u.full_name.toLowerCase().includes(userSearch.toLowerCase()) ||
+        u.email.toLowerCase().includes(userSearch.toLowerCase()))
+  );
+
   return (
     <div className="bg-white rounded shadow-sm p-4">
+      {/* --- HEADER --- */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="fw-bold mb-0">Quản lý người dùng</h5>
         <div className="d-flex gap-2">
           <button
             className="btn btn-outline-success btn-sm"
-            onClick={() => userSetExporting(true)}
+            onClick={handleExportExcel}
           >
             Xuất Excel
+          </button>
+          <button
+            className={`btn btn-sm ${
+              autoRefresh ? "btn-outline-danger" : "btn-outline-primary"
+            }`}
+            onClick={() => setAutoRefresh(!autoRefresh)}
+          >
+            {autoRefresh ? "Tắt làm mới" : "Bật làm mới"}
+          </button>
+          <button
+            className="btn btn-outline-secondary btn-sm"
+            onClick={fetchUsers}
+          >
+            Làm mới
           </button>
         </div>
       </div>
@@ -45,7 +166,7 @@ export default function UserTable({
         </select>
       </div>
 
-      {/* --- BẢNG DANH SÁCH NGƯỜI DÙNG --- */}
+      {/* --- TABLE --- */}
       <table className="table table-bordered align-middle text-center">
         <thead className="table-light">
           <tr>
@@ -61,14 +182,8 @@ export default function UserTable({
           </tr>
         </thead>
         <tbody>
-          {usersList
-            .filter(
-              (u) =>
-                (userFilterStatus === "all" || u.status === userFilterStatus) &&
-                (u.full_name.toLowerCase().includes(userSearch.toLowerCase()) ||
-                  u.email.toLowerCase().includes(userSearch.toLowerCase()))
-            )
-            .map((u) => (
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map((u) => (
               <tr key={u.web_user_id}>
                 <td>{u.web_user_id}</td>
                 <td>{u.full_name}</td>
@@ -107,160 +222,30 @@ export default function UserTable({
                       u.status === "active"
                         ? "btn-outline-danger"
                         : "btn-outline-success"
-                    }`}
-                    onClick={() => {
-                      usersSetList(
-                        usersList.map((usr) =>
-                          usr.web_user_id === u.web_user_id
-                            ? {
-                                ...usr,
-                                status:
-                                  usr.status === "active" ? "locked" : "active",
-                              }
-                            : usr
-                        )
-                      );
-                    }}
+                    } me-2`}
+                    onClick={() => handleToggleStatus(u)}
                   >
                     {u.status === "active" ? "Khóa" : "Mở khóa"}
                   </button>
+                  <button
+                    className="btn btn-sm btn-outline-danger"
+                    onClick={() => handleDeleteUser(u)}
+                  >
+                    Xóa
+                  </button>
                 </td>
               </tr>
-            ))}
+            ))
+          ) : (
+            <tr>
+              <td colSpan="9" className="text-center text-muted">
+                Không tìm thấy người dùng nào
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
-
-      {/* --- CHI TIẾT NGƯỜI DÙNG --- */}
-      {userSelected && !userEditing && (
-        <div className="border rounded p-3 mt-4">
-          <h6 className="fw-bold mb-3">Chi tiết người dùng</h6>
-          <p>
-            <strong>ID:</strong> {userSelected.web_user_id}
-          </p>
-          <p>
-            <strong>Họ tên:</strong> {userSelected.full_name}
-          </p>
-          <p>
-            <strong>Email:</strong> {userSelected.email}
-          </p>
-          <p>
-            <strong>Điện thoại:</strong> {userSelected.phone_number}
-          </p>
-          <p>
-            <strong>Địa chỉ:</strong> {userSelected.address}
-          </p>
-          <p>
-            <strong>Ngày sinh:</strong> {userSelected.date_of_birth}
-          </p>
-          <p>
-            <strong>Ngày tạo:</strong>{" "}
-            {new Date(userSelected.created_at).toLocaleDateString("vi-VN")}
-          </p>
-          <p>
-            <strong>Trạng thái:</strong> {userSelected.status}
-          </p>
-
-          <div className="mt-3 d-flex gap-2">
-            <button
-              className="btn btn-outline-warning btn-sm"
-              onClick={() => userSetEditing(true)}
-            >
-              Chỉnh sửa
-            </button>
-            <button
-              className="btn btn-outline-secondary btn-sm"
-              onClick={() => userSetSelected(null)}
-            >
-              Đóng
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* --- CHỈNH SỬA THÔNG TIN --- */}
-      {userSelected && userEditing && (
-        <div className="border rounded p-3 mt-4">
-          <h6 className="fw-bold mb-3">Chỉnh sửa thông tin người dùng</h6>
-          <div className="row g-3">
-            <div className="col-md-4">
-              <label className="form-label">Họ tên</label>
-              <input
-                type="text"
-                className="form-control"
-                value={userSelected.fullname}
-                onChange={(e) =>
-                  userSetSelected({
-                    ...userSelected,
-                    fullname: e.target.value,
-                  })
-                }
-              />
-            </div>
-            <div className="col-md-4">
-              <label className="form-label">Email</label>
-              <input
-                type="email"
-                className="form-control"
-                value={userSelected.email}
-                onChange={(e) =>
-                  userSetSelected({
-                    ...userSelected,
-                    email: e.target.value,
-                  })
-                }
-              />
-            </div>
-            <div className="col-md-4">
-              <label className="form-label">Điện thoại</label>
-              <input
-                type="tel"
-                className="form-control"
-                value={userSelected.tel}
-                onChange={(e) =>
-                  userSetSelected({
-                    ...userSelected,
-                    tel: e.target.value,
-                  })
-                }
-              />
-            </div>
-          </div>
-
-          <div className="d-flex justify-content-between mt-4">
-            <button
-              className="btn btn-outline-secondary"
-              onClick={() => {
-                userSetEditing(false);
-                userSetSelected(null);
-              }}
-            >
-              Hủy
-            </button>
-            <div className="d-flex gap-2">
-              <button
-                className="btn btn-outline-info"
-                onClick={() => userSetChangingPassword(true)}
-              >
-                Đổi mật khẩu
-              </button>
-              <button
-                className="btn btn-success"
-                onClick={() => {
-                  usersSetList(
-                    usersList.map((u) =>
-                      u.id === userSelected.id ? userSelected : u
-                    )
-                  );
-                  userSetEditing(false);
-                  userSetSelected(null);
-                }}
-              >
-                Lưu thay đổi
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
+

@@ -30,6 +30,23 @@ export default function RoomManager({
         <h4 className="mb-4 text-center text-info fw-semibold">
           🏢 Manage Rooms – {selectedTheaterForRooms.theater_name}
         </h4>
+    <button
+    type="button"
+    className="btn btn-sm btn-light text-primary fw-bold"
+    style={{
+      lineHeight: "1",
+      borderRadius: "50%",
+      width: "30px",
+      height: "30px",
+    }}
+    onClick={() => {
+      setShowManageRooms(false);
+      setSelectedTheaterForRooms(null);
+      setSelectedRoom(null);
+    }}
+  >
+    ×
+  </button>
 
         {/* Add Room Form */}
         <form
