@@ -2,29 +2,17 @@ import React, { useState, useEffect } from "react";
 import "./ProfilePage.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import QRCode from "qrcode"; // Cần cài: npm install qrcode
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState("profile");
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
 
   const [tickets, setTickets] = useState([]);
   const [historyTickets, setHistoryTickets] = useState([]);
-  useEffect(() => {
-    setTickets([
-      {
-        id: 1,
-        movie: "Avatar 3",
-        theater: "CGV Aeon Mall",
-        date: "2025-05-10",
-        seats: ["C5", "C6"],
-        status: "Booked",
-        poster: "https://example.com/poster.jpg",
-      },
-    ]);
-
-    setHistoryTickets([]);
-  }, []);
+  const [loadingTickets, setLoadingTickets] = useState(false);
 
   const [fullName, setFullName] = useState("Name");
   const [dob, setDob] = useState("1975-04-30");
@@ -36,24 +24,25 @@ export default function Profile() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+
   const axiosConfig = {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   };
-  const navigate = useNavigate();
 
+  // ✅ Load user profile
   useEffect(() => {
     if (!token) {
-      navigate("/login"); // force redirect
+      navigate("/login");
       return;
     }
 
     axios
-      .get("http://127.0.0.1:8000/api/user-profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .get("http://127.0.0.1:8000/api/user-profile", axiosConfig)
       .then((res) => {
         const user = res.data.user;
         setFullName(user.full_name ?? "");
@@ -64,6 +53,46 @@ export default function Profile() {
       })
       .catch(console.log);
   }, [token]);
+
+  // ✅ Load user bookings
+  useEffect(() => {
+    if (!token) return;
+
+    setLoadingTickets(true);
+    axios
+      .get("http://127.0.0.1:8000/api/user/bookings", axiosConfig)
+      .then((res) => {
+        if (res.data.success) {
+          setTickets(res.data.data.current_bookings || []);
+          setHistoryTickets(res.data.data.history_bookings || []);
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading bookings:", err);
+      })
+      .finally(() => {
+        setLoadingTickets(false);
+      });
+  }, [token]);
+
+  // ✅ Generate QR Code when viewing ticket details
+  useEffect(() => {
+    if (selectedTicket) {
+      const qrData = JSON.stringify({
+        booking_id: selectedTicket.booking_id,
+        movie: selectedTicket.movie_title,
+        seats: selectedTicket.seats,
+        showtime: selectedTicket.showtime_full,
+        theater: selectedTicket.theater_name,
+      });
+
+      QRCode.toDataURL(qrData, { width: 200, margin: 2 })
+        .then((url) => setQrCodeDataUrl(url))
+        .catch((err) => console.error("QR Code generation error:", err));
+    } else {
+      setQrCodeDataUrl("");
+    }
+  }, [selectedTicket]);
 
   const handleSaveProfile = () => {
     axios
@@ -82,6 +111,23 @@ export default function Profile() {
   };
 
   const handleChangePassword = () => {
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      setPasswordError("Vui lòng điền đầy đủ thông tin mật khẩu.");
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError(
+        "New password và Confirm new password không giống nhau."
+      );
+      return;
+    }
+    if (newPassword === currentPassword) {
+      setPasswordError("New password không được giống Current password.");
+      return;
+    }
+
+    setPasswordError("");
+
     axios
       .patch(
         "http://127.0.0.1:8000/api/user-profile/password",
@@ -92,64 +138,119 @@ export default function Profile() {
         },
         axiosConfig
       )
-      .then((res) => alert(res.data.message))
+      .then((res) => {
+        alert(res.data.message);
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmNewPassword("");
+        setShowChangePassword(false);
+      })
       .catch((err) => {
-        if (err.response?.data?.message) alert(err.response.data.message);
-        else console.log(err);
+        if (err.response?.data?.message) {
+          setPasswordError(err.response.data.message);
+        } else {
+          console.log(err);
+        }
       });
   };
 
-  const handleSaveChanges = (e) => {
-    e.preventDefault();
-
-    // Kiểm tra password nếu đang thay đổi
-    if (showChangePassword) {
-      if (!currentPassword || !newPassword || !confirmNewPassword) {
-        setPasswordError("Vui lòng điền đầy đủ thông tin mật khẩu.");
-        return;
-      }
-      if (newPassword !== confirmNewPassword) {
-        setPasswordError(
-          "New password và Confirm new password không giống nhau."
-        );
-        return;
-      }
-      if (newPassword === currentPassword) {
-        setPasswordError("New password không được giống Current password.");
-        return;
-      }
-    }
-
-    setPasswordError("");
-    alert("Changes saved successfully!");
-    // Ở đây bạn có thể gọi API để lưu profile
+  const handleViewDetails = (ticket) => setSelectedTicket(ticket);
+  const handleCloseModal = () => {
+    setSelectedTicket(null);
+    setQrCodeDataUrl("");
   };
 
-  const handleViewDetails = (ticket) => setSelectedTicket(ticket);
-  const handleCloseModal = () => setSelectedTicket(null);
+  // ✅ Download E-Ticket as image
+  const handleDownloadTicket = () => {
+    if (!qrCodeDataUrl || !selectedTicket) return;
 
-  // Ticket card rendering (giữ nguyên từ code cũ)
+    // Create a canvas to draw the ticket
+    const canvas = document.createElement("canvas");
+    canvas.width = 600;
+    canvas.height = 800;
+    const ctx = canvas.getContext("2d");
+
+    // Background
+    ctx.fillStyle = "#1a1a1a";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Title
+    ctx.fillStyle = "#ffc107";
+    ctx.font = "bold 24px Arial";
+    ctx.fillText("E-TICKET", 20, 40);
+
+    // Movie title
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 20px Arial";
+    ctx.fillText(selectedTicket.movie_title, 20, 80);
+
+    // Details
+    ctx.font = "16px Arial";
+    let y = 120;
+    const lineHeight = 30;
+
+    const details = [
+      `Theater: ${selectedTicket.theater_name}`,
+      `Date: ${selectedTicket.showtime_date}`,
+      `Time: ${selectedTicket.showtime_time}`,
+      `Room: ${selectedTicket.room_name}`,
+      `Seats: ${selectedTicket.seats.join(", ")}`,
+      `Booking ID: ${selectedTicket.booking_id}`,
+      `Total: $${selectedTicket.grand_total}`,
+    ];
+
+    details.forEach((text) => {
+      ctx.fillText(text, 20, y);
+      y += lineHeight;
+    });
+
+    // Draw QR Code
+    const qrImage = new Image();
+    qrImage.onload = () => {
+      ctx.drawImage(qrImage, 200, 400, 200, 200);
+
+      // Download
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `ticket-${selectedTicket.booking_id}.png`;
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+    };
+    qrImage.src = qrCodeDataUrl;
+  };
+
+  // ✅ Render ticket card
   const renderTicketCard = (ticket) => (
-    <div key={ticket.id} className="ticket-card">
+    <div key={ticket.booking_id} className="ticket-card">
       <div className="ticket-card-content">
         <img
-          src={ticket.poster}
-          alt={ticket.movie}
+          src={ticket.poster || "https://via.placeholder.com/150"}
+          alt={ticket.movie_title}
           className="ticket-card-img"
         />
         <div>
-          <h5 className="ticket-card-title">{ticket.movie}</h5>
+          <h5 className="ticket-card-title">{ticket.movie_title}</h5>
           <p>
-            <strong>Theater:</strong> {ticket.theater}
+            <strong>Theater:</strong> {ticket.theater_name}
           </p>
           <p>
-            <strong>Date:</strong> {ticket.date}
+            <strong>Date:</strong> {ticket.showtime_date} {ticket.showtime_time}
           </p>
           <p>
             <strong>Seats:</strong> {ticket.seats.join(", ")}
           </p>
           <p>
-            <strong>Status:</strong> {ticket.status}
+            <strong>Status:</strong>{" "}
+            <span
+              className={`badge ${
+                ticket.status === "completed" ? "bg-success" : "bg-warning"
+              }`}
+            >
+              {ticket.status === "completed" ? "✅ Confirmed" : "⏳ Pending"}
+            </span>
           </p>
           <button
             className="btn btn-warning mt-2"
@@ -322,6 +423,19 @@ export default function Profile() {
                   <div className="text-end">
                     <button
                       type="button"
+                      className="btn btn-warning px-4 me-2"
+                      onClick={() => {
+                        setShowChangePassword(false);
+                        setPasswordError("");
+                        setCurrentPassword("");
+                        setNewPassword("");
+                        setConfirmNewPassword("");
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
                       className="btn btn-warning px-4"
                       onClick={handleChangePassword}
                     >
@@ -337,14 +451,26 @@ export default function Profile() {
         {activeTab === "tickets" && (
           <div className="user-dashboard-section">
             <h4>🎟️ Current Bookings</h4>
-            {tickets.map(renderTicketCard)}
+            {loadingTickets ? (
+              <p>Loading tickets...</p>
+            ) : tickets.length > 0 ? (
+              tickets.map(renderTicketCard)
+            ) : (
+              <p className="text-muted">No current bookings</p>
+            )}
           </div>
         )}
 
         {activeTab === "history" && (
           <div className="user-dashboard-section">
             <h4>📜 Past Bookings</h4>
-            {historyTickets.map(renderTicketCard)}
+            {loadingTickets ? (
+              <p>Loading history...</p>
+            ) : historyTickets.length > 0 ? (
+              historyTickets.map(renderTicketCard)
+            ) : (
+              <p className="text-muted">No past bookings</p>
+            )}
           </div>
         )}
       </div>
@@ -359,7 +485,7 @@ export default function Profile() {
             <div className="modal-content ticket-modal">
               <div className="modal-header border-0">
                 <h5 className="modal-title text-warning ticket-modal-title">
-                  🎬 {selectedTicket.movie}
+                  🎬 {selectedTicket.movie_title}
                 </h5>
                 <button
                   type="button"
@@ -370,8 +496,11 @@ export default function Profile() {
               <div className="modal-body scrollable-modal">
                 <div className="ticket-detail-body">
                   <img
-                    src={selectedTicket.poster}
-                    alt={selectedTicket.movie}
+                    src={
+                      selectedTicket.poster ||
+                      "https://via.placeholder.com/300x450"
+                    }
+                    alt={selectedTicket.movie_title}
                     className="ticket-detail-img"
                   />
                   <div className="ticket-detail-info">
@@ -387,65 +516,91 @@ export default function Profile() {
                         <strong>Duration:</strong> {selectedTicket.duration}
                       </p>
                       <p>
-                        <strong>Date:</strong> {selectedTicket.date}
+                        <strong>Date:</strong> {selectedTicket.showtime_date}
                       </p>
                       <p>
-                        <strong>Time:</strong> {selectedTicket.time}
+                        <strong>Time:</strong> {selectedTicket.showtime_time}
                       </p>
                     </section>
                     <hr />
                     <section>
                       <h6 className="text-warning">Location Details</h6>
                       <p>
-                        <strong>Theater:</strong> {selectedTicket.theater}
+                        <strong>Theater:</strong> {selectedTicket.theater_name}
                       </p>
                       <p>
-                        <strong>Address:</strong> {selectedTicket.address}
+                        <strong>Address:</strong>{" "}
+                        {selectedTicket.theater_address}
                       </p>
                       <p>
-                        <strong>Room:</strong> {selectedTicket.room}
+                        <strong>Room:</strong> {selectedTicket.room_name}
                       </p>
                     </section>
                     <hr />
                     <section>
                       <h6 className="text-warning">Ticket & Seat Details</h6>
                       <p>
-                        <strong>Booking ID:</strong> {selectedTicket.bookingId}
+                        <strong>Booking ID:</strong> {selectedTicket.booking_id}
                       </p>
                       <p>
-                        <strong>Seat Type:</strong> {selectedTicket.seatType}
+                        <strong>Seat Types:</strong>{" "}
+                        {selectedTicket.seat_types?.join(", ") || "N/A"}
                       </p>
                       <p>
                         <strong>Seats:</strong>{" "}
                         {selectedTicket.seats.join(", ")}
                       </p>
                       <p>
-                        <strong>Quantity:</strong> {selectedTicket.quantity}
+                        <strong>Quantity:</strong> {selectedTicket.seats.length}
                       </p>
                     </section>
                     <hr />
                     <section>
                       <h6 className="text-warning">Transaction & Price</h6>
                       <p>
-                        <strong>Ticket Price:</strong>{" "}
-                        {selectedTicket.ticketPrice?.toLocaleString()}₫
+                        <strong>Ticket Price:</strong> $
+                        {selectedTicket.ticket_total?.toLocaleString()}
                       </p>
                       <p>
-                        <strong>Food & Drinks:</strong>{" "}
-                        {selectedTicket.foodPrice?.toLocaleString()}₫
+                        <strong>Food & Drinks:</strong> $
+                        {selectedTicket.food_total?.toLocaleString()}
                       </p>
                       <p>
-                        <strong>Total:</strong>{" "}
-                        {selectedTicket.total?.toLocaleString()}₫
+                        <strong>Total:</strong> $
+                        {selectedTicket.grand_total?.toLocaleString()}
                       </p>
                       <p>
-                        <strong>Payment:</strong> {selectedTicket.payment}
+                        <strong>Payment:</strong>{" "}
+                        {selectedTicket.payment_method}
                       </p>
                       <p>
-                        <strong>Paid At:</strong> {selectedTicket.paidTime}
+                        <strong>Booked At:</strong> {selectedTicket.created_at}
                       </p>
                       <p>
-                        <strong>Status:</strong> ✅ {selectedTicket.status}
+                        <strong>Status:</strong>{" "}
+                        {selectedTicket.status === "completed" ? "✅" : "⏳"}{" "}
+                        {selectedTicket.status}
+                      </p>
+                    </section>
+                    <hr />
+                    {/* ✅ QR CODE SECTION */}
+                    <section className="text-center">
+                      <h6 className="text-warning">E-Ticket QR Code</h6>
+                      {qrCodeDataUrl ? (
+                        <img
+                          src={qrCodeDataUrl}
+                          alt="QR Code"
+                          style={{
+                            maxWidth: "200px",
+                            margin: "10px auto",
+                            display: "block",
+                          }}
+                        />
+                      ) : (
+                        <p>Generating QR code...</p>
+                      )}
+                      <p className="text-muted small">
+                        Scan this QR code at the theater entrance
                       </p>
                     </section>
                   </div>
@@ -460,11 +615,16 @@ export default function Profile() {
                   Close
                 </button>
 
-                {activeTab === "tickets" && (
-                  <button type="button" className="btn btn-warning ticket-btn">
-                    Download E-Ticket
-                  </button>
-                )}
+                {activeTab === "tickets" &&
+                  selectedTicket.status === "completed" && (
+                    <button
+                      type="button"
+                      className="btn btn-warning ticket-btn"
+                      onClick={handleDownloadTicket}
+                    >
+                      Download E-Ticket
+                    </button>
+                  )}
               </div>
             </div>
           </div>
