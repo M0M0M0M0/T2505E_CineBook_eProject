@@ -140,7 +140,7 @@ export default function Dashboard() {
   const [isAddTheater, setIsAddTheater] = useState(false);
   const [theaterForm, setTheaterForm] = useState({
     name: "",
-    city: "",
+    theater_city: "",
     address: "",
     rooms: "",
     seatCapacity: "",
@@ -521,6 +521,26 @@ export default function Dashboard() {
     });
     setTheaterError("");
   };
+  const handleDeleteTheater = async (theaterId) => {
+  if (!window.confirm("Are you sure you want to delete this theater?")) return;
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/api/theaters/${theaterId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error("Failed to delete theater");
+
+    // Reload theater list
+    const reload = await fetch("http://127.0.0.1:8000/api/theaters?_with=rooms");
+    const data = await reload.json();
+    setTheaters(data);
+
+    alert("Theater deleted successfully!");
+  } catch (err) {
+    console.error("Delete theater failed:", err);
+    alert("Failed to delete theater.");
+  }
+};
+
 
 // === ROOM & SEAT REAL-TIME HANDLERS ===
 
@@ -1018,6 +1038,7 @@ fetch("http://127.0.0.1:8000/api/theaters?_with=rooms")
                 handleEditTheater={handleEditTheater}
                 handleManageRooms={handleManageRooms}
                 handleAddTheater={handleAddTheater}
+                handleDeleteTheater={handleDeleteTheater}
               />
             ) : (
               <TheaterForm
@@ -1029,6 +1050,12 @@ fetch("http://127.0.0.1:8000/api/theaters?_with=rooms")
                 handleTheaterSave={handleTheaterSave}
                 setEditTheater={setEditTheater}
                 setIsAddTheater={setIsAddTheater}
+                onSaved={() => {
+                fetch("http://127.0.0.1:8000/api/theaters?_with=rooms")
+                  .then((res) => res.json())
+                  .then((data) => setTheaters(data))
+                  .catch((err) => console.error("Failed to reload theaters:", err));
+              }}
               />
             )}
             {showManageRooms && selectedTheaterForRooms && (

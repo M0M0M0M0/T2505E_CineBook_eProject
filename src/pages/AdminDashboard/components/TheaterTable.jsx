@@ -7,6 +7,7 @@ export default function TheaterTable({
   handleEditTheater,
   handleManageRooms,
   handleAddTheater,
+  handleDeleteTheater,
 }) {
   const [theaters, setTheaters] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -139,7 +140,8 @@ export default function TheaterTable({
                     <button
                       className="btn btn-sm btn-light"
                       title="Delete"
-                      onClick={() => console.log("Delete theater", idx)}
+                      onClick={() => handleDeleteTheater(theater.theater_id)}
+
                     >
                       <XIcon size={16} color="#dc3545" />
                     </button>
