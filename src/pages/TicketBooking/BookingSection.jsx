@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./BookingSection.css";
 
-// Sơ đồ ghế tĩnh (GIỮ NGUYÊN)
+// ==================== CONSTANTS ====================
 const SEAT_LAYOUT = {
   A: Array(16).fill("standard"),
   B: Array(16).fill("gold"),
@@ -11,6 +11,8 @@ const SEAT_LAYOUT = {
   F: Array(16).fill("gold"),
   G: Array(16).fill("box"),
 };
+
+// Customize specific seats
 SEAT_LAYOUT.B[0] = "standard";
 SEAT_LAYOUT.B[1] = "standard";
 SEAT_LAYOUT.B[14] = "standard";
@@ -21,21 +23,17 @@ SEAT_LAYOUT.B[15] = "standard";
   }
 });
 
-const mapLocalTypeToApiName = (localType) => {
-  switch (localType) {
-    case "box":
-      return "Box (Couple)";
-    case "standard":
-      return "Standard";
-    case "gold":
-      return "Gold";
-    case "platinum":
-      return "Platinum";
-    default:
-      return localType;
-  }
+const SEAT_TYPE_MAP_TO_API = {
+  box: "Box (Couple)",
+  standard: "Standard",
+  gold: "Gold",
+  platinum: "Platinum",
 };
 
+const API_BASE = "http://127.0.0.1:8000/api";
+const REFRESH_INTERVAL = 30000; // 30 seconds
+
+// ==================== MAIN COMPONENT ====================
 export default function BookingSection({
   movieTitle,
   selectedShowtime,
@@ -48,131 +46,116 @@ export default function BookingSection({
   bookingId,
   setBookingId,
 }) {
-  const [allReservedSeats, setAllReservedSeats] = useState([]);
-  const [basePrice, setBasePrice] = useState(0);
-  const [seatPricesMap, setSeatPricesMap] = useState({});
+  // -------------------- STATE --------------------
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Seat data from server
+  const [allReservedSeats, setAllReservedSeats] = useState([]); // All reserved seats from API
+  const [myBookingSeats, setMyBookingSeats] = useState([]); // Seats in current booking
+
+  // Pricing
+  const [seatPrices, setSeatPrices] = useState({});
+
+  // Pending booking dialog
   const [pendingBooking, setPendingBooking] = useState(null);
   const [showPendingDialog, setShowPendingDialog] = useState(false);
 
-  const hasCheckedPending = useRef(false);
-  const updateTimeoutRef = useRef(null);
-  const [currentBookingSeats, setCurrentBookingSeats] = useState([]); // seats that belong to current bookingId
+  // Refs for flags
+  const hasCheckedPendingRef = useRef(false);
 
-  const soldSeats = useMemo(() => {
-    const bookingSeats = pendingBooking?.seats || [];
+  // -------------------- COMPUTED VALUES --------------------
+  // Seats that are actually sold (excluding my booking)
+  const soldSeats = allReservedSeats.filter(
+    (seat) => !myBookingSeats.includes(seat)
+  );
 
-    return allReservedSeats.filter(
-      (seat) => !bookingSeats.includes(seat) && !selectedSeats.includes(seat)
-    );
-  }, [allReservedSeats, pendingBooking, selectedSeats]);
-  // ✅ Debug soldSeats và các biến liên quan
-  // useEffect(() => {
-  //   console.log("DEBUG allReservedSeats:", allReservedSeats);
-  //   console.log("DEBUG currentBookingSeats:", currentBookingSeats);
-  //   console.log("DEBUG selectedSeats:", selectedSeats);
-  //   console.log("DEBUG computed soldSeats:", soldSeats);
-  // }, [allReservedSeats, currentBookingSeats, selectedSeats, soldSeats]);
+  // ==================== API CALLS ====================
 
-  useEffect(() => {
-    const fetchBookingSeats = async () => {
-      if (!bookingId) {
-        setCurrentBookingSeats([]);
+  // Fetch all reserved seats for this showtime
+  const fetchReservedSeats = useCallback(async () => {
+    if (!showtimeId) return;
+
+    try {
+      const response = await fetch(
+        `${API_BASE}/showtimes/${showtimeId}/sold-seats`
+      );
+
+      if (!response.ok) throw new Error("Failed to fetch seats");
+
+      const result = await response.json();
+      const data = result.data;
+
+      // Extract reserved seat codes
+      const reservedCodes = data.reserved_seats?.map((s) => s.code) || [];
+      setAllReservedSeats(reservedCodes);
+
+      // Extract pricing
+      const prices = {};
+      if (data.seat_type_prices) {
+        Object.entries(data.seat_type_prices).forEach(([key, value]) => {
+          prices[key] = parseFloat(value.seat_type_price) || 0;
+        });
+      }
+      setSeatPrices(prices);
+    } catch (err) {
+      console.error("Error fetching reserved seats:", err);
+      setError("Cannot load seat information");
+    }
+  }, [showtimeId]);
+
+  // Fetch current booking details
+  const fetchBookingDetails = useCallback(async (bookingIdToFetch) => {
+    if (!bookingIdToFetch) {
+      setMyBookingSeats([]);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${API_BASE}/bookings/${bookingIdToFetch}/validate`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        console.warn("Cannot fetch booking details");
+        setMyBookingSeats([]);
         return;
       }
 
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(
-          `http://127.0.0.1:8000/api/bookings/${bookingId}/validate`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: token ? `Bearer ${token}` : undefined,
-            },
-          }
-        );
+      const result = await response.json();
+      const seats =
+        result.data?.seats || result.seats || result.seat_codes || [];
 
-        if (!res.ok) {
-          console.warn(
-            "Cannot fetch booking details for bookingId:",
-            bookingId
-          );
-          setCurrentBookingSeats([]);
-          return;
-        }
-
-        const data = await res.json();
-
-        // Tùy API shape: nếu API trả { data: { seats: [...] } } hoặc { seats: [...] }
-        const seatsFromBooking =
-          (data && data.data && data.data.seats) ||
-          data.seats ||
-          data.seat_codes ||
-          [];
-
-        setCurrentBookingSeats(
-          Array.isArray(seatsFromBooking) ? seatsFromBooking : []
-        );
-      } catch (err) {
-        console.error("Error fetching booking seats:", err);
-        setCurrentBookingSeats([]);
-      }
-    };
-
-    fetchBookingSeats();
-  }, [bookingId]);
-
-  // ✅ Đánh dấu đã xử lý pending nếu có bookingId từ props
-  useEffect(() => {
-    if (bookingId) {
-      hasCheckedPending.current = true;
+      setMyBookingSeats(Array.isArray(seats) ? seats : []);
+    } catch (err) {
+      console.error("Error fetching booking details:", err);
+      setMyBookingSeats([]);
     }
-  }, [bookingId]);
+  }, []);
 
-  // ✅ Khôi phục bookingId từ sessionStorage (nếu có)
-  useEffect(() => {
-    if (!bookingId && showtimeId) {
-      const savedBookingId = sessionStorage.getItem(`booking_${showtimeId}`);
-      if (savedBookingId) {
-        console.log("🔄 Khôi phục bookingId:", savedBookingId);
-        setBookingId(savedBookingId);
-      }
-    }
-  }, [showtimeId, bookingId, setBookingId]);
+  // Check for pending booking
+  const checkPendingBooking = useCallback(async () => {
+    if (!showtimeId || !currentUserId || hasCheckedPendingRef.current) return;
 
-  // ✅ CHỈ check pending booking khi CHƯA có bookingId từ props
-  useEffect(() => {
-    if (
-      showtimeId &&
-      currentUserId &&
-      !hasCheckedPending.current &&
-      !bookingId
-    ) {
-      checkPendingBooking();
-      hasCheckedPending.current = true;
-    }
-  }, [showtimeId, currentUserId, bookingId]);
-
-  const checkPendingBooking = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/bookings/check-pending",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            showtime_id: showtimeId,
-          }),
-        }
-      );
+      const response = await fetch(`${API_BASE}/bookings/check-pending`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ showtime_id: showtimeId }),
+      });
 
       const result = await response.json();
 
@@ -180,191 +163,192 @@ export default function BookingSection({
         setPendingBooking(result.booking);
         setShowPendingDialog(true);
       } else {
-        // ✅ THÊM LOGIC NÀY VÀO ĐÂY: DỌN DẸP BOOKING CŨ
+        // Clean up stale booking ID
         if (bookingId) {
-          console.warn(
-            `Booking ID ${bookingId} recovered from storage is not pending. Clearing.`
-          );
-
-          // 1. Xóa khỏi state React
-          if (setBookingId) {
-            setBookingId(null);
-          }
-          // 2. Xóa khỏi Session Storage
-          if (showtimeId) {
-            sessionStorage.removeItem(`booking_${showtimeId}`);
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error checking pending booking:", error);
-    }
-  };
-
-  const handleContinuePending = () => {
-    setSelectedSeats(pendingBooking.seats);
-    setBookingId(pendingBooking.booking_id);
-    setShowPendingDialog(false);
-    onSelectSeats({
-      seats: pendingBooking.seats,
-      total: calculateTotalForSeats(pendingBooking.seats),
-      booking_id: pendingBooking.booking_id,
-    });
-  };
-
-  const handleCancelPending = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/bookings/cancel",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            booking_id: pendingBooking.booking_id,
-          }),
-        }
-      );
-
-      const result = await response.json();
-      if (result.success) {
-        setPendingBooking(null);
-        setShowPendingDialog(false);
-        setSelectedSeats([]);
-
-        if (setBookingId) {
+          console.log("Clearing stale booking ID");
           setBookingId(null);
-          if (showtimeId) {
-            sessionStorage.removeItem(`booking_${showtimeId}`);
-          }
+          sessionStorage.removeItem(`booking_${showtimeId}`);
         }
-
-        await fetchReservedSeats();
-      } else {
-        alert(result.message || "Failed to cancel booking");
       }
-    } catch (error) {
-      console.error("Error cancelling booking:", error);
-      alert("An error occurred while cancelling booking");
-    }
-  };
-
-  const calculateTotalForSeats = (seats) => {
-    const seatTypeMap = {};
-    Object.entries(SEAT_LAYOUT).forEach(([row, seatsInRow]) => {
-      seatsInRow.forEach((type, index) => {
-        seatTypeMap[`${row}${index + 1}`] = type;
-      });
-    });
-
-    let sum = 0;
-    seats.forEach((seatCode) => {
-      const localType = seatTypeMap[seatCode];
-      const apiSeatName = mapLocalTypeToApiName(localType);
-      const finalPrice = seatPricesMap[apiSeatName] || 0;
-      sum += finalPrice;
-    });
-
-    return sum;
-  };
-
-  const fetchReservedSeats = async () => {
-    if (!showtimeId) {
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/showtimes/${showtimeId}/sold-seats`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch reserved seats.");
-      }
-      const result = await response.json();
-      const data = result.data;
-
-      const soldCodes = data.reserved_seats.map((s) => s.code);
-      setAllReservedSeats(soldCodes);
-
-      setBasePrice(parseFloat(data.base_showtime_price) || 0);
-
-      const processedPrices = {};
-      if (data.seat_type_prices) {
-        Object.keys(data.seat_type_prices).forEach((key) => {
-          const priceData = data.seat_type_prices[key];
-          processedPrices[key] = parseFloat(priceData.seat_type_price) || 0;
-        });
-      }
-      setSeatPricesMap(processedPrices);
     } catch (err) {
-      console.error("Error fetching data:", err);
-      setError("Cannot load seating status.");
+      console.error("Error checking pending booking:", err);
     } finally {
-      setLoading(false);
+      hasCheckedPendingRef.current = true;
+    }
+  }, [showtimeId, currentUserId, bookingId, setBookingId]);
+
+  // Create new booking (hold seats)
+  const createBooking = async (seats) => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API_BASE}/bookings/hold`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        showtime_id: showtimeId,
+        seat_codes: seats,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.message || "Failed to hold seats");
+    }
+
+    return result.booking_id;
+  };
+
+  // Update existing booking seats
+  const updateBookingSeats = async (bookingIdToUpdate, seats) => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API_BASE}/bookings/update-seats`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        booking_id: bookingIdToUpdate,
+        seat_codes: seats,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update seats");
+    }
+
+    return await response.json();
+  };
+
+  // Cancel booking
+  const cancelBooking = async (bookingIdToCancel) => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API_BASE}/bookings/cancel`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        booking_id: bookingIdToCancel,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.message || "Failed to cancel booking");
     }
   };
 
+  // ==================== EFFECTS ====================
+
+  // Detect if user is coming back from Food page and clear booking
   useEffect(() => {
-    fetchReservedSeats();
-    const intervalId = setInterval(fetchReservedSeats, 30000);
-    return () => clearInterval(intervalId);
-  }, [showtimeId]);
+    const handleClearBookingOnReturn = async () => {
+      const wentToFood = sessionStorage.getItem(`went_to_food_${showtimeId}`);
 
-  const calculateTotal = () => {
-    if (Object.keys(seatPricesMap).length === 0) {
-      return 0;
+      if (wentToFood === "true" && bookingId) {
+        console.log(
+          "User returned from Food page, clearing booking:",
+          bookingId
+        );
+
+        try {
+          await cancelBooking(bookingId);
+
+          setBookingId(null);
+          setMyBookingSeats([]);
+          setSelectedSeats([]);
+          sessionStorage.removeItem(`booking_${showtimeId}`);
+          sessionStorage.removeItem(`went_to_food_${showtimeId}`);
+
+          await fetchReservedSeats();
+
+          console.log("Booking cleared successfully, ready for new booking");
+        } catch (err) {
+          console.error("Error clearing booking on return:", err);
+        }
+      }
+    };
+
+    handleClearBookingOnReturn();
+  }, []);
+
+  // Initial load: restore bookingId from sessionStorage
+  useEffect(() => {
+    if (!bookingId && showtimeId) {
+      const savedBookingId = sessionStorage.getItem(`booking_${showtimeId}`);
+      if (savedBookingId) {
+        console.log("Restored bookingId from session:", savedBookingId);
+        setBookingId(savedBookingId);
+      }
     }
+  }, [showtimeId, bookingId, setBookingId]);
 
-    let sum = 0;
-    const seatTypeMap = {};
-    Object.entries(SEAT_LAYOUT).forEach(([row, seats]) => {
-      seats.forEach((type, index) => {
-        seatTypeMap[`${row}${index + 1}`] = type;
-      });
-    });
+  // Check for pending booking on mount
+  useEffect(() => {
+    if (showtimeId && currentUserId && !bookingId) {
+      checkPendingBooking();
+    }
+  }, [showtimeId, currentUserId, bookingId, checkPendingBooking]);
 
-    selectedSeats.forEach((seatCode) => {
-      const localType = seatTypeMap[seatCode];
-      const apiSeatName = mapLocalTypeToApiName(localType);
-      const finalPrice = seatPricesMap[apiSeatName] || 0;
-      sum += finalPrice;
-    });
+  // Load booking details when bookingId changes
+  useEffect(() => {
+    if (bookingId) {
+      fetchBookingDetails(bookingId);
+      hasCheckedPendingRef.current = true;
+    }
+  }, [bookingId, fetchBookingDetails]);
 
-    return sum;
-  };
+  // Fetch reserved seats on mount and periodically
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      await fetchReservedSeats();
+      setLoading(false);
+    };
 
-  const total = calculateTotal();
+    loadData();
 
-  const getSeatTypePrice = (localType) => {
-    const apiSeatName = mapLocalTypeToApiName(localType);
-    return seatPricesMap[apiSeatName] || 0;
-  };
+    const intervalId = setInterval(fetchReservedSeats, REFRESH_INTERVAL);
+    return () => clearInterval(intervalId);
+  }, [fetchReservedSeats]);
 
-  const legendItems = [
-    { type: "standard", label: "Standard", color: "#ddd" },
-    { type: "gold", label: "Gold", color: "#FFD700" },
-    { type: "platinum", label: "Platinum", color: "#E5E4E2" },
-    { type: "box", label: "Box (Couple)", color: "#FF69B4" },
-  ];
+  // Sync selectedSeats with myBookingSeats when coming back from another page
+  useEffect(() => {
+    if (bookingId && myBookingSeats.length > 0 && selectedSeats.length === 0) {
+      console.log("Syncing selectedSeats with myBookingSeats:", myBookingSeats);
+      setSelectedSeats(myBookingSeats);
+    }
+  }, [bookingId, myBookingSeats, selectedSeats.length, setSelectedSeats]);
 
-  const toggleSeat = async (row, index) => {
+  // ==================== EVENT HANDLERS ====================
+
+  // Handle seat selection/deselection
+  const toggleSeat = (row, index) => {
     const seatId = `${row}${index + 1}`;
+
+    // Cannot select sold seats
     if (soldSeats.includes(seatId)) return;
 
     const seatType = SEAT_LAYOUT[row][index];
     let newSelectedSeats;
 
+    // Handle Box (Couple) seats - must select in pairs
     if (seatType === "box") {
       const pairIndex = index % 2 === 0 ? index + 1 : index - 1;
       const pairSeatId = `${row}${pairIndex + 1}`;
 
       const seatsToToggle = [seatId];
+
+      // Add pair seat if it exists and is also a box seat
       if (
         pairIndex >= 0 &&
         pairIndex < SEAT_LAYOUT[row].length &&
@@ -373,180 +357,179 @@ export default function BookingSection({
         seatsToToggle.push(pairSeatId);
       }
 
+      // Check if any seat in pair is sold
       if (seatsToToggle.some((s) => soldSeats.includes(s))) return;
 
+      // Check if both seats are already selected
       const allSelected = seatsToToggle.every((s) => selectedSeats.includes(s));
 
       if (allSelected) {
+        // Deselect both
         newSelectedSeats = selectedSeats.filter(
           (s) => !seatsToToggle.includes(s)
         );
       } else {
+        // Select both
         newSelectedSeats = [...new Set([...selectedSeats, ...seatsToToggle])];
       }
     } else {
+      // Handle regular seats
       if (selectedSeats.includes(seatId)) {
+        // Deselect
         newSelectedSeats = selectedSeats.filter((s) => s !== seatId);
       } else {
+        // Select
         newSelectedSeats = [...selectedSeats, seatId];
       }
     }
 
-    // ✅ Cập nhật state trước
+    // ✅ CHỈ UPDATE UI, KHÔNG GỌI API
     setSelectedSeats(newSelectedSeats);
   };
 
-  // ✅ Hàm update seats lên server
-  const updateSeatsOnServer = async (seats) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/bookings/update-seats",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            booking_id: bookingId,
-            seat_codes: seats,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        if (errorData.message && errorData.message.includes("completed")) {
-          console.log("⚠️ Booking đã completed");
-          sessionStorage.removeItem(`booking_${showtimeId}`);
-          setBookingId(null);
-        }
-        throw new Error(errorData.message || "Failed to update seats");
-      }
-
-      // ✅ Refresh danh sách ghế đã bán
-      await fetchReservedSeats();
-    } catch (error) {
-      console.error("Error updating seats:", error);
-    }
-  };
+  // Handle continue to next step
+  // Thay thế hàm handleContinue bằng version mới này:
 
   const handleContinue = async () => {
-
-
-    if (!selectedSeats.length) {
-      alert("Please select seats before continue!");
-      return;
-    }
-
-    if (!currentUserId) {
-      alert("User ID is missing. Please login again.");
+    if (selectedSeats.length === 0) {
+      alert("Please select at least one seat");
       return;
     }
 
     const token = localStorage.getItem("token");
-    console.log(
-      "Token status:",
-      token ? "Token loaded" : "Token is null/missing"
-    );
-
     if (!token) {
-      alert("Token not found. Please login again.");
+      alert("Please login to continue");
       window.location.href = "/login";
       return;
     }
 
-    // Khôi phục bookingId từ sessionStorage (hoặc giá trị prop)
-    let currentBookingId = bookingId || null;
-    let isNewBooking = false;
+    try {
+      let currentBookingId = bookingId;
 
-    // 1. Logic HOẶC TẠO MỚI (POST /hold) HOẶC SỬ DỤNG BOOKING CŨ
-    if (!currentBookingId) {
-      try {
-        const holdEndpoint = "http://127.0.0.1:8000/api/bookings/hold";
-        const holdPayload = {
-          showtime_id: showtimeId,
-          seat_codes: selectedSeats,
-          user_id: currentUserId,
-        };
-        const apiResponse = await fetch(holdEndpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(holdPayload),
-        });
-        const apiResult = await apiResponse.json();
-
-        if (apiResult.success) {
-          currentBookingId = apiResult.booking_id;
-          setBookingId(currentBookingId);
-          sessionStorage.setItem(`booking_${showtimeId}`, currentBookingId);
-          isNewBooking = true;
-          await fetchReservedSeats();
-        } else {
-          alert(apiResult.message || "Failed to hold seats.");
-          return; // THOÁT NẾU HOLD THẤT BẠI
-        }
-      } catch (err) {
-        console.error("Failed to create booking:", err);
-        alert("Failed to create booking.");
-        return; // THOÁT NẾU LỖI MẠNG
+      // ✅ TẠO HOẶC CẬP NHẬT BOOKING CHỈ KHI USER CLICK NEXT
+      if (!currentBookingId) {
+        // Tạo booking mới
+        console.log("Creating new booking with seats:", selectedSeats);
+        currentBookingId = await createBooking(selectedSeats);
+        setBookingId(currentBookingId);
+        sessionStorage.setItem(`booking_${showtimeId}`, currentBookingId);
+        setMyBookingSeats(selectedSeats);
+      } else {
+        // Cập nhật booking hiện tại
+        console.log(
+          "Updating booking",
+          currentBookingId,
+          "with seats:",
+          selectedSeats
+        );
+        await updateBookingSeats(currentBookingId, selectedSeats);
+        setMyBookingSeats(selectedSeats);
       }
-    }
 
-    // 2. Logic CẬP NHẬT GHẾ (PUT /update-seats)
-    // Chỉ cập nhật nếu:
-    // a) Đã có bookingId hợp lệ
-    // b) Đây KHÔNG PHẢI là booking vừa được tạo (vì API hold đã giữ chỗ rồi)
-    if (currentBookingId && !isNewBooking) {
-      try {
-        const updateEndpoint =
-          "http://127.0.0.1:8000/api/bookings/update-seats";
+      // Set flag: User is going to Food page
+      sessionStorage.setItem(`went_to_food_${showtimeId}`, "true");
 
-        // Dòng này phải chứa URL đầy đủ
-        console.log("UPDATE SEATS URL:", updateEndpoint);
-
-        const updatePayload = {
-          booking_id: currentBookingId, // DỮ LIỆU BẮT BUỘC ĐƯỢC GỬI
-          seat_codes: selectedSeats,
-        };
-
-        const updateResponse = await fetch(updateEndpoint, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(updatePayload),
-        });
-
-        if (!updateResponse.ok) throw new Error("Failed to update seats");
-        await fetchReservedSeats();
-      } catch (err) {
-        console.error("Failed to update seats:", err);
-      }
-    }
-
-    // 3. Chuyển sang bước tiếp theo
-    if (currentBookingId) {
+      // Proceed to next step
       onSelectSeats({
         seats: selectedSeats,
-        total: calculateTotal(),
+        total: calculateTotal(selectedSeats),
         booking_id: currentBookingId,
       });
+    } catch (err) {
+      console.error("Error creating/updating booking:", err);
+
+      // ✅ XỬ LÝ LỖI: Refresh lại danh sách ghế và clear selected seats có vấn đề
+      await fetchReservedSeats();
+
+      // Tìm ghế nào bị conflict (đã được người khác đặt)
+      // Giả sử API trả về message có chứa thông tin ghế bị trùng
+      const errorMessage = err.message || "Failed to process booking";
+
+      // Show error to user
+      alert(errorMessage);
+
+      // ✅ QUAN TRỌNG: Clear selected seats để user chọn lại
+      setSelectedSeats([]);
+
+      // Nếu có bookingId nhưng update thất bại, có thể cần cancel booking
+      if (bookingId) {
+        try {
+          await cancelBooking(bookingId);
+          setBookingId(null);
+          setMyBookingSeats([]);
+          sessionStorage.removeItem(`booking_${showtimeId}`);
+        } catch (cancelErr) {
+          console.error("Failed to cancel booking after error:", cancelErr);
+        }
+      }
     }
   };
 
+  // Handle pending booking continuation
+  const handleContinuePending = () => {
+    setSelectedSeats(pendingBooking.seats);
+    setBookingId(pendingBooking.booking_id);
+    setMyBookingSeats(pendingBooking.seats);
+    sessionStorage.setItem(`booking_${showtimeId}`, pendingBooking.booking_id);
+    setShowPendingDialog(false);
+
+    onSelectSeats({
+      seats: pendingBooking.seats,
+      total: calculateTotal(pendingBooking.seats),
+      booking_id: pendingBooking.booking_id,
+    });
+  };
+
+  // Handle pending booking cancellation
+  const handleCancelPending = async () => {
+    try {
+      await cancelBooking(pendingBooking.booking_id);
+
+      setPendingBooking(null);
+      setShowPendingDialog(false);
+      setSelectedSeats([]);
+      setBookingId(null);
+      setMyBookingSeats([]);
+      sessionStorage.removeItem(`booking_${showtimeId}`);
+
+      await fetchReservedSeats();
+    } catch (err) {
+      alert(err.message || "Failed to cancel booking");
+    }
+  };
+
+  // ==================== HELPER FUNCTIONS ====================
+
+  // Calculate total price for given seats
+  const calculateTotal = (seats = selectedSeats) => {
+    let total = 0;
+
+    seats.forEach((seatCode) => {
+      const row = seatCode[0];
+      const col = parseInt(seatCode.substring(1)) - 1;
+      const seatType = SEAT_LAYOUT[row]?.[col];
+
+      if (seatType) {
+        const apiName = SEAT_TYPE_MAP_TO_API[seatType];
+        const price = seatPrices[apiName] || 0;
+        total += price;
+      }
+    });
+
+    return total;
+  };
+
+  // Get price for a seat type
+  const getSeatTypePrice = (localType) => {
+    const apiName = SEAT_TYPE_MAP_TO_API[localType];
+    return seatPrices[apiName] || 0;
+  };
+
+  // ==================== RENDER ====================
+
   if (loading) {
     return (
-      <div className="booking-section loading">
-        Đang tải trạng thái ghế và giá...
-      </div>
+      <div className="booking-section loading">Loading seat information...</div>
     );
   }
 
@@ -554,18 +537,28 @@ export default function BookingSection({
     return <div className="booking-section error">Error: {error}</div>;
   }
 
+  const legendItems = [
+    { type: "standard", label: "Standard" },
+    { type: "gold", label: "Gold" },
+    { type: "platinum", label: "Platinum" },
+    { type: "box", label: "Box (Couple)" },
+  ];
+
+  const total = calculateTotal();
+
   return (
     <div className="booking-section">
+      {/* Pending Booking Dialog */}
       {showPendingDialog && pendingBooking && (
         <div className="pending-dialog-overlay">
           <div className="pending-dialog">
             <h3>You have an unfinished booking</h3>
             <p>
-              You have chosen {pendingBooking.seats.length} seats:{" "}
+              You have selected {pendingBooking.seats.length} seats:{" "}
               <strong>{pendingBooking.seats.join(", ")}</strong>
             </p>
             <p>
-              Remaining time:{" "}
+              Time remaining:{" "}
               <strong>
                 {Math.floor(pendingBooking.time_remaining / 60)} minutes{" "}
                 {pendingBooking.time_remaining % 60} seconds
@@ -582,8 +575,11 @@ export default function BookingSection({
           </div>
         </div>
       )}
+
+      {/* Screen */}
       <div className="screen">SCREEN</div>
 
+      {/* Seat Map */}
       <div className="seat-map">
         {Object.entries(SEAT_LAYOUT).map(([row, seatsInRow]) => (
           <div className="seat-row" key={row}>
@@ -593,6 +589,7 @@ export default function BookingSection({
                 const seatId = `${row}${i + 1}`;
                 const isSelected = selectedSeats.includes(seatId);
                 const isSold = soldSeats.includes(seatId);
+
                 return (
                   <div
                     key={seatId}
@@ -611,6 +608,7 @@ export default function BookingSection({
         ))}
       </div>
 
+      {/* Legend */}
       <div className="legend">
         {legendItems.map((item) => {
           const price = getSeatTypePrice(item.type);
@@ -636,10 +634,14 @@ export default function BookingSection({
         </div>
       </div>
 
+      {/* Booking Summary */}
       <div className="booking-summary">
         <h4>Booking Summary</h4>
-        <p>Selected seats: {selectedSeats.join(", ") || "None"}</p>
-        <h4>Total: ${total.toLocaleString("vi-VN")} </h4>
+        <p>
+          Selected seats:{" "}
+          {selectedSeats.length > 0 ? selectedSeats.join(", ") : "None"}
+        </p>
+        <h4>Total: ${total.toLocaleString("vi-VN")}</h4>
 
         <div className="total-buttons">
           {onBack && (

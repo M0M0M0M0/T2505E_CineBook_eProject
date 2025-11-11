@@ -21,6 +21,21 @@ export default function PendingBookingDialog() {
       setShowDialog(false);
     }
   }, [isAuthenticated, currentUserId]);
+  const validatePending = async (bookingId) => {
+    const res = await fetch(`/api/bookings/${bookingId}/validate`);
+    const result = await res.json();
+    if (result.success && result.has_pending) {
+      navigate(`/movies/${movieId}`, {
+        state: {
+          resumeBooking: true,
+          bookingId: bookingId,
+          showtimeId: result.showtime_id,
+        },
+      });
+    } else {
+      console.info("No pending booking, skip navigate");
+    }
+  };
 
   const checkPendingBooking = async () => {
     // ✅ Kiểm tra xem user đã dismiss chưa (trong session hiện tại)
@@ -58,6 +73,7 @@ export default function PendingBookingDialog() {
         setShowDialog(true);
       } else {
         console.log("ℹ️ No pending booking");
+        sessionStorage.removeItem("pending_booking");
       }
     } catch (error) {
       console.error("❌ Error checking pending booking:", error);

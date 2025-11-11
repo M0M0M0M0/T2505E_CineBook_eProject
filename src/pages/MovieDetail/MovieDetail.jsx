@@ -62,13 +62,12 @@ export default function MovieDetail() {
 
   // Chỉ chạy effect khi CÓ resumeBooking = true
   useEffect(() => {
-    //  KIỂM TRA CHẶT CHẼ: Phải có resumeBooking === true VÀ có đầy đủ IDs
     if (resumeBooking === true && resumeShowtimeId && resumeBookingId) {
-      console.log("🔄 Resuming booking:", {
-        showtimeId: resumeShowtimeId,
-        bookingId: resumeBookingId,
+      // Chỉ fetch nếu bookingId tồn tại trong DB
+      fetch(`/api/bookings/${resumeBookingId}/validate`).then((res) => {
+        if (res.status === 404) return;
+        fetchShowtimeAndResume(resumeShowtimeId, resumeBookingId);
       });
-      fetchShowtimeAndResume(resumeShowtimeId, resumeBookingId);
     }
   }, [resumeBooking, resumeShowtimeId, resumeBookingId]);
 
