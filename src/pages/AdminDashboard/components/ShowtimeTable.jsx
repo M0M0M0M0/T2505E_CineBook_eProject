@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, RefreshCw } from "lucide-react";
 import "./ShowtimeForm.css";
 
 export default function ShowtimeTable({
@@ -65,11 +65,24 @@ export default function ShowtimeTable({
   return (
     <div className="bg-white rounded shadow-sm p-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h4 className="text-dark">Showtime Management</h4>
-        <button className="btn btn-primary" onClick={onAddShowtime}>
-          <Plus size={18} className="me-2" />
-          Add Showtime
-        </button>
+        <h4 className="text-dark mb-0">Showtime Management</h4>
+        <div className="d-flex gap-2">
+          <button
+            className="btn btn-primary d-flex align-items-center"
+            onClick={handleSearch}
+            title="Refresh showtimes"
+          >
+            <RefreshCw size={16} className="me-2" />
+            Refresh
+          </button>
+          <button
+            className="btn btn-primary d-flex align-items-center"
+            onClick={onAddShowtime}
+          >
+            <Plus size={16} className="me-2" />
+            Add Showtime
+          </button>
+        </div>
       </div>
 
       {/* Filter Section */}
@@ -206,13 +219,12 @@ export default function ShowtimeTable({
                     <td>{parseInt(showtime.price).toLocaleString()} $</td>
                     <td>
                       <span
-                        className={`badge ${
-                          showtime.status === "Available"
-                            ? "bg-success"
-                            : showtime.status === "Full"
+                        className={`badge ${showtime.status === "Available"
+                          ? "bg-success"
+                          : showtime.status === "Full"
                             ? "bg-danger"
                             : "bg-secondary"
-                        }`}
+                          }`}
                       >
                         {showtime.status}
                       </span>
