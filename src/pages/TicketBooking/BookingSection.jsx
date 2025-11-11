@@ -280,16 +280,66 @@ export default function BookingSection({
 
     handleClearBookingOnReturn();
   }, []);
+  useEffect(() => {
+    if (!bookingId && !sessionStorage.getItem(`booking_${showtimeId}`)) {
+      console.log("🆕 Starting fresh booking, clearing selected seats");
+      setSelectedSeats([]);
+      setMyBookingSeats([]);
+    }
+  }, [showtimeId]);
 
   // Initial load: restore bookingId from sessionStorage
   useEffect(() => {
-    if (!bookingId && showtimeId) {
-      const savedBookingId = sessionStorage.getItem(`booking_${showtimeId}`);
-      if (savedBookingId) {
-        console.log("Restored bookingId from session:", savedBookingId);
-        setBookingId(savedBookingId);
+    const restoreAndValidateBooking = async () => {
+      if (!bookingId && showtimeId) {
+        const savedBookingId = sessionStorage.getItem(`booking_${showtimeId}`);
+
+        if (savedBookingId) {
+          console.log("Found saved bookingId:", savedBookingId);
+
+          // ✅ VALIDATE: Kiểm tra booking có còn pending không
+          try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(
+              `${API_BASE}/bookings/${savedBookingId}/validate`,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: token ? `Bearer ${token}` : "",
+                },
+              }
+            );
+
+            if (response.ok) {
+              const result = await response.json();
+              const bookingStatus = result.data?.status || result.status;
+
+              // Chỉ restore nếu booking vẫn pending
+              if (bookingStatus === "pending" || bookingStatus === "hold") {
+                console.log("Restored valid pending booking:", savedBookingId);
+                setBookingId(savedBookingId);
+              } else {
+                console.log(
+                  "Booking is not pending (status:",
+                  bookingStatus,
+                  "), clearing"
+                );
+                sessionStorage.removeItem(`booking_${showtimeId}`);
+              }
+            } else {
+              // Booking không tồn tại hoặc expired
+              console.log("Booking validation failed, clearing");
+              sessionStorage.removeItem(`booking_${showtimeId}`);
+            }
+          } catch (err) {
+            console.error("Error validating saved booking:", err);
+            sessionStorage.removeItem(`booking_${showtimeId}`);
+          }
+        }
       }
-    }
+    };
+
+    restoreAndValidateBooking();
   }, [showtimeId, bookingId, setBookingId]);
 
   // Check for pending booking on mount

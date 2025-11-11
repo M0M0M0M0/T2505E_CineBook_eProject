@@ -208,6 +208,25 @@ export default function MovieDetail() {
     // Không reset bookingId ở đây vì user có thể muốn giữ booking
     setStep("seat");
   };
+  const handlePaymentSuccess = () => {
+    console.log("🎉 Payment successful, clearing all booking data");
+
+    // Reset all booking-related states
+    setSelectedSeats([]);
+    setSeatTotal(0);
+    setSelectedFoods({});
+    setFoodTotal(0);
+    setBookingId(null);
+
+    // Clear sessionStorage
+    if (selectedShowtime?.showtime_id) {
+      sessionStorage.removeItem(`booking_${selectedShowtime.showtime_id}`);
+      sessionStorage.removeItem(`went_to_food_${selectedShowtime.showtime_id}`);
+    }
+
+    // Return to movie detail view
+    setStep("detail");
+  };
 
   return (
     <div
@@ -356,6 +375,8 @@ export default function MovieDetail() {
           <div className="total-section" ref={paymentRef}>
             <h3 style={{ color: "white" }}>Step 5: Payment</h3>
             <PaymentSection
+              showtimeId={selectedShowtime.showtime_id}
+              setBookingId={setBookingId}
               bookingId={bookingId}
               movieTitle={movie.title}
               selectedShowtime={selectedShowtime}
@@ -364,7 +385,7 @@ export default function MovieDetail() {
               selectedFoods={selectedFoods}
               foodTotal={foodTotal}
               onBack={() => setStep("total")}
-              onFinish={() => setStep("done")}
+              onFinish={handlePaymentSuccess}
             />
           </div>
         )}

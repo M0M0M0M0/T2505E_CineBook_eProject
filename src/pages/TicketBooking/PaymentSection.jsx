@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import "./TotalSection.css"; // dùng lại CSS cho đồng bộ giao diện
+import "./TotalSection.css";
 
 export default function PaymentSection({
   movieTitle,
   selectedShowtime,
   selectedSeats = [],
-  seatTotal = 0, // ⬅️ ĐÃ LÀ USD
+  seatTotal = 0,
   selectedFoods = [],
-  foodTotal = 0, // ⬅️ ĐÃ LÀ USD
+  foodTotal = 0,
   onBack,
   onFinish,
-  bookingId, // ⬅️ THÊM PROP MỚI: Nhận Booking ID
+  bookingId,
+  showtimeId, // ✅ THÊM PROP MỚI
+  setBookingId, // ✅ THÊM PROP MỚI
 }) {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [isPaid, setIsPaid] = useState(false);
@@ -36,7 +38,28 @@ export default function PaymentSection({
     });
   };
 
-  // ⬅️ THÊM HÀM MỚI: GỌI API FINALIZE PAYMENT
+  // ✅ THÊM HÀM: Clear booking data sau khi thanh toán thành công
+  const clearBookingData = () => {
+    console.log("🧹 Clearing booking data after successful payment");
+
+    // Clear booking ID từ state
+    if (setBookingId) {
+      setBookingId(null);
+    }
+
+    // Clear tất cả sessionStorage liên quan
+    if (showtimeId) {
+      sessionStorage.removeItem(`booking_${showtimeId}`);
+      sessionStorage.removeItem(`went_to_food_${showtimeId}`);
+    }
+
+    // Clear booking ID chung (nếu có)
+    sessionStorage.removeItem("current_booking_id");
+
+    // ✅ THÊM DÒNG NÀY: Clear selected seats để reset UI
+    sessionStorage.removeItem(`selected_seats_${showtimeId}`);
+  };
+
   const handleConfirmPayment = async () => {
     if (!paymentMethod) {
       alert("Vui lòng chọn phương thức thanh toán.");
@@ -48,7 +71,6 @@ export default function PaymentSection({
       return;
     }
 
-    // Lấy token từ localStorage
     const token = localStorage.getItem("token");
 
     console.log("🔍 DEBUG Payment - Token:", token);
@@ -60,11 +82,10 @@ export default function PaymentSection({
       return;
     }
 
-    // Gọi API finalizePayment
     try {
       const requestBody = {
         booking_id: bookingId,
-        seat_codes: selectedSeats, // ⬅️ THÊM seat_codes (backend có thể cần)
+        seat_codes: selectedSeats,
       };
 
       console.log("🔍 DEBUG Payment - Request body:", requestBody);
@@ -75,7 +96,7 @@ export default function PaymentSection({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // ⬅️ GỬI TOKEN
+            Authorization: `Bearer ${token}`,
             Accept: "application/json",
           },
           body: JSON.stringify(requestBody),
@@ -90,20 +111,33 @@ export default function PaymentSection({
       if (response.ok && result.success) {
         const code = generateTicketCode();
         setIsPaid(true);
+
+        // ✅ CLEAR BOOKING DATA NGAY SAU KHI THANH TOÁN THÀNH CÔNG
+        clearBookingData();
+
         alert(
           `🎉 Thanh toán thành công! Tổng tiền: $${total.toLocaleString(
             "en-US"
           )}`
         );
-        console.log("Finalized booking:", result);
-
-        // Không gọi onFinish ngay, để hiển thị ticket trước
+        console.log("✅ Finalized booking and cleared booking data:", result);
       } else {
         alert(result.message || "Thanh toán thất bại hoặc Booking đã hết hạn.");
       }
     } catch (error) {
       console.error("Lỗi hoàn tất thanh toán:", error);
       alert("Đã xảy ra lỗi không mong muốn khi thanh toán.");
+    }
+  };
+
+  // ✅ THÊM HÀM: Clear booking khi user click Finish
+  const handleFinish = () => {
+    // Đảm bảo booking data đã được clear
+    clearBookingData();
+
+    // Gọi callback từ parent
+    if (onFinish) {
+      onFinish();
     }
   };
 
@@ -282,7 +316,7 @@ export default function PaymentSection({
           />
           <p>Scan the QR code at the cinema to get your paper ticket 🎫</p>
 
-          <button className="payment-button" onClick={onFinish}>
+          <button className="payment-button" onClick={handleFinish}>
             🏠 Finish / Go to Home
           </button>
         </div>
