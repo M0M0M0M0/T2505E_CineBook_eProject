@@ -120,7 +120,7 @@ export default function UserTable({
     <div className="bg-white rounded shadow-sm p-4">
       {/* --- HEADER --- */}
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h5 className="fw-bold mb-0">Quản lý người dùng</h5>
+        <h5 className="fw-bold mb-0 text-dark">Quản lý người dùng</h5>
         <div className="d-flex gap-2">
           <button
             className="btn btn-outline-success btn-sm"

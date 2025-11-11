@@ -1,4 +1,5 @@
 import React from "react";
+import SeatLayoutManager from "./SeatLayoutManager";
 
 export default function RoomManager({
   showManageRooms,
@@ -123,94 +124,14 @@ export default function RoomManager({
         </table>
 
         {/* Seat Management */}
+        {/* Seat Management (visual layout) */}
         {selectedRoom && (
-          <div className="mt-5">
-            <h5 className="fw-semibold text-primary mb-3">
-              🎟 Manage Seats – {selectedRoom.room_name}
-            </h5>
-
-            <form
-              className="d-flex gap-2 align-items-end mb-3"
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleAddSeat();
-              }}
-            >
-              <div>
-                <label className="form-label">Row</label>
-                <input
-                  className="form-control"
-                  placeholder="A"
-                  maxLength={1}
-                  value={newSeat.seat_row}
-                  onChange={(e) => setNewSeat({ ...newSeat, seat_row: e.target.value.toUpperCase() })}
-                  required
-                />
-              </div>
-              <div>
-                <label className="form-label">Number</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  placeholder="1"
-                  value={newSeat.seat_number}
-                  onChange={(e) => setNewSeat({ ...newSeat, seat_number: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="flex-grow-1">
-                <label className="form-label">Seat Type</label>
-                <select
-                  className="form-control"
-                  value={newSeat.seat_type_id}
-                  onChange={(e) => setNewSeat({ ...newSeat, seat_type_id: e.target.value })}
-                  required
-                >
-                  <option value="">Select type</option>
-                  <option value="STD">Standard</option>
-                  <option value="VIP">VIP</option>
-                  <option value="DLX">Deluxe</option>
-                </select>
-              </div>
-              <button type="submit" className="btn btn-success">
-                ➕ Add Seat
-              </button>
-            </form>
-
-            <table className="table table-hover align-middle">
-              <thead className="table-light">
-                <tr>
-                  <th>Row</th>
-                  <th>Number</th>
-                  <th>Type</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {seats.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" className="text-center text-muted">
-                      No seats yet.
-                    </td>
-                  </tr>
-                ) : (
-                  seats.map((seat) => (
-                    <tr key={seat.seat_id}>
-                      <td>{seat.seat_row}</td>
-                      <td>{seat.seat_number}</td>
-                      <td>{seat.seat_type_id}</td>
-                      <td>
-                        <button className="btn btn-sm btn-outline-danger" onClick={() => handleDeleteSeat(seat.seat_id)}>
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          <SeatLayoutManager
+            room={selectedRoom}
+            onClose={() => setSelectedRoom(null)}
+          />
         )}
+
 
         <div className="text-end mt-4">
           <button

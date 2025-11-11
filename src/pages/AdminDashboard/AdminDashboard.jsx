@@ -600,7 +600,6 @@ const getNextRoomName = () => {
 
 // ➕ Add Room
 const handleAddRoom = async () => {
-  // Use your typed name if provided, otherwise auto-generate one
   const customName = newRoom.room_name?.trim();
   const roomName = customName && customName.length > 0 ? customName : getNextRoomName();
 
@@ -616,22 +615,20 @@ const handleAddRoom = async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newRoomData),
     });
-    const data = await res.json();
 
-    if (res.ok) {
-      const updatedRooms = [...rooms, { ...data, seats: [] }].sort((a, b) => {
-        const na = parseInt(a.room_name.replace(/\D/g, "")) || 0;
-        const nb = parseInt(b.room_name.replace(/\D/g, "")) || 0;
-        return na - nb;
-      });
-      setRooms(updatedRooms);
-      setNewRoom({ room_name: "", room_type: "" });
-      updateTheaterCounts(selectedTheaterForRooms.theater_id, updatedRooms);
-    }
+    const room = await res.json();
+    if (!res.ok) throw new Error("Failed to create room");
+
+    setRooms((prev) => [...prev, room]);
+    updateTheaterCounts(selectedTheaterForRooms.theater_id, [...rooms, room]);
+    setNewRoom({ room_name: "", room_type: "" });
   } catch (err) {
     console.error("Add room failed:", err);
+    alert("Failed to add room.");
   }
 };
+
+
 
 // ❌ Delete Room
 const handleDeleteRoom = async (room_id) => {
