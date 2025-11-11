@@ -435,11 +435,7 @@ export default function BookingSection({
   };
 
   const handleContinue = async () => {
-    // 1. DEBUG CÁC GIÁ TRỊ BAN ĐẦU
-    console.log("--- BẮT ĐẦU handleContinue ---");
-    console.log("selectedSeats:", selectedSeats);
-    console.log("currentUserId:", currentUserId);
-    console.log("showtimeId:", showtimeId);
+
 
     if (!selectedSeats.length) {
       alert("Please select seats before continue!");
