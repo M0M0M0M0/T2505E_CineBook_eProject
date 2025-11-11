@@ -94,8 +94,8 @@ export default function TheaterForm({
           </label>
           <select
             className="form-control"
-            name="city"
-            value={theaterForm.city}
+            name="theater_city"
+            value={theaterForm.theater_city}
             onChange={handleTheaterChange}
             required
           >
