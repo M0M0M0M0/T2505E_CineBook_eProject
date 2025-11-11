@@ -522,41 +522,230 @@ export default function Dashboard() {
     setTheaterError("");
   };
 
-  // ---- ROOM HANDLERS ----
-  const handleManageRooms = (theater) => {
-    setSelectedTheaterForRooms(theater);
-    setShowManageRooms(true);
-    setRooms([]); // Later can load from backend
+// === ROOM & SEAT REAL-TIME HANDLERS ===
+
+// 🔁 Realtime update for theater counts
+const updateTheaterCounts = (theaterId, updatedRooms) => {
+  const roomCount = updatedRooms.length;
+  const seatCount = updatedRooms.reduce(
+    (sum, r) => sum + (r.seats ? r.seats.length : 0),
+    0
+  );
+
+  setTheaters((prev) =>
+    prev.map((t) =>
+      t.theater_id === theaterId
+        ? {
+            ...t,
+            room_count: roomCount,
+            seat_capacity: seatCount,
+            rooms: updatedRooms,
+          }
+        : t
+    )
+  );
+};
+
+// 🏢 Load rooms when managing
+const handleManageRooms = async (theater) => {
+  setSelectedTheaterForRooms(theater);
+  setShowManageRooms(true);
+  try {
+    const res = await fetch(
+      `http://127.0.0.1:8000/api/theaters/${theater.theater_id}/rooms`
+    );
+    const data = await res.json();
+    // Sort numerically by room_name if possible
+    const sorted = data.sort((a, b) => {
+      const na = parseInt(a.room_name.replace(/\D/g, "")) || 0;
+      const nb = parseInt(b.room_name.replace(/\D/g, "")) || 0;
+      return na - nb;
+    });
+    setRooms(sorted);
+  } catch (err) {
+    console.error("Failed to load rooms:", err);
+  }
+};
+
+// 🏢 Auto-generate next available room name
+const getNextRoomName = () => {
+  if (rooms.length === 0) return "Room 1";
+  const taken = rooms
+    .map((r) => parseInt(r.room_name.replace(/\D/g, "")))
+    .filter((n) => !isNaN(n));
+  let next = 1;
+  while (taken.includes(next)) next++;
+  return `Room ${next}`;
+};
+
+// ➕ Add Room
+const handleAddRoom = async () => {
+  const nextRoomName = getNextRoomName();
+  const newRoomData = {
+    room_name: nextRoomName,
+    room_type: newRoom.room_type || "Standard",
+    theater_id: selectedTheaterForRooms.theater_id,
   };
 
-  const handleAddRoom = () => {
-    if (!newRoom.room_name || !newRoom.room_type) return;
-    const roomData = { ...newRoom, seats: [] };
-    setRooms([...rooms, roomData]);
-    setNewRoom({ room_name: "", room_type: "" });
+  try {
+    const res = await fetch("http://127.0.0.1:8000/api/rooms", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newRoomData),
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      const updatedRooms = [...rooms, { ...data, seats: [] }].sort((a, b) => {
+        const na = parseInt(a.room_name.replace(/\D/g, "")) || 0;
+        const nb = parseInt(b.room_name.replace(/\D/g, "")) || 0;
+        return na - nb;
+      });
+      setRooms(updatedRooms);
+      setNewRoom({ room_name: "", room_type: "" });
+      updateTheaterCounts(selectedTheaterForRooms.theater_id, updatedRooms);
+    }
+  } catch (err) {
+    console.error("Add room failed:", err);
+  }
+};
+
+// ❌ Delete Room
+const handleDeleteRoom = async (room_id) => {
+  if (!window.confirm("Delete this room?")) return;
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/api/rooms/${room_id}`, {
+      method: "DELETE",
+    });
+    if (res.ok) {
+      const updatedRooms = rooms
+        .filter((r) => r.room_id !== room_id)
+        .sort((a, b) => {
+          const na = parseInt(a.room_name.replace(/\D/g, "")) || 0;
+          const nb = parseInt(b.room_name.replace(/\D/g, "")) || 0;
+          return na - nb;
+        });
+      setRooms(updatedRooms);
+      updateTheaterCounts(selectedTheaterForRooms.theater_id, updatedRooms);
+    }
+  } catch (err) {
+    console.error("Delete room failed:", err);
+  }
+};
+
+// 🎟 Load seats for selected room
+const handleViewSeats = async (room) => {
+  setSelectedRoom(room);
+  try {
+    const res = await fetch(
+      `http://127.0.0.1:8000/api/rooms/${room.room_id}/seats`
+    );
+    const data = await res.json();
+    // Sort by row (A–Z), then number
+    const sorted = data.sort((a, b) => {
+      if (a.seat_row === b.seat_row)
+        return a.seat_number - b.seat_number;
+      return a.seat_row.localeCompare(b.seat_row);
+    });
+    setSeats(sorted);
+  } catch (err) {
+    console.error("Failed to load seats:", err);
+  }
+};
+
+// ➕ Add Seat
+const handleAddSeat = async () => {
+  const row = newSeat.seat_row?.trim().toUpperCase();
+  const number = parseInt(newSeat.seat_number);
+
+  // Validation
+  if (!row || !number || isNaN(number)) {
+    alert("Please enter a valid seat row (A-Z) and number (1+).");
+    return;
+  }
+
+  // Check for duplicate seat (A + number)
+  const exists = seats.some(
+    (s) => s.seat_row.toUpperCase() === row && parseInt(s.seat_number) === number
+  );
+
+  if (exists) {
+    alert(`Seat ${row}${number} already exists!`);
+    return;
+  }
+
+  const seatData = {
+    seat_row: row,
+    seat_number: number,
+    seat_type_id: newSeat.seat_type_id || "STD",
+    room_id: selectedRoom.room_id,
   };
 
-  const handleDeleteRoom = (index) => {
-    setRooms(rooms.filter((_, i) => i !== index));
-  };
+  try {
+    const res = await fetch("http://127.0.0.1:8000/api/seats", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(seatData),
+    });
 
-  const handleViewSeats = (room) => {
-    setSelectedRoom(room);
-    setSeats(room.seats || []);
-  };
+    const data = await res.json();
 
-  // ---- SEAT HANDLERS ----
-  const handleAddSeat = () => {
-    if (!newSeat.seat_row || !newSeat.seat_number || !newSeat.seat_type_id)
-      return;
-    const seatData = { ...newSeat };
-    setSeats([...seats, seatData]);
-    setNewSeat({ seat_row: "", seat_number: "", seat_type_id: "" });
-  };
+    if (res.ok) {
+      // Sort alphabetically by row, then numerically by number
+      const updatedSeats = [...seats, data].sort((a, b) => {
+        if (a.seat_row === b.seat_row)
+          return a.seat_number - b.seat_number;
+        return a.seat_row.localeCompare(b.seat_row);
+      });
 
-  const handleDeleteSeat = (index) => {
-    setSeats(seats.filter((_, i) => i !== index));
-  };
+      setSeats(updatedSeats);
+
+      // Update parent rooms + theater counts
+      const updatedRooms = rooms.map((r) =>
+        r.room_id === selectedRoom.room_id
+          ? { ...r, seats: updatedSeats }
+          : r
+      );
+      setRooms(updatedRooms);
+      updateTheaterCounts(selectedTheaterForRooms.theater_id, updatedRooms);
+
+      // Clear form
+      setNewSeat({ seat_row: "", seat_number: "", seat_type_id: "" });
+    } else {
+      alert("Failed to add seat. Please check your input.");
+    }
+  } catch (err) {
+    console.error("Add seat failed:", err);
+    alert("Error while adding seat.");
+  }
+};
+
+
+
+// ❌ Delete Seat
+const handleDeleteSeat = async (seat_id) => {
+  if (!window.confirm("Delete this seat?")) return;
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/api/seats/${seat_id}`, {
+      method: "DELETE",
+    });
+    if (res.ok) {
+      const updatedSeats = seats.filter((s) => s.seat_id !== seat_id);
+      setSeats(updatedSeats);
+
+      const updatedRooms = rooms.map((r) =>
+        r.room_id === selectedRoom.room_id
+          ? { ...r, seats: updatedSeats }
+          : r
+      );
+      setRooms(updatedRooms);
+      updateTheaterCounts(selectedTheaterForRooms.theater_id, updatedRooms);
+    }
+  } catch (err) {
+    console.error("Delete seat failed:", err);
+  }
+};
+
 
   const handleEditTheater = (theater, idx) => {
     setEditTheater(idx);
@@ -637,10 +826,12 @@ export default function Dashboard() {
       .then((res) => res.json())
       .then((data) => setCities(data));
 
-    // Load theaters
-    fetch("http://127.0.0.1:8000/api/theaters")
-      .then((res) => res.json())
-      .then((data) => setTheaters(data));
+  // Load theaters with rooms + seats
+fetch("http://127.0.0.1:8000/api/theaters?_with=rooms")
+  .then((res) => res.json())
+  .then((data) => setTheaters(data))
+  .catch((err) => console.error("Failed to load theaters:", err));
+
 
     // Load movies
     fetch("http://127.0.0.1:8000/api/movies")
