@@ -109,8 +109,13 @@ export default function TheaterTable({
                   <td className="fw-semibold">{theater.name || theater.theater_name}</td>
                   <td>{theater.city || theater.theater_city}</td>
                   <td>{theater.address || theater.theater_address}</td>
-                  <td>{theater.rooms || theater.theater_rooms}</td>
-                  <td>{theater.seatCapacity || theater.theater_capacity}</td>
+                  <td>{theater.rooms?.length || 0}</td>
+<td>
+  {theater.rooms
+    ? theater.rooms.reduce((sum, r) => sum + (r.seats?.length || 0), 0)
+    : 0}
+</td>
+
                   <td>
                     <span className={`badge bg-${theater.statusColor || "success"}`}>
                       {theater.status || "Active"}
