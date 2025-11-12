@@ -11,7 +11,7 @@ import { useAuth } from "../../contexts/AuthContext";
 export default function MovieDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation(); // ✅ THÊM để nhận state từ navigation
+  const location = useLocation();
   const [movie, setMovie] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
   const [step, setStep] = useState("detail");
@@ -24,7 +24,8 @@ export default function MovieDetail() {
   const [foodTotal, setFoodTotal] = useState(0);
   const [bookingId, setBookingId] = useState(null);
   const { currentUserId, isAuthenticated } = useAuth();
-  const [allMovies, setAllMovies] = useState([]); // LƯU Ý: allMovies để kiểm tra Coming Soon
+  const [allMovies, setAllMovies] = useState([]);
+  const [isLoadingMovies, setIsLoadingMovies] = useState(true); // ✅ THÊM state loading
 
   const showtimeRef = useRef(null);
   const seatRef = useRef(null);
@@ -37,8 +38,6 @@ export default function MovieDetail() {
   const resumeSeatTotal = location.state?.seatTotal;
   const resumeFoods = location.state?.foods;
   const resumeFoodTotal = location.state?.foodTotal;
-
-  // ✅ THÊM: Nhận state từ navigation (khi user click "Tiếp tục đặt vé" từ global dialog)
   const resumeBooking = location.state?.resumeBooking;
   const resumeBookingId = location.state?.bookingId;
   const resumeShowtimeId = location.state?.showtimeId;
@@ -66,23 +65,26 @@ export default function MovieDetail() {
       }
     }
   }, [movie]);
-  // ✅ Fetch all movies để kiểm tra Coming Soon
+
+  // ✅ Fetch all movies với loading state
   useEffect(() => {
     const fetchAllMovies = async () => {
+      setIsLoadingMovies(true); // ✅ Bắt đầu loading
       try {
         const res = await fetch("http://127.0.0.1:8000/api/movies");
         const data = await res.json();
         setAllMovies(data);
       } catch (err) {
         console.error("Error fetching all movies:", err);
+      } finally {
+        setIsLoadingMovies(false); // ✅ Kết thúc loading
       }
     };
     fetchAllMovies();
   }, []);
-  // Chỉ chạy effect khi CÓ resumeBooking = true
+
   useEffect(() => {
     if (resumeBooking === true && resumeShowtimeId && resumeBookingId) {
-      // Validate booking exists
       fetch(`http://127.0.0.1:8000/api/bookings/${resumeBookingId}/validate`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -93,7 +95,6 @@ export default function MovieDetail() {
           return;
         }
 
-        // ✅ Fetch showtime và resume với target step
         fetchShowtimeAndResumeWithStep(
           resumeShowtimeId,
           resumeBookingId,
@@ -116,7 +117,6 @@ export default function MovieDetail() {
     resumeFoodTotal,
   ]);
 
-  // ✅ Hàm fetch showtime và resume booking
   const fetchShowtimeAndResumeWithStep = async (
     showtimeId,
     bookingIdToResume,
@@ -143,19 +143,15 @@ export default function MovieDetail() {
       const result = await response.json();
 
       if (result && result.showtime_id) {
-        // ✅ Set showtime
         setSelectedShowtime(result);
         setBookingId(bookingIdToResume);
 
-        // ✅ Restore seats data
         if (seats && seats.length > 0) {
           setSelectedSeats(seats);
           setSeatTotal(seatTotal || 0);
         }
 
-        // ✅ Restore foods data nếu có
         if (foods && Object.keys(foods).length > 0) {
-          // Convert foods array to object format
           const foodsObject = {};
           foods.forEach((food) => {
             foodsObject[food.food_name] = food.quantity;
@@ -164,7 +160,6 @@ export default function MovieDetail() {
           setFoodTotal(foodTotal || 0);
         }
 
-        // ✅ Navigate to target step
         console.log("🎯 Resuming to step:", targetStep);
         setStep(targetStep || "food");
       } else {
@@ -188,27 +183,20 @@ export default function MovieDetail() {
     }
   }, [step]);
 
-  // ✅ Helper function để format date
   const formatReleaseDate = (dateString) => {
     if (!dateString) return "TBA";
 
     try {
-      // Nếu là ISO format (2025-11-26T00:00:00.000000Z)
       const date = new Date(dateString);
-
-      // Format thành DD/MM/YYYY hoặc định dạng khác tùy ý
       const day = String(date.getDate()).padStart(2, "0");
       const month = String(date.getMonth() + 1).padStart(2, "0");
       const year = date.getFullYear();
-
       return `${day}/${month}/${year}`;
     } catch (error) {
-      // Fallback: chỉ lấy phần YYYY-MM-DD
       return dateString.slice(0, 10);
     }
   };
 
-  // ✅ Kiểm tra xem phim có phải Coming Soon không
   const isComingSoon = () => {
     if (!movie || allMovies.length === 0) return false;
     const nowShowingIds = allMovies.slice(-20).map((m) => m.movie_id);
@@ -248,7 +236,6 @@ export default function MovieDetail() {
     setSelectedSeats(seats);
     setSeatTotal(total);
 
-    // ✅ Validate booking_id trước khi chuyển step
     if (!booking_id) {
       console.error("❌ No booking_id received");
       alert("Lỗi: Không có booking ID. Vui lòng thử lại từ đầu.");
@@ -273,28 +260,24 @@ export default function MovieDetail() {
     setTimeout(() => setStep("payment"), 400);
   };
 
-  // ✅ Hàm back từ food về seat - RESET bookingId nếu cần
   const handleBackToSeat = () => {
-    // Không reset bookingId ở đây vì user có thể muốn giữ booking
     setStep("seat");
   };
+
   const handlePaymentSuccess = () => {
     console.log("🎉 Payment successful, clearing all booking data");
 
-    // Reset all booking-related states
     setSelectedSeats([]);
     setSeatTotal(0);
     setSelectedFoods({});
     setFoodTotal(0);
     setBookingId(null);
 
-    // Clear sessionStorage
     if (selectedShowtime?.showtime_id) {
       sessionStorage.removeItem(`booking_${selectedShowtime.showtime_id}`);
       sessionStorage.removeItem(`went_to_food_${selectedShowtime.showtime_id}`);
     }
 
-    // Return to movie detail view
     setStep("detail");
   };
 
@@ -325,8 +308,8 @@ export default function MovieDetail() {
           <div className="col-md-8">
             <h2 className="md-title mb-3">{movie.title}</h2>
 
-            {/* ✅ Hiển thị badge Coming Soon nếu phim chưa ra */}
-            {isComingSoon() && (
+            {/* ✅ Chỉ hiển thị badge khi đã load xong */}
+            {!isLoadingMovies && isComingSoon() && (
               <span className="badge bg-warning text-dark me-2 mb-2">
                 Coming Soon
               </span>
@@ -354,8 +337,12 @@ export default function MovieDetail() {
             </div>
 
             <div className="md-actions d-flex gap-3 mt-4">
-              {/* ✅ Chỉ hiển thị nút Book Now nếu KHÔNG phải Coming Soon */}
-              {!isComingSoon() ? (
+              {/* ✅ Chỉ render nút khi đã load xong allMovies */}
+              {isLoadingMovies ? (
+                <button className="btn btn-secondary px-4 py-2" disabled>
+                  Loading...
+                </button>
+              ) : !isComingSoon() ? (
                 <button
                   className="detail-booknow-btn px-4 py-2"
                   onClick={handleBookNow}
