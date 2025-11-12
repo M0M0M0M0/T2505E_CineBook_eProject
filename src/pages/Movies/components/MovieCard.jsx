@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./MovieCard.css";
 
-export default function MovieCard({ movie }) {
+export default function MovieCard({ movie, isComingSoon = false }) {
   const navigate = useNavigate();
   const [showTrailer, setShowTrailer] = useState(false);
 
@@ -46,7 +46,7 @@ export default function MovieCard({ movie }) {
             navigate(`/movies/${movie.movie_id}`);
           }}
         >
-          BOOK NOW 🎟️
+          {isComingSoon ? "VIEW DETAILS" : "BOOK NOW 🎟️"}
         </button>
 
         <div className="movie-info">

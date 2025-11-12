@@ -71,7 +71,11 @@ function ComingSoon() {
 
   return (
     <div className="movies-page-container bg-dark text-light min-vh-100">
-      <HeroBanner title="Coming Soon" subtitle="Upcoming movies — stay tuned!" banners={banners} />
+      <HeroBanner
+        title="Coming Soon"
+        subtitle="Upcoming movies — stay tuned!"
+        banners={banners}
+      />
 
       <div className="movies-controls container my-4">
         <SearchBar
@@ -80,7 +84,14 @@ function ComingSoon() {
           onChange={setSearchTerm}
         />
         <FilterPanel
-          genres={["Action", "Drama", "Fantasy", "Thriller", "Horror", "Comedy"]}
+          genres={[
+            "Action",
+            "Drama",
+            "Fantasy",
+            "Thriller",
+            "Horror",
+            "Comedy",
+          ]}
           cities={["Hanoi", "Ho Chi Minh", "Da Nang"]}
           selectedGenre={selectedGenre}
           selectedCity={selectedCity}
@@ -105,6 +116,7 @@ function ComingSoon() {
                   overview: movie.overview,
                   cities: movie.cities,
                 }}
+                isComingSoon={true}
               />
             </div>
           ))}
