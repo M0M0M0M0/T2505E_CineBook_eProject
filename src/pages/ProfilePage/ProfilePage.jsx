@@ -46,7 +46,13 @@ export default function Profile() {
       .then((res) => {
         const user = res.data.user;
         setFullName(user.full_name ?? "");
-        setDob(user.date_of_birth ?? "");
+                // ✅ Xử lý date_of_birth về đúng định dạng yyyy-MM-dd 
+        let formattedDob = "";
+         if (user.date_of_birth) {
+           // Nếu API trả về chuỗi ISO (có "T"), cắt trước ký tự "T" 
+           formattedDob = user.date_of_birth.split("T")[0]; 
+          } 
+          setDob(formattedDob);
         setPhone(user.phone_number ?? "");
         setAddress(user.address ?? "");
         setEmail(user.email ?? "");
@@ -100,8 +106,8 @@ export default function Profile() {
         "http://127.0.0.1:8000/api/user-profile",
         {
           full_name: fullName,
-          dob,
-          phone,
+          date_of_birth: dob,
+          phone_number: phone,
           address,
         },
         axiosConfig
