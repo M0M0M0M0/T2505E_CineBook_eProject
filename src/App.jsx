@@ -18,6 +18,8 @@ import ProfilePage from "./pages/ProfilePage/ProfilePage.jsx";
 
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import PendingBookingDialog from "./components/PendingBookingDialog.jsx";
+import ProtectedAdminRoute from "./components/ProtectedAdminRoute.jsx";
+import AdminDashboard from "./pages/AdminDashboard/AdminDashboard.jsx";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -40,8 +42,14 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="movies/:id" element={<MovieDetail />} />
-
-        {/* <Movies /> */}
+        <Route
+          path="/admin/*"
+          element={
+            <ProtectedAdminRoute>
+              <AdminDashboard />
+            </ProtectedAdminRoute>
+          }
+        />
       </Routes>
       <Footer />
     </BrowserRouter>

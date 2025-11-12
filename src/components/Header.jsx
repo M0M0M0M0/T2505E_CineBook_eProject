@@ -10,22 +10,31 @@ export default function Header() {
 
   const mobileRef = useRef(null);
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Load user từ localStorage khi mount và lắng nghe event login
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
+  const storedUser = localStorage.getItem("user");
+  if (storedUser) {
+    const userData = JSON.parse(storedUser);
+    setUser(userData);
 
-    const handleLogin = () => {
-      const updatedUser = localStorage.getItem("user");
-      if (updatedUser) setUser(JSON.parse(updatedUser));
-    };
+    // ✅ Chỉ cần kiểm tra user_type
+    setIsAdmin(userData.user_type === "staff");
+  }
 
-    window.addEventListener("login", handleLogin);
+  const handleLogin = () => {
+    const updatedUser = localStorage.getItem("user");
+    if (updatedUser) {
+      const userData = JSON.parse(updatedUser);
+      setUser(userData);
+      setIsAdmin(userData.user_type === "staff");
+    }
+  };
 
-    return () => window.removeEventListener("login", handleLogin);
-  }, []);
-
+  window.addEventListener("login", handleLogin);
+  return () => window.removeEventListener("login", handleLogin);
+}, []);
   // Đóng menu khi click ngoài
   useEffect(() => {
     function onDocClick(e) {
@@ -140,17 +149,26 @@ export default function Header() {
                 onMouseLeave={handleCloseDropdownDelayed}
               >
                 <li>
-                  <Link to="/theaters?region=Hanoi" className="dropdown-link-cb">
+                  <Link
+                    to="/theaters?region=Hanoi"
+                    className="dropdown-link-cb"
+                  >
                     Ha Noi
                   </Link>
                 </li>
                 <li>
-                  <Link to="/theaters?region=Da+Nang" className="dropdown-link-cb">
+                  <Link
+                    to="/theaters?region=Da+Nang"
+                    className="dropdown-link-cb"
+                  >
                     Da Nang
                   </Link>
                 </li>
                 <li>
-                  <Link to="/theaters?region=Ho+Chi+Minh+City" className="dropdown-link-cb">
+                  <Link
+                    to="/theaters?region=Ho+Chi+Minh+City"
+                    className="dropdown-link-cb"
+                  >
                     Ho Chi Minh
                   </Link>
                 </li>
@@ -168,11 +186,13 @@ export default function Header() {
                 Profile
               </Link>
             </li>
-            <li className="nav-item-cb">
-              <Link to="/admin" className="nav-link-cb">
-                Admin Dashboard
-              </Link>
-            </li>
+            {isAdmin && (
+              <li className="nav-item-cb">
+                <Link to="/admin" className="nav-link-cb">
+                  Admin Dashboard
+                </Link>
+              </li>
+            )}
           </ul>
         </nav>
 

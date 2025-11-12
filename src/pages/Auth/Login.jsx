@@ -7,6 +7,7 @@ import { API_BASE_URL } from "../../api/config";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false); // ✅ Checkbox admin
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -24,7 +25,12 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/login`, {
+      // ✅ Thêm query parameter ?type=admin nếu checkbox được chọn
+      const loginUrl = isAdmin
+        ? `${API_BASE_URL}/login?type=admin`
+        : `${API_BASE_URL}/login`;
+
+      const res = await axios.post(loginUrl, {
         email,
         password,
       });
@@ -40,8 +46,12 @@ export default function Login() {
       // ✅ Dispatch event login để Header update ngay
       window.dispatchEvent(new Event("login"));
 
-      // Chuyển trang về home
-      navigate("/");
+      // ✅ Chuyển trang: Admin đi vào dashboard, user về home
+      if (isAdmin && res.data.user.user_type === "staff") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       console.error(err);
 
@@ -92,6 +102,26 @@ export default function Login() {
             />
           </div>
 
+          {/* ✅ CHECKBOX LOGIN AS ADMIN */}
+          <div className="form-check mb-3">
+            <input
+              type="checkbox"
+              className="form-check-input"
+              id="adminCheckbox"
+              checked={isAdmin}
+              onChange={(e) => setIsAdmin(e.target.checked)}
+              disabled={loading}
+              style={{ cursor: "pointer" }}
+            />
+            <label
+              className="form-check-label text-light"
+              htmlFor="adminCheckbox"
+              style={{ cursor: "pointer", userSelect: "none" }}
+            >
+              🔐 Login as Admin
+            </label>
+          </div>
+
           {message && (
             <div className="alert alert-warning text-center py-2">
               {message}
@@ -107,11 +137,11 @@ export default function Login() {
             className="btn btn-warning w-100 auth-btn"
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Logging in..." : isAdmin ? "Login as Admin" : "Login"}
           </button>
 
           <p className="text-center mt-3 text-light">
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <Link to="/register" className="auth-link">
               Register
             </Link>
