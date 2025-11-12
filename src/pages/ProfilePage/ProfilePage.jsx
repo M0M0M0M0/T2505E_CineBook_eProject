@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./ProfilePage.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import QRCode from "qrcode"; // Cần cài: npm install qrcode
+import QRCode from "qrcode";
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState("profile");
@@ -46,13 +46,11 @@ export default function Profile() {
       .then((res) => {
         const user = res.data.user;
         setFullName(user.full_name ?? "");
-                // ✅ Xử lý date_of_birth về đúng định dạng yyyy-MM-dd 
         let formattedDob = "";
-         if (user.date_of_birth) {
-           // Nếu API trả về chuỗi ISO (có "T"), cắt trước ký tự "T" 
-           formattedDob = user.date_of_birth.split("T")[0]; 
-          } 
-          setDob(formattedDob);
+        if (user.date_of_birth) {
+          formattedDob = user.date_of_birth.split("T")[0];
+        }
+        setDob(formattedDob);
         setPhone(user.phone_number ?? "");
         setAddress(user.address ?? "");
         setEmail(user.email ?? "");
@@ -61,7 +59,7 @@ export default function Profile() {
   }, [token]);
 
   // ✅ Load user bookings
-  useEffect(() => {
+  const loadBookings = () => {
     if (!token) return;
 
     setLoadingTickets(true);
@@ -79,6 +77,10 @@ export default function Profile() {
       .finally(() => {
         setLoadingTickets(false);
       });
+  };
+
+  useEffect(() => {
+    loadBookings();
   }, [token]);
 
   // ✅ Generate QR Code when viewing ticket details
@@ -160,6 +162,79 @@ export default function Profile() {
       });
   };
 
+ 
+  const handleContinueBooking = (ticket) => {
+
+    let nextStep = "food"; // Default to food step
+
+    // Nếu API trả về next_step thì dùng
+    if (ticket.next_step) {
+      nextStep = ticket.next_step;
+    }
+    // Hoặc kiểm tra has_foods
+    else if (ticket.has_foods) {
+      nextStep = "payment";
+    }
+    // Hoặc kiểm tra foods array
+    else if (ticket.foods && ticket.foods.length > 0) {
+      nextStep = "payment";
+    }
+
+    console.log("📍 Continuing booking to step:", nextStep);
+    console.log("📦 Ticket data:", ticket);
+
+    // Navigate to movie detail page với thông tin resume
+    navigate(`/movie/${ticket.movie_id}`, {
+      state: {
+        resumeBooking: true,
+        bookingId: ticket.booking_id,
+        showtimeId: ticket.showtime_id,
+        targetStep: nextStep, 
+        seats: ticket.seats || [], 
+        seatTotal: ticket.ticket_total || 0, 
+        foods: ticket.foods || [],
+        foodTotal: ticket.food_total || 0, 
+      },
+    });
+  };
+
+  //Cancel pending booking
+  const handleCancelBooking = async (ticket) => {
+    if (!window.confirm("Are you sure you want to cancel this booking?")) {
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/bookings/cancel",
+        {
+          booking_id: ticket.booking_id,
+        },
+        axiosConfig
+      );
+
+      if (response.data.success) {
+        alert("Booking cancelled successfully");
+
+        // Reload bookings
+        loadBookings();
+
+        // Close modal if currently viewing this ticket
+        if (selectedTicket?.booking_id === ticket.booking_id) {
+          handleCloseModal();
+        }
+      } else {
+        alert(response.data.message || "Failed to cancel booking");
+      }
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      alert(
+        error.response?.data?.message ||
+          "An error occurred while cancelling the booking"
+      );
+    }
+  };
+
   const handleViewDetails = (ticket) => setSelectedTicket(ticket);
   const handleCloseModal = () => {
     setSelectedTicket(null);
@@ -170,27 +245,22 @@ export default function Profile() {
   const handleDownloadTicket = () => {
     if (!qrCodeDataUrl || !selectedTicket) return;
 
-    // Create a canvas to draw the ticket
     const canvas = document.createElement("canvas");
     canvas.width = 600;
     canvas.height = 800;
     const ctx = canvas.getContext("2d");
 
-    // Background
     ctx.fillStyle = "#1a1a1a";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Title
     ctx.fillStyle = "#ffc107";
     ctx.font = "bold 24px Arial";
     ctx.fillText("E-TICKET", 20, 40);
 
-    // Movie title
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 20px Arial";
     ctx.fillText(selectedTicket.movie_title, 20, 80);
 
-    // Details
     ctx.font = "16px Arial";
     let y = 120;
     const lineHeight = 30;
@@ -210,12 +280,10 @@ export default function Profile() {
       y += lineHeight;
     });
 
-    // Draw QR Code
     const qrImage = new Image();
     qrImage.onload = () => {
       ctx.drawImage(qrImage, 200, 400, 200, 200);
 
-      // Download
       canvas.toBlob((blob) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
@@ -228,7 +296,7 @@ export default function Profile() {
     qrImage.src = qrCodeDataUrl;
   };
 
-  // ✅ Render ticket card
+  // ✅ CẬP NHẬT: Render ticket card với nút Continue/Cancel cho pending bookings
   const renderTicketCard = (ticket) => (
     <div key={ticket.booking_id} className="ticket-card">
       <div className="ticket-card-content">
@@ -257,13 +325,41 @@ export default function Profile() {
             >
               {ticket.status === "completed" ? "✅ Confirmed" : "⏳ Pending"}
             </span>
+            {/* ✅ Hiển thị thời gian còn lại nếu pending */}
+            {ticket.status === "pending" && ticket.expires_at && (
+              <span className="ms-2 text-muted small">
+                (Expires: {ticket.expires_at})
+              </span>
+            )}
           </p>
-          <button
-            className="btn btn-warning mt-2"
-            onClick={() => handleViewDetails(ticket)}
-          >
-            View Details
-          </button>
+
+          {/* ✅ BUTTONS: Khác nhau tùy theo status */}
+          <div className="d-flex gap-2 mt-2">
+            <button
+              className="btn btn-warning btn-sm"
+              onClick={() => handleViewDetails(ticket)}
+            >
+              View Details
+            </button>
+
+            {/* ✅ NÚT CHO PENDING BOOKINGS */}
+            {ticket.status === "pending" && !ticket.is_expired && (
+              <>
+                <button
+                  className="btn btn-success btn-sm"
+                  onClick={() => handleContinueBooking(ticket)}
+                >
+                  Continue Booking
+                </button>
+                <button
+                  className="btn btn-danger btn-sm"
+                  onClick={() => handleCancelBooking(ticket)}
+                >
+                  Cancel
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -300,6 +396,7 @@ export default function Profile() {
       <div className="profile-content flex-grow-1">
         {activeTab === "profile" && (
           <div className="profile-card">
+            {/* ... Profile form code giữ nguyên ... */}
             <div className="profile-header">
               <img
                 src="https://cdn-icons-png.flaticon.com/512/147/147144.png"
@@ -316,7 +413,6 @@ export default function Profile() {
 
             <h4 className="section-title">Account Information</h4>
 
-            {/* FORM PROFILE */}
             <form
               className="profile-form"
               onSubmit={(e) => {
@@ -373,7 +469,7 @@ export default function Profile() {
               </div>
             </form>
 
-            {/* PASSWORD */}
+            {/* PASSWORD SECTION */}
             <div className="profile-form">
               <hr className="my-4" />
               <h4 className="section-title">Change Password</h4>
@@ -481,7 +577,7 @@ export default function Profile() {
         )}
       </div>
 
-      {/* Modal */}
+      {/* Modal - Giữ nguyên code cũ */}
       {selectedTicket && (
         <div className="fade-modal show" onClick={handleCloseModal}>
           <div
@@ -589,7 +685,7 @@ export default function Profile() {
                       </p>
                     </section>
                     <hr />
-                    {/* ✅ QR CODE SECTION */}
+                    {/* QR CODE SECTION */}
                     <section className="text-center">
                       <h6 className="text-warning">E-Ticket QR Code</h6>
                       {qrCodeDataUrl ? (
@@ -621,16 +717,36 @@ export default function Profile() {
                   Close
                 </button>
 
-                {activeTab === "tickets" &&
-                  selectedTicket.status === "completed" && (
-                    <button
-                      type="button"
-                      className="btn btn-warning ticket-btn"
-                      onClick={handleDownloadTicket}
-                    >
-                      Download E-Ticket
-                    </button>
+                {/* ✅ BUTTONS TRONG MODAL */}
+                {selectedTicket.status === "pending" &&
+                  !selectedTicket.is_expired && (
+                    <>
+                      <button
+                        type="button"
+                        className="btn btn-success ticket-btn"
+                        onClick={() => handleContinueBooking(selectedTicket)}
+                      >
+                        Continue Booking
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-danger ticket-btn"
+                        onClick={() => handleCancelBooking(selectedTicket)}
+                      >
+                        Cancel Booking
+                      </button>
+                    </>
                   )}
+
+                {selectedTicket.status === "completed" && (
+                  <button
+                    type="button"
+                    className="btn btn-warning ticket-btn"
+                    onClick={handleDownloadTicket}
+                  >
+                    Download E-Ticket
+                  </button>
+                )}
               </div>
             </div>
           </div>

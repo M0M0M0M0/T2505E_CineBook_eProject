@@ -32,6 +32,12 @@ export default function MovieDetail() {
   const totalRef = useRef(null);
   const paymentRef = useRef(null);
 
+  const resumeTargetStep = location.state?.targetStep;
+  const resumeSeats = location.state?.seats;
+  const resumeSeatTotal = location.state?.seatTotal;
+  const resumeFoods = location.state?.foods;
+  const resumeFoodTotal = location.state?.foodTotal;
+
   // ✅ THÊM: Nhận state từ navigation (khi user click "Tiếp tục đặt vé" từ global dialog)
   const resumeBooking = location.state?.resumeBooking;
   const resumeBookingId = location.state?.bookingId;
@@ -76,16 +82,50 @@ export default function MovieDetail() {
   // Chỉ chạy effect khi CÓ resumeBooking = true
   useEffect(() => {
     if (resumeBooking === true && resumeShowtimeId && resumeBookingId) {
-      // Chỉ fetch nếu bookingId tồn tại trong DB
-      fetch(`/api/bookings/${resumeBookingId}/validate`).then((res) => {
-        if (res.status === 404) return;
-        fetchShowtimeAndResume(resumeShowtimeId, resumeBookingId);
+      // Validate booking exists
+      fetch(`http://127.0.0.1:8000/api/bookings/${resumeBookingId}/validate`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }).then((res) => {
+        if (res.status === 404) {
+          alert("Booking not found or expired");
+          return;
+        }
+
+        // ✅ Fetch showtime và resume với target step
+        fetchShowtimeAndResumeWithStep(
+          resumeShowtimeId,
+          resumeBookingId,
+          resumeTargetStep,
+          resumeSeats,
+          resumeSeatTotal,
+          resumeFoods,
+          resumeFoodTotal
+        );
       });
     }
-  }, [resumeBooking, resumeShowtimeId, resumeBookingId]);
+  }, [
+    resumeBooking,
+    resumeShowtimeId,
+    resumeBookingId,
+    resumeTargetStep,
+    resumeSeats,
+    resumeSeatTotal,
+    resumeFoods,
+    resumeFoodTotal,
+  ]);
 
   // ✅ Hàm fetch showtime và resume booking
-  const fetchShowtimeAndResume = async (showtimeId, bookingIdToResume) => {
+  const fetchShowtimeAndResumeWithStep = async (
+    showtimeId,
+    bookingIdToResume,
+    targetStep,
+    seats,
+    seatTotal,
+    foods,
+    foodTotal
+  ) => {
     if (!showtimeId || !bookingIdToResume) {
       console.log("⚠️ Invalid params for resume");
       return;
@@ -102,11 +142,31 @@ export default function MovieDetail() {
 
       const result = await response.json();
 
-      // ✅ API trả về data trực tiếp, không có wrapper { success, data }
       if (result && result.showtime_id) {
+        // ✅ Set showtime
         setSelectedShowtime(result);
         setBookingId(bookingIdToResume);
-        setStep("seat");
+
+        // ✅ Restore seats data
+        if (seats && seats.length > 0) {
+          setSelectedSeats(seats);
+          setSeatTotal(seatTotal || 0);
+        }
+
+        // ✅ Restore foods data nếu có
+        if (foods && Object.keys(foods).length > 0) {
+          // Convert foods array to object format
+          const foodsObject = {};
+          foods.forEach((food) => {
+            foodsObject[food.food_name] = food.quantity;
+          });
+          setSelectedFoods(foodsObject);
+          setFoodTotal(foodTotal || 0);
+        }
+
+        // ✅ Navigate to target step
+        console.log("🎯 Resuming to step:", targetStep);
+        setStep(targetStep || "food");
       } else {
         throw new Error("Invalid showtime data");
       }
