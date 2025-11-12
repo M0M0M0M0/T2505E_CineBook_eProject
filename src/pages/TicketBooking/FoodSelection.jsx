@@ -65,7 +65,7 @@ export default function FoodSelection({
     });
   };
 
-  // ⬅️ THÊM HÀM MỚI: XỬ LÝ GỌI API TRƯỚC KHI CHUYỂN BƯỚC
+  // ✅ SỬA LẠI HÀM NÀY: XỬ LÝ GỌI API TRƯỚC KHI CHUYỂN BƯỚC
   const handleContinueWithApi = async () => {
     if (!bookingId) {
       alert("Lỗi: Booking ID không tìm thấy. Vui lòng chọn lại ghế.");
@@ -74,45 +74,49 @@ export default function FoodSelection({
     }
 
     // Lấy token từ localStorage
-    const token = localStorage.getItem('token');
-    
-    // console.log("🔍 DEBUG Food - Token:", token);
-    // console.log("🔍 DEBUG Food - Booking ID:", bookingId);
-    
+    const token = localStorage.getItem("token");
+
     if (!token) {
       alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
       window.location.href = "/login";
       return;
     }
 
-    // Chuyển đổi format foods để gửi API
+    // ✅ SỬA LẠI: Chuyển đổi format foods để gửi API
     const foodsToSend = Object.entries(selectedFoods).map(
-      ([name, quantity]) => ({
-        food_name: name,
-        quantity: quantity,
-      })
+      ([name, quantity]) => {
+        // ✅ TÌM food item TRONG scope của map function
+        const foodItem = foodMenu.find((item) => item.name === name);
+
+        return {
+          food_id: foodItem?.id || null,
+          food_name: name,
+          quantity: quantity,
+          price: foodItem?.price || 0, // ✅ THÊM PRICE
+        };
+      }
     );
 
-    // console.log("🔍 DEBUG Food - Data to send:", { foods: foodsToSend });
+    console.log("🍿 DEBUG Food - Data to send:", { foods: foodsToSend });
 
     try {
       const response = await fetch(
         `http://127.0.0.1:8000/api/bookings/${bookingId}/foods`,
         {
           method: "PUT",
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`, // ⬅️ THÊM TOKEN
-            "Accept": "application/json",
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
           },
           body: JSON.stringify({ foods: foodsToSend }),
         }
       );
 
-      // console.log("🔍 DEBUG Food - Response status:", response.status);
-      
+      console.log("🍿 DEBUG Food - Response status:", response.status);
+
       const result = await response.json();
-      // console.log("🔍 DEBUG Food - Response data:", result);
+      console.log("🍿 DEBUG Food - Response data:", result);
 
       if (response.ok && result.success) {
         // API thành công → chuyển sang bước tiếp theo
@@ -139,9 +143,9 @@ export default function FoodSelection({
         {foodMenu.map((item) => (
           <div className="food-item food-item-grid" key={item.id || item.name}>
             <span className="food-name">{item.name}</span>
-           
+
             <span className="food-price food-price-col">
-              ${formatCurrency(item.price)}
+              {formatCurrency(item.price)}
             </span>
 
             <div className="quantity-controls">
@@ -180,11 +184,8 @@ export default function FoodSelection({
       </div>
 
       <div className="food-summary">
-        {/* ✅ Hiển thị USD (file mới đã sửa) */}
         <p>Seat total: {formatCurrency(seatTotal || 0)}</p>
-
         <p>Food total: {formatCurrency(foodTotal)}</p>
-
         <p>
           <strong>
             Grand total: {formatCurrency((seatTotal || 0) + foodTotal)}
@@ -192,7 +193,6 @@ export default function FoodSelection({
         </p>
       </div>
 
-      {/* Giữ nguyên class buttons từ file cũ */}
       <div className="total-buttons">
         {onBack && (
           <button className="back-button" onClick={onBack}>
@@ -202,7 +202,7 @@ export default function FoodSelection({
 
         <button
           disabled={!selectedSeats.length}
-          onClick={handleContinueWithApi} // ⬅️ ĐỔI: Gọi hàm mới thay vì onComplete trực tiếp
+          onClick={handleContinueWithApi}
           className="total-button"
         >
           Confirm

@@ -605,7 +605,7 @@ export default function Profile() {
                       ) : (
                         <p>Generating QR code...</p>
                       )}
-                      <p className="text-muted small">
+                      <p className="small text-white">
                         Scan this QR code at the theater entrance
                       </p>
                     </section>

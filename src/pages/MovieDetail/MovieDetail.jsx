@@ -172,6 +172,7 @@ export default function MovieDetail() {
   const handleBookNow = () => {
     if (!isAuthenticated || !currentUserId) {
       alert("Vui lòng đăng nhập để tiếp tục đặt vé!");
+      setSelectedFoods({});
       navigate("/login");
       return;
     }
