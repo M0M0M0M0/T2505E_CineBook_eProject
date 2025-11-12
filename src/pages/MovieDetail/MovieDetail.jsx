@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import "./MovieDetail.css";
+import ReviewSection from "./components/ReviewSection";
 import ShowtimeSelector from "../TicketBooking/ShowtimeSelector";
 import BookingSection from "../TicketBooking/BookingSection";
 import FoodSelection from "../TicketBooking/FoodSelection";
@@ -370,7 +371,14 @@ export default function MovieDetail() {
             </div>
           </div>
         </div>
-
+              {/* Chỉ hiển thị ReviewSection khi đang ở step 'detail' */}
+        {step === "detail" && (
+          <div className="movie-review-section-wrapper" style={{ marginTop: '50px' }}>
+            <hr style={{ borderColor: '#444' }} />
+            {/* Truyền `id` (từ useParams) vào component */}
+            <ReviewSection movieId={id} />
+          </div>
+        )}
         {/* STEPS */}
         {step === "showtime" && (
           <div className="showtime-section" ref={showtimeRef}>
