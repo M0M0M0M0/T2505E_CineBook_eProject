@@ -21,20 +21,48 @@ export default function ShowtimeForm({
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // ✅ Helper function: Parse datetime từ API về form fields
+  const parseDateTimeFromAPI = (datetimeString) => {
+    if (!datetimeString) return { date: "", time: "" };
+
+    try {
+      const dt = new Date(datetimeString);
+      const date = dt.toISOString().split("T")[0]; // YYYY-MM-DD
+      const time = dt.toTimeString().split(" ")[0]; // HH:MM:SS
+      return { date, time };
+    } catch (e) {
+      return { date: "", time: "" };
+    }
+  };
+
   // Update form when editingShowtime changes
   useEffect(() => {
     if (editingShowtime) {
+      // ✅ Parse start_time từ API (ISO format) thành date + time riêng
+      const { date, time } = parseDateTimeFromAPI(editingShowtime.start_time);
+
       setForm({
         movie_id: editingShowtime.movie_id || "",
         theater_id: editingShowtime.theater_id || "",
         room_id: editingShowtime.room_id || "",
-        // Map API fields to form fields
-        date: editingShowtime.show_date || editingShowtime.date || "",
-        start_time:
-          editingShowtime.show_time || editingShowtime.start_time || "",
-        price: editingShowtime.price || "",
+        date: date,
+        start_time: time,
+        price: editingShowtime.base_price || editingShowtime.price || "",
         status: editingShowtime.status || "Available",
       });
+
+      // ✅ Load rooms for the selected theater
+      if (editingShowtime.theater_id) {
+        fetch(
+          `http://127.0.0.1:8000/api/theaters/${editingShowtime.theater_id}/rooms`
+        )
+          .then((res) => res.json())
+          .then((data) => setRooms(data))
+          .catch((err) => {
+            console.error("Error loading rooms:", err);
+            setRooms([]);
+          });
+      }
     } else {
       // Reset form for new showtime
       setForm({
@@ -51,7 +79,8 @@ export default function ShowtimeForm({
 
   // Load rooms when theater is selected
   useEffect(() => {
-    if (form.theater_id) {
+    if (form.theater_id && !editingShowtime) {
+      // Chỉ load khi không phải editing (tránh load 2 lần)
       setLoading(true);
       fetch(`http://127.0.0.1:8000/api/theaters/${form.theater_id}/rooms`)
         .then((res) => res.json())
@@ -64,10 +93,10 @@ export default function ShowtimeForm({
           setRooms([]);
           setLoading(false);
         });
-    } else {
+    } else if (!form.theater_id) {
       setRooms([]);
     }
-  }, [form.theater_id]);
+  }, [form.theater_id, editingShowtime]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -85,18 +114,44 @@ export default function ShowtimeForm({
       return;
     }
 
-    // Prepare data for API (map back to API format)
+    // ✅ Combine date + time thành ISO datetime string
+    const startDateTime = `${form.date}T${form.start_time}`;
+
+    // ✅ Tính end_time dựa vào duration của movie (nếu có)
+    let endDateTime = null;
+    const selectedMovie = movies.find(
+      (m) => m.movie_id === parseInt(form.movie_id)
+    );
+
+    if (selectedMovie && selectedMovie.duration) {
+      // Add movie duration to start time
+      const startDate = new Date(startDateTime);
+      const endDate = new Date(
+        startDate.getTime() + selectedMovie.duration * 60000
+      ); // duration in minutes
+      endDateTime = endDate.toISOString().slice(0, 19).replace("T", " ");
+    }
+
+    // ✅ Prepare data for API
     const showtimeData = {
-      ...form,
-      show_date: form.date,
-      show_time: form.start_time,
+      movie_id: form.movie_id,
+      room_id: form.room_id,
+      start_time: startDateTime, // "2025-12-25T14:30:00"
+      base_price: form.price,
+      status: form.status,
     };
+
+    // ✅ Thêm end_time nếu đã tính được
+    if (endDateTime) {
+      showtimeData.end_time = endDateTime;
+    }
 
     // Include showtime_id if editing
     if (editingShowtime?.showtime_id) {
       showtimeData.showtime_id = editingShowtime.showtime_id;
     }
 
+    console.log("📤 Submitting showtime data:", showtimeData);
     onSave(showtimeData);
   };
 
@@ -127,14 +182,12 @@ export default function ShowtimeForm({
               required
             >
               <option value="">Select Movie</option>
-              {movies               
-                .slice(-20)
-                .map((m) => (
-                  <option key={m.movie_id} value={m.movie_id}>
-                    {m.title}
-                  </option>
-                ))}
-
+              {movies.slice(-20).map((m) => (
+                <option key={m.movie_id} value={m.movie_id}>
+                  {m.title}
+                  {m.duration ? ` (${m.duration} min)` : ""}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -172,8 +225,8 @@ export default function ShowtimeForm({
                 {loading
                   ? "Loading..."
                   : form.theater_id
-                    ? "Select Room"
-                    : "Select Theater First"}
+                  ? "Select Room"
+                  : "Select Theater First"}
               </option>
               {rooms.map((r) => (
                 <option key={r.room_id} value={r.room_id}>
@@ -221,7 +274,7 @@ export default function ShowtimeForm({
               value={form.price}
               onChange={(e) => setForm({ ...form, price: e.target.value })}
               min="0"
-              step="1"
+              step="0.01"
               required
             />
           </div>
