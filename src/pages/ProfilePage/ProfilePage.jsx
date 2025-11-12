@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./ProfilePage.css";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import QRCode from "qrcode";
 
 export default function Profile() {
@@ -27,12 +27,23 @@ export default function Profile() {
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+  const location = useLocation();
 
   const axiosConfig = {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   };
+
+  // ✅ THÊM: Đọc query parameter để mở tab
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get("tab");
+
+    if (tabParam && ["profile", "tickets", "history"].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [location.search]);
 
   // ✅ Load user profile
   useEffect(() => {
@@ -162,9 +173,7 @@ export default function Profile() {
       });
   };
 
- 
   const handleContinueBooking = (ticket) => {
-
     let nextStep = "food"; // Default to food step
 
     // Nếu API trả về next_step thì dùng
@@ -180,7 +189,7 @@ export default function Profile() {
       nextStep = "payment";
     }
 
-    console.log("📍 Continuing booking to step:", nextStep);
+    console.log("🔍 Continuing booking to step:", nextStep);
     console.log("📦 Ticket data:", ticket);
 
     // Navigate to movie detail page với thông tin resume
@@ -189,11 +198,11 @@ export default function Profile() {
         resumeBooking: true,
         bookingId: ticket.booking_id,
         showtimeId: ticket.showtime_id,
-        targetStep: nextStep, 
-        seats: ticket.seats || [], 
-        seatTotal: ticket.ticket_total || 0, 
+        targetStep: nextStep,
+        seats: ticket.seats || [],
+        seatTotal: ticket.ticket_total || 0,
         foods: ticket.foods || [],
-        foodTotal: ticket.food_total || 0, 
+        foodTotal: ticket.food_total || 0,
       },
     });
   };
@@ -396,7 +405,6 @@ export default function Profile() {
       <div className="profile-content flex-grow-1">
         {activeTab === "profile" && (
           <div className="profile-card">
-            {/* ... Profile form code giữ nguyên ... */}
             <div className="profile-header">
               <img
                 src="https://cdn-icons-png.flaticon.com/512/147/147144.png"

@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import QRCode from "qrcode";
 import "./TotalSection.css";
 
 export default function PaymentSection({
@@ -11,12 +13,15 @@ export default function PaymentSection({
   onBack,
   onFinish,
   bookingId,
-  showtimeId, // ✅ THÊM PROP MỚI
-  setBookingId, // ✅ THÊM PROP MỚI
+  showtimeId,
+  setBookingId,
 }) {
+  const navigate = useNavigate();
   const [paymentMethod, setPaymentMethod] = useState("");
   const [isPaid, setIsPaid] = useState(false);
   const [ticketCode, setTicketCode] = useState("");
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
+  const [finalizedBookingData, setFinalizedBookingData] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,6 +29,32 @@ export default function PaymentSection({
   });
 
   const total = seatTotal + foodTotal;
+
+  // ✅ Generate QR code khi có finalizedBookingData
+  useEffect(() => {
+    if (finalizedBookingData && isPaid) {
+      const qrData = JSON.stringify({
+        booking_id: finalizedBookingData.booking_id || bookingId,
+        movie: movieTitle,
+        seats: selectedSeats,
+        showtime: selectedShowtime
+          ? `${selectedShowtime.start_time} - ${selectedShowtime.end_time}`
+          : "",
+        theater: finalizedBookingData.theater_name || "Theater",
+      });
+
+      QRCode.toDataURL(qrData, { width: 200, margin: 2 })
+        .then((url) => setQrCodeDataUrl(url))
+        .catch((err) => console.error("QR Code generation error:", err));
+    }
+  }, [
+    finalizedBookingData,
+    isPaid,
+    bookingId,
+    movieTitle,
+    selectedSeats,
+    selectedShowtime,
+  ]);
 
   const generateTicketCode = () => {
     const code = "V" + Math.floor(100000 + Math.random() * 900000);
@@ -38,26 +69,21 @@ export default function PaymentSection({
     });
   };
 
-  // ✅ THÊM HÀM: Clear booking data sau khi thanh toán thành công
+  // ✅ Clear booking data sau khi thanh toán thành công
   const clearBookingData = () => {
     console.log("🧹 Clearing booking data after successful payment");
 
-    // Clear booking ID từ state
     if (setBookingId) {
       setBookingId(null);
     }
 
-    // Clear tất cả sessionStorage liên quan
     if (showtimeId) {
       sessionStorage.removeItem(`booking_${showtimeId}`);
       sessionStorage.removeItem(`went_to_food_${showtimeId}`);
+      sessionStorage.removeItem(`selected_seats_${showtimeId}`);
     }
 
-    // Clear booking ID chung (nếu có)
     sessionStorage.removeItem("current_booking_id");
-
-    // ✅ THÊM DÒNG NÀY: Clear selected seats để reset UI
-    sessionStorage.removeItem(`selected_seats_${showtimeId}`);
   };
 
   const handleConfirmPayment = async () => {
@@ -112,7 +138,10 @@ export default function PaymentSection({
         const code = generateTicketCode();
         setIsPaid(true);
 
-        // ✅ CLEAR BOOKING DATA NGAY SAU KHI THANH TOÁN THÀNH CÔNG
+        // ✅ Lưu thông tin booking để tạo QR code
+        setFinalizedBookingData(result.data || {});
+
+        // ✅ Clear booking data
         clearBookingData();
 
         alert(
@@ -130,12 +159,15 @@ export default function PaymentSection({
     }
   };
 
-  // ✅ THÊM HÀM: Clear booking khi user click Finish
+  // ✅ Điều hướng đến My Tickets với query parameter
+  const handleGoToMyTickets = () => {
+    navigate("/profile?tab=tickets");
+  };
+
+  // ✅ Clear booking khi user click Finish
   const handleFinish = () => {
-    // Đảm bảo booking data đã được clear
     clearBookingData();
 
-    // Gọi callback từ parent
     if (onFinish) {
       onFinish();
     }
@@ -309,16 +341,33 @@ export default function PaymentSection({
             <strong>Seats:</strong> {selectedSeats.join(", ")}
           </p>
 
-          <img
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=Ticket ${ticketCode} - ${movieTitle}`}
-            alt="QR Ticket"
-            style={{ margin: "10px auto", display: "block" }}
-          />
-          <p>Scan the QR code at the cinema to get your paper ticket 🎫</p>
+          {/* ✅ QR Code giống ProfilePage */}
+          {qrCodeDataUrl ? (
+            <img
+              src={qrCodeDataUrl}
+              alt="QR Ticket"
+              style={{
+                margin: "10px auto",
+                display: "block",
+                maxWidth: "200px",
+              }}
+            />
+          ) : (
+            <p>Generating QR code...</p>
+          )}
+          <p className="small text-muted">
+            Scan this QR code at the theater entrance 🎫
+          </p>
 
-          <button className="payment-button" onClick={handleFinish}>
-            🏠 Finish / Go to Home
-          </button>
+          {/* ✅ 2 Buttons mới */}
+          <div className="payment-buttons" style={{ marginTop: "20px" }}>
+            <button className="payment-button" onClick={handleGoToMyTickets}>
+              🎫 View My Tickets
+            </button>
+            <button className="payment-button" onClick={handleFinish}>
+              🏠 Finish / Go to Home
+            </button>
+          </div>
         </div>
       )}
     </div>
