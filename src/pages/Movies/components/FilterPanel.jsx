@@ -5,11 +5,11 @@ export default function FilterPanel({
   genres = [],
   cities = [],
   languages = [],
-  selectedGenre,
-  selectedCity,
-  selectedLanguage,
-  selectedRating,
-  selectedDate,
+  selectedGenre = "",
+  selectedCity = "",
+  selectedLanguage = "",
+  selectedRating = "",
+  selectedDate = "",
   onGenreChange,
   onCityChange,
   onLanguageChange,
@@ -26,8 +26,8 @@ export default function FilterPanel({
         onChange={(e) => onCityChange(e.target.value)}
       >
         <option value="">All Cities</option>
-        {cities.map((city) => (
-          <option key={city} value={city}>
+        {cities.map((city, i) => (
+          <option key={i} value={city}>
             {city}
           </option>
         ))}
@@ -40,8 +40,8 @@ export default function FilterPanel({
         onChange={(e) => onGenreChange(e.target.value)}
       >
         <option value="">All Genres</option>
-        {genres.map((genre) => (
-          <option key={genre} value={genre}>
+        {genres.map((genre, i) => (
+          <option key={i} value={genre}>
             {genre}
           </option>
         ))}
@@ -54,9 +54,9 @@ export default function FilterPanel({
         onChange={(e) => onLanguageChange(e.target.value)}
       >
         <option value="">All Languages</option>
-        {languages.map((lang) => (
-          <option key={lang.code} value={lang.code}>
-            {lang.name}
+        {languages.map((lang, i) => (
+          <option key={i} value={lang.code || lang}>
+            {lang.name || lang}
           </option>
         ))}
       </select>

@@ -9,10 +9,18 @@ function ComingSoon() {
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Filters
   const [selectedGenre, setSelectedGenre] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [selectedRating, setSelectedRating] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+
+  // Data sources
   const [genres, setGenres] = useState([]);
   const [cities, setCities] = useState([]);
+  const [languages, setLanguages] = useState([]);
   const [isLoadingGenres, setIsLoadingGenres] = useState(true);
   const [isLoadingCities, setIsLoadingCities] = useState(true);
 
@@ -56,6 +64,24 @@ function ComingSoon() {
     fetchCities();
   }, []);
 
+  // 🆕 Static languages
+// 🆕 Languages (từ DB + phổ biến)
+useEffect(() => {
+  setLanguages([
+    { code: "en", name: "English" },
+    { code: "es", name: "Spanish" },
+    { code: "fr", name: "French" },
+    { code: "hi", name: "Hindi" },
+    { code: "ml", name: "Malayalam" },
+    { code: "no", name: "Norwegian" },
+    { code: "pl", name: "Polish" },
+    { code: "th", name: "Thai" },
+    { code: "tl", name: "Tagalog" },
+    { code: "ja", name: "Japanese" },
+  ]);
+}, []);
+
+
   // Format movie data
   const formatMovieData = (movie) => ({
     ...movie,
@@ -69,7 +95,7 @@ function ComingSoon() {
     })(),
   });
 
-  // ✅ Fetch movies - Coming Soon only (tất cả trừ 20 phim cuối)
+  // ✅ Fetch movies - Coming Soon (tất cả trừ 20 phim cuối)
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -77,7 +103,6 @@ function ComingSoon() {
         const data = await res.json();
         const parsed = data.map(formatMovieData);
 
-        // ✅ Lấy tất cả trừ 20 phim cuối (Coming Soon)
         const comingSoon = parsed.slice(0, parsed.length - 20);
         setMovies(comingSoon);
         setFilteredMovies(comingSoon);
@@ -88,7 +113,7 @@ function ComingSoon() {
     fetchMovies();
   }, []);
 
-  // ✅ Filter logic - chỉ search trong movies của Coming Soon
+  // ✅ FILTER LOGIC (đã thêm 3 điều kiện mới)
   useEffect(() => {
     let result = movies;
 
@@ -110,18 +135,76 @@ function ComingSoon() {
       result = result.filter((m) => m.cities.includes(selectedCity));
     }
 
-    setFilteredMovies(result);
-  }, [searchTerm, selectedGenre, selectedCity, movies]);
+    // 🆕 Language filter
+    if (selectedLanguage) {
+      result = result.filter(
+        (m) =>
+          m.original_language?.toLowerCase() === selectedLanguage.toLowerCase()
+      );
+    }
 
-  // ✅ Handle search results from SearchBar (chỉ lấy movies trong Coming Soon)
+    // 🆕 Rating filter
+    if (selectedRating) {
+      result = result.filter((m) => m.vote_average >= Number(selectedRating));
+    }
+
+    // 🆕 Date filter
+    if (selectedDate) {
+      const now = new Date();
+      result = result.filter((m) => {
+        const release = new Date(m.release_date);
+        switch (selectedDate) {
+          case "this-week":
+            const weekStart = new Date();
+            weekStart.setDate(now.getDate() - 7);
+            return release >= weekStart && release <= now;
+          case "this-month":
+            return (
+              release.getMonth() === now.getMonth() &&
+              release.getFullYear() === now.getFullYear()
+            );
+          case "next-month":
+            const nextMonth = new Date(now);
+            nextMonth.setMonth(now.getMonth() + 1);
+            return (
+              release.getMonth() === nextMonth.getMonth() &&
+              release.getFullYear() === nextMonth.getFullYear()
+            );
+          case "this-year":
+            return release.getFullYear() === now.getFullYear();
+          default:
+            return true;
+        }
+      });
+    }
+
+    setFilteredMovies(result);
+  }, [
+    searchTerm,
+    selectedGenre,
+    selectedCity,
+    selectedLanguage,
+    selectedRating,
+    selectedDate,
+    movies,
+  ]);
+
+  // ✅ Clear filters
+  const handleClearFilters = () => {
+    setSelectedGenre("");
+    setSelectedCity("");
+    setSelectedLanguage("");
+    setSelectedRating("");
+    setSelectedDate("");
+  };
+
+  // ✅ Handle search results (giữ nguyên logic cũ)
   const handleSearchResults = (searchResults) => {
     if (searchResults === null) {
-      // Reset
       setFilteredMovies(movies);
     } else if (searchResults.length === 0) {
       setFilteredMovies([]);
     } else {
-      // ✅ Chỉ lấy movies có trong danh sách Coming Soon
       const comingSoonIds = new Set(movies.map((m) => m.movie_id));
       const filtered = searchResults
         .filter((movie) => comingSoonIds.has(movie.movie_id))
@@ -146,19 +229,29 @@ function ComingSoon() {
           onChange={setSearchTerm}
           onSearchResults={handleSearchResults}
         />
+
+        {/* 🆕 Full FilterPanel */}
         <FilterPanel
           genres={genres.map((g) => g.name)}
           cities={cities}
+          languages={languages}
           selectedGenre={selectedGenre}
           selectedCity={selectedCity}
+          selectedLanguage={selectedLanguage}
+          selectedRating={selectedRating}
+          selectedDate={selectedDate}
           onGenreChange={setSelectedGenre}
           onCityChange={setSelectedCity}
+          onLanguageChange={setSelectedLanguage}
+          onRatingChange={setSelectedRating}
+          onDateChange={setSelectedDate}
+          onClearFilters={handleClearFilters}
           isLoadingGenres={isLoadingGenres}
           isLoadingCities={isLoadingCities}
         />
       </div>
 
-      {/* ✅ Hiển thị số lượng kết quả khi search */}
+      {/* ✅ Hiển thị số lượng kết quả */}
       {searchTerm && searchTerm.trim().length >= 2 && (
         <div className="container mb-3">
           <p className="text-secondary">
