@@ -219,12 +219,19 @@ export default function MovieDetail() {
     );
 
   const handleBookNow = () => {
-    if (!isAuthenticated || !currentUserId) {
+    // ✅ Đọc trực tiếp từ localStorage
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    const userId = localStorage.getItem("user_id");
+
+    console.log("🔍 Check auth:", { token, user, userId });
+
+    if (!token || !userId) {
       alert("Vui lòng đăng nhập để tiếp tục đặt vé!");
-      setSelectedFoods({});
       navigate("/login");
       return;
     }
+
     setStep("showtime");
   };
 

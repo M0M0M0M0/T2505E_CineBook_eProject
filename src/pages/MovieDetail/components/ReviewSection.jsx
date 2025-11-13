@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { format } from 'date-fns'; // Dùng để format ngày tháng
+import React, { useState, useEffect, useCallback } from "react";
+import { format } from "date-fns";
+import "./ReviewSection.css";
 
-// ĐỊNH NGHĨA URL GỐC CỦA BACKEND API
-// !!! VUI LÒNG THAY THẾ BẰNG URL BACKEND THỰC TẾ CỦA BẠN
-const API_BASE_URL = 'http://localhost:8000'; // Giữ nguyên URL của bạn
+const API_BASE_URL = "http://localhost:8000";
 
-// --- Biểu tượng (Icons) 
-// Icon cho việc chọn sao (khi viết review)
+// ==================== ICONS ====================
 const StarIcon = ({ filled, onClick, onMouseEnter, onMouseLeave }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -16,31 +14,33 @@ const StarIcon = ({ filled, onClick, onMouseEnter, onMouseLeave }) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="cursor-pointer text-warning" // Bootstrap 5 có class text-warning
+    className="cursor-pointer text-warning"
     onClick={onClick}
     onMouseEnter={onMouseEnter}
     onMouseLeave={onMouseLeave}
-    style={{ width: '28px', height: '28px', marginRight: '4px' }} // Kích thước sao khi viết review
+    style={{ width: "28px", height: "28px", marginRight: "4px" }}
   >
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
   </svg>
 );
 
-// Icon sao chỉ đọc (hiển thị review cũ)
 const ReadOnlyStarIcon = ({ filled }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     fill={filled ? "#ffc107" : "#e4e5e9"}
     stroke={filled ? "#ffc107" : "#e4e5e9"}
-    className=""
-    style={{ width: '20px', height: '20px', marginRight: '2px', display: 'inline-block' }}
+    style={{
+      width: "20px",
+      height: "20px",
+      marginRight: "2px",
+      display: "inline-block",
+    }}
   >
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
   </svg>
 );
 
-// Icon thùng rác
 const TrashIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -50,7 +50,8 @@ const TrashIcon = ({ className = "" }) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className={className} // className sẽ được truyền từ nơi gọi
+    className={className}
+    style={{ width: "18px", height: "18px" }}
   >
     <polyline points="3 6 5 6 21 6"></polyline>
     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -59,9 +60,7 @@ const TrashIcon = ({ className = "" }) => (
   </svg>
 );
 
-
-// --- Component Rating (Giữ nguyên) ---
-
+// ==================== COMPONENTS ====================
 const StarRating = ({ rating, setRating }) => {
   const [hoverRating, setHoverRating] = useState(0);
   const handleMouseEnter = (index) => setHoverRating(index);
@@ -88,83 +87,118 @@ const ReadOnlyStars = ({ rating }) => {
   return (
     <div className="d-flex">
       {[...Array(5)].map((_, index) => (
-        <ReadOnlyStarIcon
-          key={index}
-          filled={index < rating}
-        />
+        <ReadOnlyStarIcon key={index} filled={index < rating} />
       ))}
     </div>
   );
 };
 
-// --- Component ReviewSection Chính (Đã cập nhật API) ---
-
+// ==================== MAIN COMPONENT ====================
 export default function ReviewSection({ movieId }) {
-  // Lấy thông tin xác thực từ localStorage
-  const token = localStorage.getItem('token');
+  // Auth
+  const token = localStorage.getItem("token");
   const isAuthenticated = !!token;
-  
-  // *** SỬA LỖI LOGIC 1: Giữ ID user là STRING ***
-  const storedUserId = localStorage.getItem('userId');
-  // Giữ nguyên là string (hoặc null) để so sánh với string từ backend
-  const currentUserId = storedUserId ? storedUserId : null;
+  const currentUserId = localStorage.getItem("user_id");
+  const userType = localStorage.getItem("user_type"); // 'staff' hoặc 'web_user'
+  const isAdmin = userType === "staff" || userType === "admin";
+  const getUserData = () => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return null;
+    try {
+      return JSON.parse(userStr);
+    } catch (e) {
+      console.error("Error parsing user data:", e);
+      return null;
+    }
+  };
+  const userData = getUserData();
 
-  // State của component
+  // State
   const [reviews, setReviews] = useState([]);
+  const [filteredReviews, setFilteredReviews] = useState([]);
   const [newRating, setNewRating] = useState(0);
-  const [newComment, setNewComment] = useState('');
-  const [submitMessage, setSubmitMessage] = useState(null); // { type: 'success' | 'danger', text: '...' }
+  const [newComment, setNewComment] = useState("");
+  const [submitMessage, setSubmitMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // --- HÀM GỌI API ---
+  // ✅ Filter state
+  const [sortBy, setSortBy] = useState("newest"); // 'newest' | 'oldest'
+  const [filterRating, setFilterRating] = useState("all"); // 'all' | '5' | '4' | '3' | '2' | '1'
 
-  // 1. Hàm tải danh sách reviews
+  // Confirm delete dialog
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [reviewToDelete, setReviewToDelete] = useState(null);
+
+  // ==================== API CALLS ====================
   const fetchReviews = useCallback(async () => {
-    if (!movieId) return; 
-    
+    if (!movieId) return;
+
     setIsLoading(true);
-    setSubmitMessage(null); 
-    
+    setSubmitMessage(null);
+
     try {
-      const response = await fetch(`${API_BASE_URL}/api/movies/${movieId}/reviews`);
+      const response = await fetch(
+        `${API_BASE_URL}/api/movies/${movieId}/reviews`
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Server error ${response.status}: ${errorText.substring(0, 150)}...`);
+        throw new Error(
+          `Server error ${response.status}: ${errorText.substring(0, 150)}...`
+        );
       }
-      
+
       const data = await response.json();
-      
-      // *** SỬA LỖI LOGIC 2: Xử lý Pagination (paginate()) ***
-      // Dữ liệu thật nằm trong data.data
-      setReviews(data.data || []); 
-      
+      setReviews(data.data || []);
     } catch (error) {
-      console.error('Lỗi khi tải reviews:', error);
-      // Giữ nguyên text tiếng Anh của bạn
-      setSubmitMessage({ type: 'danger', text: error.message || 'Error loading reviews.' });
+      console.error("Error loading reviews:", error);
+      setSubmitMessage({
+        type: "danger",
+        text: error.message || "Error loading reviews.",
+      });
     } finally {
       setIsLoading(false);
     }
-  }, [movieId]); 
+  }, [movieId]);
 
-  // 2. useEffect để gọi fetchReviews
   useEffect(() => {
     fetchReviews();
-  }, [fetchReviews]); 
+  }, [fetchReviews]);
 
-  // 3. Hàm xử lý khi gửi review mới
+  // ✅ Apply filters
+  useEffect(() => {
+    let result = [...reviews];
+
+    // Filter by rating
+    if (filterRating !== "all") {
+      const ratingValue = parseInt(filterRating);
+      result = result.filter((review) => review.rating === ratingValue);
+    }
+
+    // Sort by date
+    if (sortBy === "newest") {
+      result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    } else if (sortBy === "oldest") {
+      result.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    }
+
+    setFilteredReviews(result);
+  }, [reviews, sortBy, filterRating]);
+
+  // Submit review
   const handleSubmitReview = async (e) => {
     e.preventDefault();
-    
-    // Giữ nguyên text tiếng Anh của bạn
-    if (newRating === 0 || newComment.trim() === '') {
-      setSubmitMessage({ type: 'danger', text: 'Please leave a comments.' });
+
+    if (newRating === 0 || newComment.trim() === "") {
+      setSubmitMessage({
+        type: "danger",
+        text: "Please leave a rating and comment.",
+      });
       return;
     }
-    
+
     if (!isAuthenticated || !token) {
-      setSubmitMessage({ type: 'danger', text: 'You need to log in .' });
+      setSubmitMessage({ type: "danger", text: "You need to log in." });
       return;
     }
 
@@ -172,146 +206,151 @@ export default function ReviewSection({ movieId }) {
     setSubmitMessage(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/movies/${movieId}/reviews`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify({
-          comment: newComment,
-          rating: newRating
-        })
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/movies/${movieId}/reviews`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            comment: newComment,
+            rating: newRating,
+          }),
+        }
+      );
 
       if (!response.ok) {
         const contentType = response.headers.get("content-type");
-        let errorMessage = 'Failed to submit.';
+        let errorMessage = "Failed to submit.";
 
         if (contentType && contentType.indexOf("application/json") !== -1) {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorMessage;
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
         } else {
-            const errorText = await response.text();
-            errorMessage = `Server error ${response.status}: ${errorText.substring(0, 100)}...`;
+          const errorText = await response.text();
+          errorMessage = `Server error ${
+            response.status
+          }: ${errorText.substring(0, 100)}...`;
         }
         throw new Error(errorMessage);
       }
 
-      // *** SỬA LỖI LOGIC 3: Đọc response JSON từ Controller ***
-      const data = await response.json(); // Đọc response 201
-
-      setNewComment('');
+      const data = await response.json();
+      setNewComment("");
       setNewRating(0);
-      // Lấy message từ response
-      setSubmitMessage({ type: 'success', text: data.message || 'Submitted successfully!' });
-      
-      fetchReviews(); 
-
+      setSubmitMessage({
+        type: "success",
+        text: data.message || "Submitted successfully!",
+      });
+      fetchReviews();
     } catch (error) {
-      console.error('Error submiting review:', error);
-      setSubmitMessage({ type: 'danger', text: error.message });
+      console.error("Error submitting review:", error);
+      setSubmitMessage({ type: "danger", text: error.message });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 4. Hàm xử lý khi xóa review
-  const handleDeleteReview = async (reviewId) => {
-    if (!isAuthenticated || !token) {
-      alert('You need to log in to do this action.');
-      return;
-    }
+  // ✅ Confirm delete
+  const confirmDelete = (reviewId) => {
+    setReviewToDelete(reviewId);
+    setShowDeleteConfirm(true);
+  };
 
-    setIsLoading(true); 
+  // ✅ Delete review
+  const handleDeleteReview = async () => {
+    if (!reviewToDelete) return;
+
+    setIsLoading(true);
     setSubmitMessage(null);
+    setShowDeleteConfirm(false);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/reviews/${reviewId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}` 
+      const response = await fetch(
+        `${API_BASE_URL}/api/reviews/${reviewToDelete}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
 
       if (!response.ok) {
-        // (Logic xử lý lỗi của bạn đã ổn)
         const contentType = response.headers.get("content-type");
-        let errorMessage = 'Can not delete commnet.';
+        let errorMessage = "Cannot delete comment.";
 
         if (contentType && contentType.indexOf("application/json") !== -1) {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorMessage;
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
         } else {
-            const errorText = await response.text();
-            errorMessage = `Server error ${response.status}: ${errorText.substring(0, 100)}...`;
+          const errorText = await response.text();
+          errorMessage = `Server error ${
+            response.status
+          }: ${errorText.substring(0, 100)}...`;
         }
         throw new Error(errorMessage);
       }
 
-      // *** SỬA LỖI LOGIC 4: Đọc response JSON từ Controller ***
-      const data = await response.json(); // Đọc response 200
-
-      setSubmitMessage({ type: 'success', text: data.message || 'Deleted.' });
+      const data = await response.json();
+      setSubmitMessage({ type: "success", text: data.message || "Deleted." });
       fetchReviews();
-
     } catch (error) {
-      console.error('Error deleting comment:', error);
-      setSubmitMessage({ type: 'danger', text: error.message });
+      console.error("Error deleting comment:", error);
+      setSubmitMessage({ type: "danger", text: error.message });
     } finally {
       setIsLoading(false);
+      setReviewToDelete(null);
     }
   };
 
-
-  // --- RENDER COMPONENT ---
+  // ==================== RENDER ====================
   return (
-    // Thêm data-bs-theme="dark" để đổi nền card sang tối (Bootstrap 5.3+)
-    <div 
-      className="card mt-4" 
-      data-bs-theme="dark" 
-      style={{ maxWidth: '900px', margin: '2rem auto' }}
+    <div
+      className="card mt-4"
+      data-bs-theme="dark"
+      style={{ maxWidth: "900px", margin: "2rem auto" }}
     >
       <div className="card-header">
-        {/* Giữ nguyên text tiếng Anh của bạn */}
         <h5 className="mb-0">Reviews & Comments</h5>
       </div>
 
-      {/* Phần gửi review mới (chỉ hiển thị khi đã đăng nhập) */}
+      {/* Submit new review */}
       {isAuthenticated && (
         <div className="card-body border-bottom">
           <form onSubmit={handleSubmitReview}>
             <div className="mb-3">
-              {/* Giữ nguyên text tiếng Anh của bạn */}
               <label className="form-label text-white">Your Rating:</label>
               <StarRating rating={newRating} setRating={setNewRating} />
             </div>
             <div className="mb-3">
-              {/* Giữ nguyên text tiếng Anh của bạn */}
-              <label htmlFor="reviewComment" className="form-label text-white">Write a comment:</label>
+              <label htmlFor="reviewComment" className="form-label text-white">
+                Write a comment:
+              </label>
               <textarea
                 id="reviewComment"
                 className="form-control"
                 rows="3"
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Share your review..."
+                placeholder="Cảm nhận của bạn về bộ phim..."
               ></textarea>
             </div>
-            {/* Nút gửi và thông báo */}
             <div className="d-flex align-items-center">
-              {/* Giữ nguyên text tiếng Anh của bạn */}
-              <button 
-                type="submit" 
-                className="btn btn-warning" 
-                disabled={isLoading} 
+              <button
+                type="submit"
+                className="btn btn-warning"
+                disabled={isLoading}
               >
-                {isLoading ? 'Submiting...' : 'Submit Review'}
+                {isLoading ? "Submitting..." : "Submit Review"}
               </button>
-              
-              {/* Thông báo (lỗi hoặc thành công) */}
+
               {submitMessage && (
-                <div className={`ms-3 alert alert-${submitMessage.type} py-2 px-3 mb-0`}>
+                <div
+                  className={`ms-3 alert alert-${submitMessage.type} py-2 px-3 mb-0`}
+                >
                   {submitMessage.text}
                 </div>
               )}
@@ -320,21 +359,66 @@ export default function ReviewSection({ movieId }) {
         </div>
       )}
 
-      {/* Phần hiển thị danh sách reviews */}
+      {/* ✅ FILTERS */}
+      <div className="card-body border-bottom">
+        <div className="row g-3">
+          {/* Sort by date */}
+          <div className="col-md-6">
+            <label className="form-label text-white">Sort by:</label>
+            <select
+              className="form-select"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
+
+          {/* Filter by rating */}
+          <div className="col-md-6">
+            <label className="form-label text-white">Filter by rating:</label>
+            <select
+              className="form-select"
+              value={filterRating}
+              onChange={(e) => setFilterRating(e.target.value)}
+            >
+              <option value="all">All Ratings</option>
+              <option value="5">⭐⭐⭐⭐⭐ (5 stars)</option>
+              <option value="4">⭐⭐⭐⭐ (4 stars)</option>
+              <option value="3">⭐⭐⭐ (3 stars)</option>
+              <option value="2">⭐⭐ (2 stars)</option>
+              <option value="1">⭐ (1 star)</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Show filter results count */}
+        <div className="mt-2">
+          <small className="text-muted">
+            Showing {filteredReviews.length} of {reviews.length} reviews
+          </small>
+        </div>
+      </div>
+
+      {/* Reviews list */}
       <div className="card-body">
-        {/* Hiển thị loading */}
         {isLoading && reviews.length === 0 && (
           <div className="text-center">
-            <div className="spinner-border text-warning" role="status"> {/* Đổi sang màu vàng */}
+            <div className="spinner-border text-warning" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
           </div>
         )}
 
-        {/* Không có review */}
+        {!isLoading && filteredReviews.length === 0 && reviews.length > 0 && (
+          <p className="text-muted text-center">
+            No reviews match your filter criteria.
+          </p>
+        )}
+
         {!isLoading && reviews.length === 0 && (
-          // Giữ nguyên text tiếng Anh của bạn
-          <p className="text-muted text-center">No reviews and comments.</p>
+          <p className="text-muted text-center">No reviews and comments yet.</p>
         )}
 
         {/* Danh sách review */}
@@ -378,7 +462,7 @@ export default function ReviewSection({ movieId }) {
                          <TrashIcon 
                            className="me-1" 
                            style={{ width: '14px', height: '14px' }} 
-                          /> Delete 
+                          /> Delete {/* *** SỬA LỖI LOGIC 8: Dịch sang tiếng Anh *** */}
                        </button>
                   )}
                 </div>

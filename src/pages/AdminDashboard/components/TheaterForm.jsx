@@ -8,6 +8,7 @@ export default function TheaterForm({
   setEditTheater,
   setIsAddTheater,
   onSaved, // callback reload theaters list
+  editTheater,
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(theaterError);
@@ -21,9 +22,9 @@ export default function TheaterForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(theaterForm),
       });
-    //   console.log("status", res.status);
-    //   console.log("headers", [...res.headers.entries()]);
-    //   console.log("raw text:", await res.text());
+      //   console.log("status", res.status);
+      //   console.log("headers", [...res.headers.entries()]);
+      //   console.log("raw text:", await res.text());
       if (!res.ok) throw new Error("Failed to add theater");
       setIsAddTheater(false);
       setEditTheater(null);
@@ -39,8 +40,8 @@ export default function TheaterForm({
     setLoading(true);
     setError("");
     try {
-      // Giả sử theaterForm có trường id hoặc theater_id
-      const id = theaterForm.id || theaterForm.theater_id;
+      const id = editTheater?.theater_id || theaterForm.theater_id;
+      console.log("id", id);
       const res = await fetch(`http://127.0.0.1:8000/api/theaters/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -100,7 +101,7 @@ export default function TheaterForm({
             required
           >
             <option value="">Select a city</option>
-            <option value="HaNoi">Hanoi</option>
+            <option value="Hanoi">Hanoi</option>
             <option value="Ho Chi Minh City">Ho Chi Minh City</option>
             <option value="Da Nang">Da Nang</option>
           </select>

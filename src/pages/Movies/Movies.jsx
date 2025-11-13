@@ -11,8 +11,21 @@ function Movies() {
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Existing filters
   const [selectedGenre, setSelectedGenre] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+
+  // 🆕 New filters
+  const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [selectedRating, setSelectedRating] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+
+  const [genres, setGenres] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [languages, setLanguages] = useState([]);
+  const [isLoadingGenres, setIsLoadingGenres] = useState(true);
+  const [isLoadingCities, setIsLoadingCities] = useState(true);
 
   const banners = [
     { img: "banner1.jpg", title: "Banner 1" },
@@ -20,31 +33,83 @@ function Movies() {
     { img: "banner3.jpg", title: "Banner 3" },
   ];
 
-  // 🔍 Lấy query từ URL
+  // Fetch genres
+  useEffect(() => {
+    const fetchGenres = async () => {
+      setIsLoadingGenres(true);
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/genres");
+        const data = await res.json();
+        setGenres(data);
+      } catch (e) {
+        console.error("Error fetching genres:", e);
+      } finally {
+        setIsLoadingGenres(false);
+      }
+    };
+    fetchGenres();
+  }, []);
+
+  // Fetch cities
+  useEffect(() => {
+    const fetchCities = async () => {
+      setIsLoadingCities(true);
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/cities");
+        const data = await res.json();
+        setCities(data);
+      } catch (e) {
+        console.error("Error fetching cities:", e);
+      } finally {
+        setIsLoadingCities(false);
+      }
+    };
+    fetchCities();
+  }, []);
+
+  // 🆕 Languages (có thể tĩnh)
+// 🆕 Languages (từ DB + phổ biến)
+useEffect(() => {
+  setLanguages([
+    { code: "en", name: "English" },
+    { code: "es", name: "Spanish" },
+    { code: "fr", name: "French" },
+    { code: "hi", name: "Hindi" },
+    { code: "ml", name: "Malayalam" },
+    { code: "no", name: "Norwegian" },
+    { code: "pl", name: "Polish" },
+    { code: "th", name: "Thai" },
+    { code: "tl", name: "Tagalog" },
+    { code: "ja", name: "Japanese" },
+  ]);
+}, []);
+
+
+  // Get search query from URL
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setSearchTerm(params.get("search") || "");
   }, [location.search]);
 
-  // ✅ Lấy dữ liệu từ API
+  const formatMovieData = (movie) => ({
+    ...movie,
+    genres: movie.genres || [],
+    cities: (() => {
+      try {
+        return movie.cities ? JSON.parse(movie.cities) : [];
+      } catch {
+        return [];
+      }
+    })(),
+  });
+
   useEffect(() => {
     const fetchMovies = async () => {
       try {
         const res = await fetch("http://127.0.0.1:8000/api/movies");
         const data = await res.json();
+        const parsed = data.map(formatMovieData);
 
-        const parsed = data.map((movie) => ({
-          ...movie,
-          cities: (() => {
-            try {
-              return JSON.parse(movie.cities);
-            } catch {
-              return [];
-            }
-          })(),
-        }));
-
-        // ✅ 20 phim mới nhất là Now Showing
         const nowShowing = parsed.slice(-20);
         setMovies(nowShowing);
         setFilteredMovies(nowShowing);
@@ -55,45 +120,123 @@ function Movies() {
     fetchMovies();
   }, []);
 
-  // 🎯 Lọc
+  // ✅ FILTER LOGIC (đã thêm 3 điều kiện mới)
   useEffect(() => {
     let result = movies;
 
-    if (searchTerm)
+    if (searchTerm && searchTerm.trim().length >= 2) {
       result = result.filter((m) =>
         m.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
+    }
 
-    if (selectedGenre)
+    if (selectedGenre) {
       result = result.filter((m) =>
         m.genres.some((g) =>
           g.name.toLowerCase().includes(selectedGenre.toLowerCase())
         )
       );
+    }
 
-    if (selectedCity)
+    if (selectedCity) {
       result = result.filter((m) => m.cities.includes(selectedCity));
+    }
+
+    // 🆕 Language filter
+    if (selectedLanguage) {
+      result = result.filter(
+        (m) => m.original_language?.toLowerCase() === selectedLanguage.toLowerCase()
+      );
+    }
+
+    // 🆕 Rating filter
+    if (selectedRating) {
+      result = result.filter((m) => m.vote_average >= Number(selectedRating));
+    }
+
+    // 🆕 Date filter
+    if (selectedDate) {
+      const now = new Date();
+      result = result.filter((m) => {
+        const release = new Date(m.release_date);
+        switch (selectedDate) {
+          case "this-week":
+            const weekStart = new Date();
+            weekStart.setDate(now.getDate() - 7);
+            return release >= weekStart && release <= now;
+          case "this-month":
+            return (
+              release.getMonth() === now.getMonth() &&
+              release.getFullYear() === now.getFullYear()
+            );
+          case "next-month":
+            const nextMonth = new Date(now);
+            nextMonth.setMonth(now.getMonth() + 1);
+            return (
+              release.getMonth() === nextMonth.getMonth() &&
+              release.getFullYear() === nextMonth.getFullYear()
+            );
+          case "this-year":
+            return release.getFullYear() === now.getFullYear();
+          default:
+            return true;
+        }
+      });
+    }
 
     setFilteredMovies(result);
-  }, [searchTerm, selectedGenre, selectedCity, movies]);
+  }, [
+    searchTerm,
+    selectedGenre,
+    selectedCity,
+    selectedLanguage,
+    selectedRating,
+    selectedDate,
+    movies,
+  ]);
+
+  // ✅ Clear All
+  const handleClearFilters = () => {
+    setSelectedGenre("");
+    setSelectedCity("");
+    setSelectedLanguage("");
+    setSelectedRating("");
+    setSelectedDate("");
+  };
 
   return (
     <div className="movies-page-container bg-dark text-light min-vh-100">
-      <HeroBanner title="Now Showing" subtitle="Currently in cinemas" banners={banners} />
+      <HeroBanner
+        title="Now Showing"
+        subtitle="Currently in cinemas"
+        banners={banners}
+      />
 
       <div className="movies-controls container my-4">
         <SearchBar
-          placeholder="Search movies..."
+          placeholder="Search now showing movies or cast..."
           value={searchTerm}
           onChange={setSearchTerm}
         />
+
+        {/* 🆕 Đã truyền đầy đủ props */}
         <FilterPanel
-          genres={["Action", "Drama", "Fantasy", "Thriller", "Horror", "Comedy"]}
-          cities={["Hanoi", "Ho Chi Minh", "Da Nang"]}
+          genres={genres.map((g) => g.name)}
+          cities={cities}
+          languages={languages}
           selectedGenre={selectedGenre}
           selectedCity={selectedCity}
+          selectedLanguage={selectedLanguage}
+          selectedRating={selectedRating}
+          selectedDate={selectedDate}
           onGenreChange={setSelectedGenre}
           onCityChange={setSelectedCity}
+          onLanguageChange={setSelectedLanguage}
+          onRatingChange={setSelectedRating}
+          onDateChange={setSelectedDate}
+          onClearFilters={handleClearFilters}
+          isLoadingGenres={isLoadingGenres}
+          isLoadingCities={isLoadingCities}
         />
       </div>
 
@@ -104,14 +247,14 @@ function Movies() {
               <MovieCard
                 movie={{
                   title: movie.title,
-                  genre: movie.genres.map((g) => g.name).join(", "),
+                  genre: (movie.genres || []).map((g) => g.name).join(", "),
                   rating: movie.vote_average,
                   votes: movie.vote_count || 0,
                   img: movie.poster_path,
                   trailer_link: movie.trailer_link,
                   movie_id: movie.movie_id,
                   overview: movie.overview,
-                  cities: movie.cities,
+                  cities: movie.cities || [],
                 }}
               />
             </div>

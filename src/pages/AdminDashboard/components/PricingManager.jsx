@@ -341,7 +341,7 @@ const PricingTable = ({
   return (
     <div className="card shadow-sm mb-4">
       <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-        <h5 className="mb-0">{title}</h5>
+        <h5 className="mb-0 me-3">{title}</h5>
         <div>
           <button
             className="btn btn-sm btn-outline-info me-2"
@@ -399,7 +399,7 @@ const PricingTable = ({
                       ) : col.type === "number" &&
                         (col.accessor.includes("price") ||
                           col.accessor.includes("amount")) ? (
-                        `$${(parseFloat(row[col.accessor]) || 0).toFixed(2)}`
+                        `${(parseFloat(row[col.accessor]) || 0).toFixed(2)}`
                       ) : (
                         row[col.accessor]
                       )}
@@ -562,7 +562,7 @@ export default function PricingManager({
 
         {activeTab === "days" && (
           <PricingTable
-            title="Day-based Price Modifiers"
+            title="Day-based Price Modifiers    "
             data={dayModifiers}
             setData={setDayModifiers}
             endpoint="day-modifiers"
@@ -579,7 +579,7 @@ export default function PricingManager({
 
         {activeTab === "times" && (
           <PricingTable
-            title="Time Slot Price Modifiers"
+            title="Time Slot Price Modifiers    "
             data={timeSlots}
             setData={setTimeSlots}
             endpoint="time-slot-modifiers"

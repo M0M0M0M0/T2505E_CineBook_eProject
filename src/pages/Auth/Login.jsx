@@ -7,7 +7,7 @@ import { API_BASE_URL } from "../../api/config";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false); // ✅ Checkbox admin
+  const [isAdmin, setIsAdmin] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +25,6 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // ✅ Thêm query parameter ?type=admin nếu checkbox được chọn
       const loginUrl = isAdmin
         ? `${API_BASE_URL}/login?type=admin`
         : `${API_BASE_URL}/login`;
@@ -35,18 +34,33 @@ export default function Login() {
         password,
       });
 
+      console.log("✅ Login response:", res.data);
+
       // Lưu token
       localStorage.setItem("token", res.data.access_token);
 
-      // Lưu user nếu backend trả về
+      // ✅ XỬ LÝ ĐÚNG CHO CẢ ADMIN VÀ CUSTOMER
       if (res.data.user) {
         localStorage.setItem("user", JSON.stringify(res.data.user));
+
+        // ✅ ADMIN: Dùng staff_id, CUSTOMER: Dùng user_id
+        const userId = res.data.user.staff_id || res.data.user.user_id;
+        localStorage.setItem("user_id", userId);
+
+        // ✅ Lưu user_type
+        localStorage.setItem("user_type", res.data.user.user_type);
+
+        console.log("✅ Saved user info:", {
+          user_id: userId,
+          user_type: res.data.user.user_type,
+          is_admin: res.data.user.user_type === "staff",
+        });
       }
 
-      // ✅ Dispatch event login để Header update ngay
+      // Dispatch event login để Header update ngay
       window.dispatchEvent(new Event("login"));
 
-      // ✅ Chuyển trang: Admin đi vào dashboard, user về home
+      // Chuyển trang
       if (isAdmin && res.data.user.user_type === "staff") {
         navigate("/admin");
       } else {
@@ -64,7 +78,6 @@ export default function Login() {
       setLoading(false);
     }
   };
-
   return (
     <div className="auth-container">
       <div className="auth-card">
@@ -102,7 +115,6 @@ export default function Login() {
             />
           </div>
 
-          {/* ✅ CHECKBOX LOGIN AS ADMIN */}
           <div className="form-check mb-3">
             <input
               type="checkbox"
