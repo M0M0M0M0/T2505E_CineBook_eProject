@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
+import { FaBell } from "react-icons/fa";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -308,7 +309,7 @@ export default function Header() {
                   position: "relative",
                 }}
               >
-                Notify
+                <FaBell size={20} />
                 {/* ✅ Hiển thị badge CHỈ KHI có thông báo chưa đọc */}
                 {unreadCount > 0 && (
                   <span
