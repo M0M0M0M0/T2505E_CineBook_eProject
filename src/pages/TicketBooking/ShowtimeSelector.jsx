@@ -207,7 +207,7 @@ export default function ShowtimeSelector({ onSelectShowtime }) {
         }}
       >
         <h5 style={{ marginBottom: "15px", color: "#f90" }}>
-          🏙️ Bước 1: Chọn Thành Phố
+          🏙️ Step 1: Choose City
         </h5>
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
           {cities.map((city) => (
@@ -257,7 +257,7 @@ export default function ShowtimeSelector({ onSelectShowtime }) {
           }}
         >
           <h5 style={{ marginBottom: "15px", color: "#f90" }}>
-            🏢 Bước 2: Chọn Rạp Phim
+            🏢 Step 2: Choose Theater
           </h5>
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
             {theaters.map((theater) => (
@@ -310,7 +310,7 @@ export default function ShowtimeSelector({ onSelectShowtime }) {
           }}
         >
           <h5 style={{ marginBottom: "15px", color: "#f90" }}>
-            📅 Bước 3: Chọn Ngày Chiếu
+            📅 Step 3: Choose Date
           </h5>
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
             {dates.map((date) => {
@@ -374,7 +374,7 @@ export default function ShowtimeSelector({ onSelectShowtime }) {
           }}
         >
           <h5 style={{ marginBottom: "15px", color: "#f90" }}>
-            🎫 Bước 4: Chọn Suất Chiếu
+            🎫 Step 4: Choose Showtime
           </h5>
 
           {filteredTheaters.length === 0 ? (
@@ -386,7 +386,7 @@ export default function ShowtimeSelector({ onSelectShowtime }) {
               }}
             >
               <p style={{ fontSize: "18px", marginBottom: "10px" }}>😔</p>
-              <p>Không có suất chiếu phù hợp</p>
+              <p>No showtimes available for this date.</p>
             </div>
           ) : (
             filteredTheaters.map((theater) => (
@@ -452,7 +452,9 @@ export default function ShowtimeSelector({ onSelectShowtime }) {
                             : "#1a1a1a",
                         border: "2px solid",
                         borderColor:
-                          showtime.status === "Available" ? "#4CAF50" : "#333",
+                          showtime.status === "Available"
+                            ? "rgb(255, 153, 0)"
+                            : "#333",
                         borderRadius: "10px",
                         color:
                           showtime.status === "Available" ? "#fff" : "#555",
@@ -466,17 +468,19 @@ export default function ShowtimeSelector({ onSelectShowtime }) {
                       }}
                       onMouseOver={(e) => {
                         if (showtime.status === "Available") {
-                          e.currentTarget.style.background = "#4CAF50";
-                          e.currentTarget.style.borderColor = "#4CAF50";
+                          e.currentTarget.style.background = "#2a2a2a";
+                          e.currentTarget.style.borderColor =
+                            "rgb(255, 153, 0)";
                           e.currentTarget.style.transform = "translateY(-3px)";
                           e.currentTarget.style.boxShadow =
-                            "0 4px 12px rgba(76, 175, 80, 0.4)";
+                            "0 4px 12px rgb(255, 153, 0)";
                         }
                       }}
                       onMouseOut={(e) => {
                         if (showtime.status === "Available") {
                           e.currentTarget.style.background = "#2a2a2a";
-                          e.currentTarget.style.borderColor = "#4CAF50";
+                          e.currentTarget.style.borderColor =
+                            "rgb(255, 153, 0)";
                           e.currentTarget.style.transform = "translateY(0)";
                           e.currentTarget.style.boxShadow = "none";
                         }
@@ -489,33 +493,9 @@ export default function ShowtimeSelector({ onSelectShowtime }) {
                           marginBottom: "5px",
                         }}
                       >
-                        ⏰ {showtime.start_time}
+                        {showtime.start_time}
                       </div>
-                      <div
-                        style={{
-                          fontSize: "13px",
-                          marginBottom: "5px",
-                          opacity: 0.8,
-                        }}
-                      >
-                        📺 {showtime.room_name}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "15px",
-                          fontWeight: "bold",
-                          marginTop: "8px",
-                          color:
-                            showtime.status === "Available"
-                              ? "#4CAF50"
-                              : "#555",
-                        }}
-                      >
-                        {new Intl.NumberFormat("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                        }).format(showtime.base_price)}
-                      </div>
+
                       {showtime.status !== "Available" && (
                         <div
                           style={{

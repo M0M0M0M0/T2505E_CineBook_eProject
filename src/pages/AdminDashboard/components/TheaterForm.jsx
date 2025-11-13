@@ -21,9 +21,9 @@ export default function TheaterForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(theaterForm),
       });
-    //   console.log("status", res.status);
-    //   console.log("headers", [...res.headers.entries()]);
-    //   console.log("raw text:", await res.text());
+      //   console.log("status", res.status);
+      //   console.log("headers", [...res.headers.entries()]);
+      //   console.log("raw text:", await res.text());
       if (!res.ok) throw new Error("Failed to add theater");
       setIsAddTheater(false);
       setEditTheater(null);
@@ -100,7 +100,7 @@ export default function TheaterForm({
             required
           >
             <option value="">Select a city</option>
-            <option value="HaNoi">Hanoi</option>
+            <option value="Hanoi">Hanoi</option>
             <option value="Ho Chi Minh City">Ho Chi Minh City</option>
             <option value="Da Nang">Da Nang</option>
           </select>
