@@ -137,7 +137,7 @@ export default function ShowtimeForm({
       movie_id: form.movie_id,
       room_id: form.room_id,
       start_time: startDateTime, // "2025-12-25T14:30:00"
-      base_price: form.price,
+      price: form.price,
       status: form.status,
     };
 
