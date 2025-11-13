@@ -295,7 +295,7 @@ export default function ReviewSection({ movieId }) {
                 rows="3"
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Cảm nhận của bạn về bộ phim..."
+                placeholder="Share your review..."
               ></textarea>
             </div>
             {/* Nút gửi và thông báo */}
@@ -378,7 +378,7 @@ export default function ReviewSection({ movieId }) {
                          <TrashIcon 
                            className="me-1" 
                            style={{ width: '14px', height: '14px' }} 
-                          /> Delete {/* *** SỬA LỖI LOGIC 8: Dịch sang tiếng Anh *** */}
+                          /> Delete 
                        </button>
                   )}
                 </div>
