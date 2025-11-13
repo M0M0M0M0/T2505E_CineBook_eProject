@@ -11,10 +11,19 @@ function Movies() {
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Existing filters
   const [selectedGenre, setSelectedGenre] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+
+  // 🆕 New filters
+  const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [selectedRating, setSelectedRating] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+
   const [genres, setGenres] = useState([]);
   const [cities, setCities] = useState([]);
+  const [languages, setLanguages] = useState([]);
   const [isLoadingGenres, setIsLoadingGenres] = useState(true);
   const [isLoadingCities, setIsLoadingCities] = useState(true);
 
@@ -58,13 +67,30 @@ function Movies() {
     fetchCities();
   }, []);
 
+  // 🆕 Languages (có thể tĩnh)
+// 🆕 Languages (từ DB + phổ biến)
+useEffect(() => {
+  setLanguages([
+    { code: "en", name: "English" },
+    { code: "es", name: "Spanish" },
+    { code: "fr", name: "French" },
+    { code: "hi", name: "Hindi" },
+    { code: "ml", name: "Malayalam" },
+    { code: "no", name: "Norwegian" },
+    { code: "pl", name: "Polish" },
+    { code: "th", name: "Thai" },
+    { code: "tl", name: "Tagalog" },
+    { code: "ja", name: "Japanese" },
+  ]);
+}, []);
+
+
   // Get search query from URL
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setSearchTerm(params.get("search") || "");
   }, [location.search]);
 
-  // Format movie data
   const formatMovieData = (movie) => ({
     ...movie,
     genres: movie.genres || [],
@@ -77,7 +103,6 @@ function Movies() {
     })(),
   });
 
-  // Fetch movies - Now Showing only (20 phim mới nhất)
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -85,7 +110,6 @@ function Movies() {
         const data = await res.json();
         const parsed = data.map(formatMovieData);
 
-        // ✅ Chỉ lấy 20 phim mới nhất (Now Showing)
         const nowShowing = parsed.slice(-20);
         setMovies(nowShowing);
         setFilteredMovies(nowShowing);
@@ -96,7 +120,7 @@ function Movies() {
     fetchMovies();
   }, []);
 
-  // ✅ Filter logic - chỉ search trong movies của Now Showing
+  // ✅ FILTER LOGIC (đã thêm 3 điều kiện mới)
   useEffect(() => {
     let result = movies;
 
@@ -118,25 +142,66 @@ function Movies() {
       result = result.filter((m) => m.cities.includes(selectedCity));
     }
 
-    setFilteredMovies(result);
-  }, [searchTerm, selectedGenre, selectedCity, movies]);
-
-  // ✅ Handle search results from SearchBar (chỉ lấy movies trong Now Showing)
-  const handleSearchResults = (searchResults) => {
-    if (searchResults === null) {
-      // Reset
-      setFilteredMovies(movies);
-    } else if (searchResults.length === 0) {
-      setFilteredMovies([]);
-    } else {
-      // ✅ Chỉ lấy movies có trong danh sách Now Showing
-      const nowShowingIds = new Set(movies.map((m) => m.movie_id));
-      const filtered = searchResults
-        .filter((movie) => nowShowingIds.has(movie.movie_id))
-        .map(formatMovieData);
-
-      setFilteredMovies(filtered);
+    // 🆕 Language filter
+    if (selectedLanguage) {
+      result = result.filter(
+        (m) => m.original_language?.toLowerCase() === selectedLanguage.toLowerCase()
+      );
     }
+
+    // 🆕 Rating filter
+    if (selectedRating) {
+      result = result.filter((m) => m.vote_average >= Number(selectedRating));
+    }
+
+    // 🆕 Date filter
+    if (selectedDate) {
+      const now = new Date();
+      result = result.filter((m) => {
+        const release = new Date(m.release_date);
+        switch (selectedDate) {
+          case "this-week":
+            const weekStart = new Date();
+            weekStart.setDate(now.getDate() - 7);
+            return release >= weekStart && release <= now;
+          case "this-month":
+            return (
+              release.getMonth() === now.getMonth() &&
+              release.getFullYear() === now.getFullYear()
+            );
+          case "next-month":
+            const nextMonth = new Date(now);
+            nextMonth.setMonth(now.getMonth() + 1);
+            return (
+              release.getMonth() === nextMonth.getMonth() &&
+              release.getFullYear() === nextMonth.getFullYear()
+            );
+          case "this-year":
+            return release.getFullYear() === now.getFullYear();
+          default:
+            return true;
+        }
+      });
+    }
+
+    setFilteredMovies(result);
+  }, [
+    searchTerm,
+    selectedGenre,
+    selectedCity,
+    selectedLanguage,
+    selectedRating,
+    selectedDate,
+    movies,
+  ]);
+
+  // ✅ Clear All
+  const handleClearFilters = () => {
+    setSelectedGenre("");
+    setSelectedCity("");
+    setSelectedLanguage("");
+    setSelectedRating("");
+    setSelectedDate("");
   };
 
   return (
@@ -152,31 +217,28 @@ function Movies() {
           placeholder="Search now showing movies or cast..."
           value={searchTerm}
           onChange={setSearchTerm}
-          onSearchResults={handleSearchResults}
         />
+
+        {/* 🆕 Đã truyền đầy đủ props */}
         <FilterPanel
           genres={genres.map((g) => g.name)}
           cities={cities}
+          languages={languages}
           selectedGenre={selectedGenre}
           selectedCity={selectedCity}
+          selectedLanguage={selectedLanguage}
+          selectedRating={selectedRating}
+          selectedDate={selectedDate}
           onGenreChange={setSelectedGenre}
           onCityChange={setSelectedCity}
+          onLanguageChange={setSelectedLanguage}
+          onRatingChange={setSelectedRating}
+          onDateChange={setSelectedDate}
+          onClearFilters={handleClearFilters}
           isLoadingGenres={isLoadingGenres}
           isLoadingCities={isLoadingCities}
         />
       </div>
-
-      {/* ✅ Hiển thị số lượng kết quả khi search */}
-      {searchTerm && searchTerm.trim().length >= 2 && (
-        <div className="container mb-3">
-          <p className="text-secondary">
-            Found{" "}
-            <strong className="text-warning">{filteredMovies.length}</strong>{" "}
-            result{filteredMovies.length !== 1 ? "s" : ""} for "{searchTerm}" in
-            Now Showing
-          </p>
-        </div>
-      )}
 
       <div className="movies-list container pb-5">
         <div className="movie-grid-container">
