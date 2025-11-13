@@ -1,25 +1,19 @@
 import React, { useEffect, useState } from "react";
 
-export default function UserTable({
-  usersList,
-  usersSetList,
-  userSearch,
-  userSetSearch,
-  userFilterStatus,
-  userSetFilterStatus,
-  userSetSelected,
-  userSetEditing,
-}) {
-  const [autoRefresh, setAutoRefresh] = useState(true);
+export default function UserTable() {
+  const [usersList, setUsersList] = useState([]);
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [editedUsers, setEditedUsers] = useState({}); // store temporary edits
 
-  // --- Fetch users from backend ---
+  // Fetch all users
   const fetchUsers = async () => {
     try {
       const res = await fetch("http://127.0.0.1:8000/api/users");
       const data = await res.json();
-      usersSetList(data);
+      setUsersList(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("❌ Failed to load users:", err);
+      console.error("Failed to load users:", err);
     }
   };
 
@@ -27,225 +21,232 @@ export default function UserTable({
     fetchUsers();
   }, []);
 
-  // Optional: auto-refresh every 5 seconds
-  useEffect(() => {
-    if (!autoRefresh) return;
-    const interval = setInterval(fetchUsers, 5000);
-    return () => clearInterval(interval);
-  }, [autoRefresh]);
-
-  // --- Export CSV ---
-  const handleExportExcel = () => {
-    const headers = [
-      "ID",
-      "Họ tên",
-      "Email",
-      "Điện thoại",
-      "Địa chỉ",
-      "Ngày sinh",
-      "Trạng thái",
-      "Ngày tạo",
-    ];
-    const rows = usersList.map((u) => [
-      u.web_user_id,
-      u.full_name,
-      u.email,
-      u.phone_number,
-      u.address,
-      u.date_of_birth,
-      u.status,
-      new Date(u.created_at).toLocaleDateString("vi-VN"),
-    ]);
-    const csv =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-    const link = document.createElement("a");
-    link.href = encodeURI(csv);
-    link.download = "users_report.csv";
-    link.click();
+  // Handle local field change
+  const handleLocalChange = (id, field, value) => {
+    setEditedUsers((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value },
+    }));
   };
 
-  // --- Toggle user status ---
-  const handleToggleStatus = async (user) => {
+  // Save changes to backend
+  const handleSave = async (id) => {
+    const changes = editedUsers[id];
+    if (!changes) return;
+
+    setSaving(true);
     try {
-      await fetch(`http://127.0.0.1:8000/api/users/${user.web_user_id}/toggle`, {
-        method: "PATCH",
+      const res = await fetch(`http://127.0.0.1:8000/api/users/${id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(changes),
       });
-      usersSetList(
-        usersList.map((u) =>
-          u.web_user_id === user.web_user_id
-            ? {
-                ...u,
-                status: u.status === "active" ? "locked" : "active",
-              }
-            : u
+
+      if (!res.ok) throw new Error("Failed to update user");
+      const data = await res.json();
+
+      // update in table
+      setUsersList((prev) =>
+        prev.map((u) =>
+          u.web_user_id === id ? { ...u, ...data.user } : u
         )
       );
+
+      // clear temporary edits
+      setEditedUsers((prev) => {
+        const copy = { ...prev };
+        delete copy[id];
+        return copy;
+      });
+
+      alert("✅ Thông tin người dùng đã được cập nhật thành công!");
     } catch (err) {
-      console.error("❌ Failed to toggle user status:", err);
-      alert("Không thể cập nhật trạng thái người dùng.");
+      console.error(err);
+      alert("❌ Cập nhật thất bại!");
+    } finally {
+      setSaving(false);
     }
   };
 
-  // --- Delete user ---
-  const handleDeleteUser = async (user) => {
-    if (!window.confirm(`Bạn có chắc muốn xóa ${user.full_name}?`)) return;
-
+  // Delete user
+  const handleDelete = async (id) => {
+    if (!window.confirm("Bạn có chắc muốn xóa người dùng này không?")) return;
     try {
-      const res = await fetch(
-        `http://127.0.0.1:8000/api/users/${user.web_user_id}`,
-        { method: "DELETE" }
-      );
-
-      if (!res.ok) throw new Error("Failed to delete user");
-
-      usersSetList(usersList.filter((u) => u.web_user_id !== user.web_user_id));
-      alert("✅ Xóa người dùng thành công!");
+      await fetch(`http://127.0.0.1:8000/api/users/${id}`, { method: "DELETE" });
+      setUsersList(usersList.filter((u) => u.web_user_id !== id));
     } catch (err) {
-      console.error("❌ Delete user failed:", err);
-      alert("Không thể xóa người dùng.");
+      console.error(err);
     }
   };
 
-  // --- Filter + Search ---
+  // Filter by search
   const filteredUsers = usersList.filter(
     (u) =>
-      (userFilterStatus === "all" || u.status === userFilterStatus) &&
-      (u.full_name.toLowerCase().includes(userSearch.toLowerCase()) ||
-        u.email.toLowerCase().includes(userSearch.toLowerCase()))
+      u.full_name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="bg-white rounded shadow-sm p-4">
-      {/* --- HEADER --- */}
+    <div className="card p-4 mt-4 shadow-sm">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="fw-bold mb-0 text-dark">Quản lý người dùng</h5>
-        <div className="d-flex gap-2">
-          <button
-            className="btn btn-outline-success btn-sm"
-            onClick={handleExportExcel}
-          >
-            Xuất Excel
-          </button>
-          <button
-            className={`btn btn-sm ${
-              autoRefresh ? "btn-outline-danger" : "btn-outline-primary"
-            }`}
-            onClick={() => setAutoRefresh(!autoRefresh)}
-          >
-            {autoRefresh ? "Tắt làm mới" : "Bật làm mới"}
-          </button>
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            onClick={fetchUsers}
-          >
-            Làm mới
-          </button>
-        </div>
-      </div>
 
-      {/* --- SEARCH & FILTER --- */}
-      <div className="d-flex align-items-center gap-3 mb-4">
         <input
           type="text"
-          className="form-control"
-          style={{ maxWidth: 300 }}
-          placeholder="Tìm kiếm theo tên hoặc email..."
-          value={userSearch}
-          onChange={(e) => userSetSearch(e.target.value)}
+          className="form-control w-25"
+          placeholder="Tìm kiếm theo tên hoặc email"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
-        <select
-          className="form-select w-auto"
-          value={userFilterStatus}
-          onChange={(e) => userSetFilterStatus(e.target.value)}
-        >
-          <option value="all">Tất cả</option>
-          <option value="active">Đang hoạt động</option>
-          <option value="locked">Đã khóa</option>
-        </select>
       </div>
 
-      {/* --- TABLE --- */}
-      <table className="table table-bordered align-middle text-center">
-        <thead className="table-light">
-          <tr>
-            <th>ID</th>
-            <th>Họ tên</th>
-            <th>Email</th>
-            <th>Điện thoại</th>
-            <th>Địa chỉ</th>
-            <th>Ngày sinh</th>
-            <th>Ngày tạo</th>
-            <th>Trạng thái</th>
-            <th>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((u) => (
-              <tr key={u.web_user_id}>
-                <td>{u.web_user_id}</td>
-                <td>{u.full_name}</td>
-                <td>{u.email}</td>
-                <td>{u.phone_number}</td>
-                <td>{u.address}</td>
-                <td>{u.date_of_birth}</td>
-                <td>{new Date(u.created_at).toLocaleDateString("vi-VN")}</td>
-                <td>
-                  <span
-                    className={`badge ${
-                      u.status === "active" ? "bg-success" : "bg-secondary"
-                    }`}
-                  >
-                    {u.status === "active" ? "Hoạt động" : "Đã khóa"}
-                  </span>
-                </td>
-                <td>
-                  <button
-                    className="btn btn-sm btn-outline-primary me-2"
-                    onClick={() => userSetSelected(u)}
-                  >
-                    Xem
-                  </button>
-                  <button
-                    className="btn btn-sm btn-outline-warning me-2"
-                    onClick={() => {
-                      userSetSelected(u);
-                      userSetEditing(true);
-                    }}
-                  >
-                    Sửa
-                  </button>
-                  <button
-                    className={`btn btn-sm ${
-                      u.status === "active"
-                        ? "btn-outline-danger"
-                        : "btn-outline-success"
-                    } me-2`}
-                    onClick={() => handleToggleStatus(u)}
-                  >
-                    {u.status === "active" ? "Khóa" : "Mở khóa"}
-                  </button>
-                  <button
-                    className="btn btn-sm btn-outline-danger"
-                    onClick={() => handleDeleteUser(u)}
-                  >
-                    Xóa
-                  </button>
+      <div className="table-responsive">
+        <table className="table table-striped align-middle">
+          <thead className="table-dark">
+            <tr>
+              <th>Họ tên</th>
+              <th>Email</th>
+              <th>Số điện thoại</th>
+              <th>Địa chỉ</th>
+              <th>Ngày sinh</th>
+              <th>Mật khẩu mới</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredUsers.length > 0 ? (
+              filteredUsers.map((user) => {
+                const edits = editedUsers[user.web_user_id] || {};
+                return (
+                  <tr key={user.web_user_id}>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={
+                          edits.full_name ?? user.full_name ?? ""
+                        }
+                        onChange={(e) =>
+                          handleLocalChange(
+                            user.web_user_id,
+                            "full_name",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="email"
+                        className="form-control"
+                        value={edits.email ?? user.email ?? ""}
+                        onChange={(e) =>
+                          handleLocalChange(
+                            user.web_user_id,
+                            "email",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={
+                          edits.phone_number ?? user.phone_number ?? ""
+                        }
+                        onChange={(e) =>
+                          handleLocalChange(
+                            user.web_user_id,
+                            "phone_number",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={edits.address ?? user.address ?? ""}
+                        onChange={(e) =>
+                          handleLocalChange(
+                            user.web_user_id,
+                            "address",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="date"
+                        className="form-control"
+                        value={
+                          edits.date_of_birth ??
+                          (user.date_of_birth
+                            ? user.date_of_birth.slice(0, 10)
+                            : "")
+                        }
+                        onChange={(e) =>
+                          handleLocalChange(
+                            user.web_user_id,
+                            "date_of_birth",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="password"
+                        className="form-control"
+                        placeholder="Nhập mật khẩu mới"
+                        value={edits.password ?? ""}
+                        onChange={(e) =>
+                          handleLocalChange(
+                            user.web_user_id,
+                            "password",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <div className="d-flex gap-2">
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => handleDelete(user.web_user_id)}
+                        >
+                          Xóa
+                        </button>
+                        {editedUsers[user.web_user_id] && (
+                          <button
+                            className="btn btn-sm btn-success"
+                            onClick={() => handleSave(user.web_user_id)}
+                            disabled={saving}
+                          >
+                            {saving ? "Đang lưu..." : "Lưu"}
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan="7" className="text-center">
+                  Không có người dùng nào
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="9" className="text-center text-muted">
-                Không tìm thấy người dùng nào
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
+
 
