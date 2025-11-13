@@ -39,11 +39,22 @@ export default function Login() {
       // Lưu token
       localStorage.setItem("token", res.data.access_token);
 
-      // ✅ Lưu user và user_id
+      // ✅ XỬ LÝ ĐÚNG CHO CẢ ADMIN VÀ CUSTOMER
       if (res.data.user) {
         localStorage.setItem("user", JSON.stringify(res.data.user));
-        localStorage.setItem("user_id", res.data.user.user_id); // ✅ THÊM DÒNG NÀY
-        console.log("✅ Saved user_id:", res.data.user.user_id);
+
+        // ✅ ADMIN: Dùng staff_id, CUSTOMER: Dùng user_id
+        const userId = res.data.user.staff_id || res.data.user.user_id;
+        localStorage.setItem("user_id", userId);
+
+        // ✅ Lưu user_type
+        localStorage.setItem("user_type", res.data.user.user_type);
+
+        console.log("✅ Saved user info:", {
+          user_id: userId,
+          user_type: res.data.user.user_type,
+          is_admin: res.data.user.user_type === "staff",
+        });
       }
 
       // Dispatch event login để Header update ngay
@@ -67,7 +78,6 @@ export default function Login() {
       setLoading(false);
     }
   };
-
   return (
     <div className="auth-container">
       <div className="auth-card">
