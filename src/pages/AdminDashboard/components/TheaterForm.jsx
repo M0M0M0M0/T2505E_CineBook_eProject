@@ -8,6 +8,7 @@ export default function TheaterForm({
   setEditTheater,
   setIsAddTheater,
   onSaved, // callback reload theaters list
+  editTheater,
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(theaterError);
@@ -39,8 +40,8 @@ export default function TheaterForm({
     setLoading(true);
     setError("");
     try {
-      // Giả sử theaterForm có trường id hoặc theater_id
-      const id = theaterForm.id || theaterForm.theater_id;
+      const id = editTheater?.theater_id || theaterForm.theater_id;
+      console.log("id", id);
       const res = await fetch(`http://127.0.0.1:8000/api/theaters/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
