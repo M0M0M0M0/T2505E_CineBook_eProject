@@ -101,6 +101,17 @@ export default function ReviewSection({ movieId }) {
   const currentUserId = localStorage.getItem("user_id");
   const userType = localStorage.getItem("user_type"); // 'staff' hoặc 'web_user'
   const isAdmin = userType === "staff" || userType === "admin";
+  const getUserData = () => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return null;
+    try {
+      return JSON.parse(userStr);
+    } catch (e) {
+      console.error("Error parsing user data:", e);
+      return null;
+    }
+  };
+  const userData = getUserData();
 
   // State
   const [reviews, setReviews] = useState([]);
@@ -418,11 +429,17 @@ export default function ReviewSection({ movieId }) {
                   {/* User avatar */}
                   <div className="flex-shrink-0 me-3">
                     <div
-                      className="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center"
+                      className={`text-white rounded-circle d-flex align-items-center justify-content-center ${
+                        review.user_type === "staff"
+                          ? "bg-danger"
+                          : "bg-secondary"
+                      }`}
                       style={{ width: "40px", height: "40px" }}
                     >
                       {review.user?.full_name
                         ? review.user.full_name.charAt(0).toUpperCase()
+                        : review.user_type === "staff"
+                        ? "A"
                         : "U"}
                     </div>
                   </div>
@@ -431,8 +448,18 @@ export default function ReviewSection({ movieId }) {
                   <div className="flex-grow-1">
                     <div className="d-flex justify-content-between align-items-start">
                       <div>
-                        <h6 className="mb-0">
-                          {review.user?.full_name || "Anonymous User"}
+                        <h6 className="mb-0 d-flex align-items-center gap-2">
+                          {/* ✅ Sửa logic hiển thị tên */}
+                          {review.user?.full_name ||
+                            (review.staff_id ? "Admin" : "Anonymous User")}
+
+                          {/* ✅ Sửa logic badge - kiểm tra cả staff_id */}
+                          {(review.user_type === "staff" ||
+                            review.staff_id) && (
+                            <span className="badge bg-danger text-white">
+                              Admin
+                            </span>
+                          )}
                         </h6>
                         <small className="text-muted">
                           {format(
@@ -442,8 +469,10 @@ export default function ReviewSection({ movieId }) {
                         </small>
                       </div>
 
-                      {/* ✅ Delete button - show for owner OR admin */}
-                      {(currentUserId == review.web_user_id || isAdmin) && (
+                      {/* Delete button - show for owner OR admin */}
+                      {(currentUserId == review.web_user_id ||
+                        (review.staff_id && currentUserId == review.staff_id) ||
+                        isAdmin) && (
                         <button
                           className="btn btn-sm btn-outline-danger d-inline-flex align-items-center"
                           onClick={() => confirmDelete(review.id)}
