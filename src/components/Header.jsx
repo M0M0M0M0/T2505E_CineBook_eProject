@@ -7,19 +7,19 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const mobileRef = useRef(null);
   const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState(false);
 
-  // Load user từ localStorage khi mount và lắng nghe event login
+  // Load user from localStorage and watch for login event
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const userData = JSON.parse(storedUser);
       setUser(userData);
-
-      // ✅ Chỉ cần kiểm tra user_type
       setIsAdmin(userData.user_type === "staff");
     }
 
@@ -35,7 +35,8 @@ export default function Header() {
     window.addEventListener("login", handleLogin);
     return () => window.removeEventListener("login", handleLogin);
   }, []);
-  // Đóng menu khi click ngoài
+
+  // Close mobile nav when clicking outside
   useEffect(() => {
     function onDocClick(e) {
       if (
@@ -70,6 +71,48 @@ export default function Header() {
     setUser(null);
     navigate("/");
   }
+
+  // Fetch notifications (for USER only)
+  useEffect(() => {
+    if (!user) return;
+
+    const token = localStorage.getItem("token");
+    fetch("http://127.0.0.1:8000/api/notifications", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    })
+
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setNotifications(data);
+        else console.warn("Unexpected notification data:", data);
+      })
+      .catch((err) => console.error("Error fetching notifications:", err));
+  }, [user]);
+
+  // Auto-fetch notifications every 30 seconds
+useEffect(() => {
+  if (!user || user.user_type !== "customer") return;
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/api/notifications`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      if (!res.ok) throw new Error("Failed to fetch notifications");
+      const data = await res.json();
+      setNotifications(data || []);
+    } catch (err) {
+      console.error("Notification fetch failed:", err);
+    }
+  };
+
+  fetchNotifications(); // initial load
+  const interval = setInterval(fetchNotifications, 30000); // 30 seconds
+  return () => clearInterval(interval);
+}, [user]);
 
   return (
     <header className="header-cb">
@@ -186,6 +229,7 @@ export default function Header() {
                 Profile & Tickets
               </Link>
             </li>
+
             {isAdmin && (
               <li className="nav-item-cb">
                 <Link to="/admin" className="nav-link-cb">
@@ -198,6 +242,74 @@ export default function Header() {
 
         {/* ===== Right Actions ===== */}
         <div className="header-cb-actions">
+          {/* Notification bell for USER role */}
+          {user && user.user_type === "customer" && (
+  <div className="position-relative me-3">
+    <button
+      onClick={() => setShowDropdown((prev) => !prev)}
+      style={{
+        background: "none",
+        border: "none",
+        color: "white",
+        fontWeight: "600",
+        cursor: "pointer",
+        position: "relative",
+      }}
+    >
+      Notify
+      {notifications.length > 0 && (
+        <span
+          style={{
+            position: "absolute",
+            top: "-6px",
+            right: "-14px",
+            backgroundColor: "red",
+            borderRadius: "50%",
+            color: "white",
+            fontSize: "0.65rem",
+            padding: "2px 6px",
+          }}
+        >
+          {notifications.length}
+        </span>
+      )}
+    </button>
+
+    {showDropdown && (
+      <div
+        className="dropdown-menu show p-2"
+        style={{
+          right: 0,
+          left: "auto",
+          minWidth: "260px",
+          backgroundColor: "#222",
+          color: "white",
+          borderRadius: "8px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+          position: "absolute",
+          top: "120%",
+          zIndex: 9999,
+        }}
+      >
+        <h6 className="dropdown-header text-white">Notifications</h6>
+        {notifications.length === 0 ? (
+          <div className="text-center text-muted small">
+            No new notifications
+          </div>
+        ) : (
+          notifications.map((n) => (
+            <div key={n.id} className="dropdown-item text-white small">
+              {n.message}
+            </div>
+          ))
+        )}
+      </div>
+    )}
+  </div>
+)}
+
+
+
           {/* Auth / User */}
           <div className="auth-links-cb">
             {user ? (
@@ -275,3 +387,4 @@ export default function Header() {
     </header>
   );
 }
+
