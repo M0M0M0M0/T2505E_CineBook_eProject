@@ -14,27 +14,27 @@ export default function Header() {
 
   // Load user từ localStorage khi mount và lắng nghe event login
   useEffect(() => {
-  const storedUser = localStorage.getItem("user");
-  if (storedUser) {
-    const userData = JSON.parse(storedUser);
-    setUser(userData);
-
-    // ✅ Chỉ cần kiểm tra user_type
-    setIsAdmin(userData.user_type === "staff");
-  }
-
-  const handleLogin = () => {
-    const updatedUser = localStorage.getItem("user");
-    if (updatedUser) {
-      const userData = JSON.parse(updatedUser);
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const userData = JSON.parse(storedUser);
       setUser(userData);
+
+      // ✅ Chỉ cần kiểm tra user_type
       setIsAdmin(userData.user_type === "staff");
     }
-  };
 
-  window.addEventListener("login", handleLogin);
-  return () => window.removeEventListener("login", handleLogin);
-}, []);
+    const handleLogin = () => {
+      const updatedUser = localStorage.getItem("user");
+      if (updatedUser) {
+        const userData = JSON.parse(updatedUser);
+        setUser(userData);
+        setIsAdmin(userData.user_type === "staff");
+      }
+    };
+
+    window.addEventListener("login", handleLogin);
+    return () => window.removeEventListener("login", handleLogin);
+  }, []);
   // Đóng menu khi click ngoài
   useEffect(() => {
     function onDocClick(e) {
@@ -183,7 +183,7 @@ export default function Header() {
 
             <li className="nav-item-cb">
               <Link to="/profile" className="nav-link-cb">
-                Profile
+                Profile & Tickets
               </Link>
             </li>
             {isAdmin && (
