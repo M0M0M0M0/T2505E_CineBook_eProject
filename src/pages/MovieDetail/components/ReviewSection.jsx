@@ -335,7 +335,7 @@ export default function ReviewSection({ movieId }) {
                 rows="3"
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Cảm nhận của bạn về bộ phim..."
+                placeholder="Share your thoughts about this movie..."
               ></textarea>
             </div>
             <div className="d-flex align-items-center">
@@ -421,56 +421,125 @@ export default function ReviewSection({ movieId }) {
           <p className="text-muted text-center">No reviews and comments yet.</p>
         )}
 
-        {/* Danh sách review */}
-        <ul className="list-group list-group-flush">
-          {reviews.map((review) => (
-            <li key={review.id} className="list-group-item px-0 py-3">
-              <div className="d-flex w-100">
-                {/* Thông tin user (bạn có thể thay bằng avatar) */}
-                <div className="flex-shrink-0 me-3">
-                  <div className="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
-                    {/* *** SỬA LỖI LOGIC 5: Đọc 'user.full_name' *** */}
-                    {review.user?.full_name ? review.user.full_name.charAt(0).toUpperCase() : 'U'}
+        <div className="review-list-container">
+          <ul className="list-group list-group-flush">
+            {filteredReviews.map((review) => (
+              <li key={review.id} className="list-group-item px-0 py-3">
+                <div className="d-flex w-100">
+                  {/* User avatar */}
+                  <div className="flex-shrink-0 me-3">
+                    <div
+                      className={`text-white rounded-circle d-flex align-items-center justify-content-center ${
+                        review.user_type === "staff"
+                          ? "bg-danger"
+                          : "bg-secondary"
+                      }`}
+                      style={{ width: "40px", height: "40px" }}
+                    >
+                      {review.user?.full_name
+                        ? review.user.full_name.charAt(0).toUpperCase()
+                        : review.user_type === "staff"
+                        ? "A"
+                        : "U"}
+                    </div>
                   </div>
-                </div>
-                
-                {/* Nội dung review */}
-                <div className="flex-grow-1">
-                  <div className="d-flex justify-content-between align-items-center">
-                    <h6 className="mb-0">
-                      {/* *** SỬA LỖI LOGIC 6: Đọc 'user.full_name' *** */}
-                      {review.user?.full_name || 'Anonymous User'}
-                    </h6>
-                    <small className="text-muted">
-                      {format(new Date(review.created_at), 'dd/MM/yyyy')}
-                    </small>
-                  </div>
-                  <div className="my-1">
-                    <ReadOnlyStars rating={review.rating} />
-                  </div>
-                  <p className="mb-1">{review.comment}</p>
 
-                  {/* Nút Xóa (chỉ hiển thị đúng chủ review) */}
-                  {/* *** SỬA LỖI LOGIC 7: So sánh '==' *** */}
-                  {currentUserId == review.web_user_id && (
-                       <button
-                         className="btn btn-sm btn-outline-warning mt-2 d-inline-flex align-items-center" 
-                         onClick={() => handleDeleteReview(review.id)}
-                         title="Delete review" // Dịch sang tiếng Anh
-                         disabled={isLoading} 
-                       >
-                         <TrashIcon 
-                           className="me-1" 
-                           style={{ width: '14px', height: '14px' }} 
-                          /> Delete {/* *** SỬA LỖI LOGIC 8: Dịch sang tiếng Anh *** */}
-                       </button>
-                  )}
+                  {/* Review content */}
+                  <div className="flex-grow-1">
+                    <div className="d-flex justify-content-between align-items-start">
+                      <div>
+                        <h6 className="mb-0 d-flex align-items-center gap-2">
+                          {/* ✅ Sửa logic hiển thị tên */}
+                          {review.user?.full_name ||
+                            (review.staff_id ? "Admin" : "Anonymous User")}
+
+                          {/* ✅ Sửa logic badge - kiểm tra cả staff_id */}
+                          {(review.user_type === "staff" ||
+                            review.staff_id) && (
+                            <span className="badge bg-danger text-white">
+                              Admin
+                            </span>
+                          )}
+                        </h6>
+                        <small className="text-muted">
+                          {format(
+                            new Date(review.created_at),
+                            "dd/MM/yyyy HH:mm"
+                          )}
+                        </small>
+                      </div>
+
+                      {/* Delete button - show for owner OR admin */}
+                      {(currentUserId == review.web_user_id ||
+                        (review.staff_id && currentUserId == review.staff_id) ||
+                        isAdmin) && (
+                        <button
+                          className="btn btn-sm btn-outline-danger d-inline-flex align-items-center"
+                          onClick={() => confirmDelete(review.id)}
+                          title="Delete review"
+                          disabled={isLoading}
+                        >
+                          <TrashIcon className="me-1" />
+                          Delete
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="my-2">
+                      <ReadOnlyStars rating={review.rating} />
+                    </div>
+                    <p className="mb-0">{review.comment}</p>
+                  </div>
                 </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
+
+      {/* ✅ DELETE CONFIRMATION MODAL */}
+      {showDeleteConfirm && (
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content" data-bs-theme="dark">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirm Delete</h5>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={() => setShowDeleteConfirm(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>
+                  Are you sure you want to delete this review? This action
+                  cannot be undone.
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={handleDeleteReview}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
