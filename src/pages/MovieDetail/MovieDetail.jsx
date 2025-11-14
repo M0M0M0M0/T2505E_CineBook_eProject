@@ -168,7 +168,7 @@ export default function MovieDetail() {
       }
     } catch (error) {
       console.error("❌ Error fetching showtime:", error);
-      alert("Không thể tải thông tin suất chiếu. Vui lòng thử lại.");
+      alert("Failed to fetch showtime. Please try again.");
     }
   };
 
@@ -227,7 +227,7 @@ export default function MovieDetail() {
     // console.log("🔍 Check auth:", { token, user, userId });
 
     if (!token || !userId) {
-      alert("Vui lòng đăng nhập để tiếp tục đặt vé!");
+      alert("⚠️ Please log in to book tickets");
       navigate("/login");
       return;
     }
@@ -246,7 +246,7 @@ export default function MovieDetail() {
 
     if (!booking_id) {
       console.error("❌ No booking_id received");
-      alert("Lỗi: Không có booking ID. Vui lòng thử lại từ đầu.");
+      alert("There is no booking ID. Please try again.");
       setStep("showtime");
       return;
     }

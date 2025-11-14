@@ -88,12 +88,12 @@ export default function PaymentSection({
 
   const handleConfirmPayment = async () => {
     if (!paymentMethod) {
-      alert("Vui lòng chọn phương thức thanh toán.");
+      alert("Please select a payment method first.");
       return;
     }
 
     if (!bookingId) {
-      alert("Lỗi: Booking ID không tìm thấy. Không thể hoàn tất thanh toán.");
+      alert("Lỗi: Booking ID not found. Please try again.");
       return;
     }
 
@@ -103,7 +103,7 @@ export default function PaymentSection({
     // console.log("🔍 DEBUG Payment - Booking ID:", bookingId);
 
     if (!token) {
-      alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      alert("Your session has expired. Please log in again.");
       window.location.href = "/login";
       return;
     }
@@ -151,11 +151,14 @@ export default function PaymentSection({
         );
         // console.log("✅ Finalized booking and cleared booking data:", result);
       } else {
-        alert(result.message || "Thanh toán thất bại hoặc Booking đã hết hạn.");
+        alert(
+          result.message ||
+            "Payment failed or Booking has expired. Please try again."
+        );
       }
     } catch (error) {
       console.error("Lỗi hoàn tất thanh toán:", error);
-      alert("Đã xảy ra lỗi không mong muốn khi thanh toán.");
+      alert("An error occurred during payment. Please try again.");
     }
   };
 

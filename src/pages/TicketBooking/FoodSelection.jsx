@@ -68,7 +68,7 @@ export default function FoodSelection({
   // ✅ SỬA LẠI HÀM NÀY: XỬ LÝ GỌI API TRƯỚC KHI CHUYỂN BƯỚC
   const handleContinueWithApi = async () => {
     if (!bookingId) {
-      alert("Lỗi: Booking ID không tìm thấy. Vui lòng chọn lại ghế.");
+      alert("Booking ID not found. Please try again.");
       if (onBack) onBack();
       return;
     }
@@ -77,7 +77,7 @@ export default function FoodSelection({
     const token = localStorage.getItem("token");
 
     if (!token) {
-      alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      alert("Your session has expired. Please log in again.");
       window.location.href = "/login";
       return;
     }
@@ -125,11 +125,11 @@ export default function FoodSelection({
           total: foodTotal,
         });
       } else {
-        alert(result.message || "Không thể lưu lựa chọn đồ ăn.");
+        alert(result.message || "Can not select food. Please try again.");
       }
     } catch (error) {
       console.error("Lỗi cập nhật snapshot đồ ăn:", error);
-      alert("Đã xảy ra lỗi không mong muốn khi cập nhật đồ ăn.");
+      alert("An error occurred while selecting food. Please try again.");
     }
   };
 

@@ -149,7 +149,7 @@ export default function PendingBookingDialog() {
         setPendingBooking(null);
         setShowDialog(false);
         setTimeRemaining(0);
-        alert("Booking đã được hủy thành công!");
+        alert("Booking cancelled!");
       } else {
         alert(result.message || "Failed to cancel booking");
       }

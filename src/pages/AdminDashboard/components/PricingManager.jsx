@@ -56,18 +56,37 @@ const handleSave = async (
     : `${API_BASE}/${endpoint}/${id}`;
 
   const dataToSend = { ...data };
-  delete dataToSend.__isNew; // Ensure numeric fields are cast to float
+  delete dataToSend.__isNew;
 
+  // ✅ FIX 1: Xóa các trường timestamp (Laravel tự động xử lý)
+  delete dataToSend.created_at;
+  delete dataToSend.updated_at;
+
+  // ✅ FIX 2: Chuyển đổi numeric fields
   for (const key in dataToSend) {
     if (key.includes("price") || key.includes("amount")) {
       dataToSend[key] = parseFloat(dataToSend[key]) || 0;
     }
   }
 
+  // ✅ FIX 3: Chuẩn hóa format thời gian (loại bỏ milliseconds)
+  if (dataToSend.ts_start_time) {
+    dataToSend.ts_start_time = dataToSend.ts_start_time.split(".")[0];
+  }
+  if (dataToSend.ts_end_time) {
+    dataToSend.ts_end_time = dataToSend.ts_end_time.split(".")[0];
+  }
+
+  // Validation cho trường hợp NEW
   if (isNew && !dataToSend[idKey]) {
     alert("Error: ID must be filled out!");
     return false;
   }
+
+  console.log("📤 Sending to API:");
+  console.log("   URL:", url);
+  console.log("   Method:", method);
+  console.log("   Data:", dataToSend);
 
   try {
     const response = await fetch(url, {
@@ -78,35 +97,32 @@ const handleSave = async (
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error("API Error:", errorData);
+      console.error("❌ API Error:", errorData);
       alert(`Failed to save data: ${errorData.message || response.statusText}`);
       return false;
     }
 
-    const result = await response.json(); // Nếu là update (không phải new), cập nhật trạng thái // Nếu là toggle, `result.data` có thể là `{ success: true }`, cần dùng dữ liệu đã gửi
-
+    const result = await response.json();
     const updatedData = result.data || { [idKey]: id, ...data };
 
     updateState((prev) => {
       if (isNew) {
-        // Xóa row tạm thời và thêm row mới từ kết quả API
         return [updatedData, ...prev.filter((r) => r[idKey] !== id)];
       } else {
-        // Cập nhật row
         return prev.map((r) =>
           r[idKey] === id ? { ...r, ...updatedData } : r
         );
       }
     });
 
+    console.log("✅ Save successful!");
     return true;
   } catch (error) {
-    console.error("Network Error:", error);
+    console.error("❌ Network Error:", error);
     alert("API connection error.");
     return false;
   }
 };
-
 const handleDelete = async (id, endpoint, reloadData) => {
   if (!window.confirm(`Are you sure you want to delete ID: ${id}?`)) return;
 
@@ -388,18 +404,24 @@ const PricingTable = ({
                         col.render(row[col.accessor])
                       ) : col.accessor === "is_active" &&
                         col.type === "boolean" ? (
-                        // ✅ Render Toggle Switch ở chế độ XEM (có thể tương tác)
-
                         <ToggleSwitch
                           name={col.accessor}
                           checked={row[col.accessor] || false}
-                          onChange={() => handleStatusToggle(row)} // GỌI HÀM TOGGLE MỚI
-                          disabled={editingId !== null} // Disabled nếu đang edit row khác
+                          onChange={() => handleStatusToggle(row)}
+                          disabled={editingId !== null}
                         />
                       ) : col.type === "number" &&
                         (col.accessor.includes("price") ||
                           col.accessor.includes("amount")) ? (
                         `${(parseFloat(row[col.accessor]) || 0).toFixed(2)}`
+                      ) : // ✅ THÊM PHẦN NÀY - Format thời gian
+                      col.accessor === "ts_start_time" ||
+                        col.accessor === "ts_end_time" ? (
+                        row[col.accessor] ? (
+                          row[col.accessor].split(".")[0]
+                        ) : (
+                          ""
+                        )
                       ) : (
                         row[col.accessor]
                       )}

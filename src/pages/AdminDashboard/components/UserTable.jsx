@@ -59,10 +59,10 @@ export default function UserTable() {
         return copy;
       });
 
-      alert("✅ Thông tin người dùng đã được cập nhật thành công!");
+      alert("✅ Update successful!");
     } catch (err) {
       console.error(err);
-      alert("❌ Cập nhật thất bại!");
+      alert("❌ Update failed!");
     } finally {
       setSaving(false);
     }
