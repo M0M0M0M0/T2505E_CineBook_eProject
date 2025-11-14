@@ -237,24 +237,28 @@ export default function Profile() {
       });
   };
 
-  const handleContinueBooking = (ticket) => {
-    let nextStep = "food"; // Default to food step
+  const handleContinueBooking = async (ticket) => {
+    let nextStep = "food";
 
-    // Nếu API trả về next_step thì dùng
     if (ticket.next_step) {
       nextStep = ticket.next_step;
-    }
-    // Hoặc kiểm tra has_foods
-    else if (ticket.has_foods) {
+    } else if (ticket.has_foods) {
       nextStep = "payment";
-    }
-    // Hoặc kiểm tra foods array
-    else if (ticket.foods && ticket.foods.length > 0) {
+    } else if (ticket.foods && ticket.foods.length > 0) {
       nextStep = "payment";
     }
 
-    console.log("🔍 Continuing booking to step:", nextStep);
-    console.log("📦 Ticket data:", ticket);
+    // console.log("🔍 Continuing booking to step:", nextStep);
+    // console.log("📦 Ticket data:", ticket);
+
+    // ✅ TÍNH LẠI SEAT TOTAL NẾU = 0
+    let seatTotal = ticket.ticket_total || 0;
+
+    if (seatTotal === 0 && ticket.seats && ticket.seats.length > 0) {
+      // console.log("⚠️ Seat total is 0, recalculating...");
+      seatTotal = await calculateSeatTotal(ticket.seats, ticket.showtime_id);
+      // console.log("✅ Recalculated seat total:", seatTotal);
+    }
 
     // Navigate to movie detail page với thông tin resume
     navigate(`/movie/${ticket.movie_id}`, {
@@ -264,7 +268,7 @@ export default function Profile() {
         showtimeId: ticket.showtime_id,
         targetStep: nextStep,
         seats: ticket.seats || [],
-        seatTotal: ticket.ticket_total || 0,
+        seatTotal: seatTotal, // ✅ SỬ DỤNG GIÁ TRỊ ĐÃ TÍNH
         foods: ticket.foods || [],
         foodTotal: ticket.food_total || 0,
       },
@@ -368,10 +372,66 @@ export default function Profile() {
     };
     qrImage.src = qrCodeDataUrl;
   };
+  const calculateSeatTotal = async (seats, showtimeId) => {
+    if (!seats || seats.length === 0) return 0;
+
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/showtimes/${showtimeId}/sold-seats`
+      );
+
+      if (!response.ok) throw new Error("Failed to fetch seat prices");
+
+      const result = await response.json();
+      const seatPrices = result.data.seat_type_prices || {};
+
+      const SEAT_TYPE_MAP = {
+        A: "Standard",
+        B: "Gold",
+        C: "Gold",
+        D: "Gold",
+        E: "Gold",
+        F: "Gold",
+        G: "Box (Couple)",
+      };
+
+      let total = 0;
+
+      seats.forEach((seatCode) => {
+        const row = seatCode[0];
+        const col = parseInt(seatCode.substring(1));
+
+        let seatType = SEAT_TYPE_MAP[row];
+
+        // Xử lý các ghế đặc biệt
+        if (
+          row === "B" &&
+          (col === 1 || col === 2 || col === 15 || col === 16)
+        ) {
+          seatType = "Standard";
+        }
+
+        if (["C", "D", "E"].includes(row) && col >= 3 && col <= 14) {
+          seatType = "Platinum";
+        }
+
+        const priceData = seatPrices[seatType];
+        const price = priceData ? parseFloat(priceData.seat_type_price) : 0;
+
+        // console.log(`💺 ${seatCode}: ${seatType} = $${price}`);
+
+        total += price;
+      });
+
+      return total;
+    } catch (err) {
+      console.error("Error calculating seat total:", err);
+      return 0;
+    }
+  };
 
   // ✅ CẬP NHẬT: Render ticket card với format thời gian VN
   const renderTicketCard = (ticket) => (
-    
     <div key={ticket.booking_id} className="ticket-card">
       <div className="ticket-card-content">
         <img
