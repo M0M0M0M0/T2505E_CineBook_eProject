@@ -34,7 +34,7 @@ export default function Login() {
         password,
       });
 
-      console.log("✅ Login response:", res.data);
+      // console.log("✅ Login response:", res.data);
 
       // Lưu token
       localStorage.setItem("token", res.data.access_token);
@@ -50,11 +50,11 @@ export default function Login() {
         // ✅ Lưu user_type
         localStorage.setItem("user_type", res.data.user.user_type);
 
-        console.log("✅ Saved user info:", {
-          user_id: userId,
-          user_type: res.data.user.user_type,
-          is_admin: res.data.user.user_type === "staff",
-        });
+        // console.log("✅ Saved user info:", {
+        //   user_id: userId,
+        //   user_type: res.data.user.user_type,
+        //   is_admin: res.data.user.user_type === "staff",
+        // });
       }
 
       // Dispatch event login để Header update ngay
