@@ -9,36 +9,66 @@ export default function PendingBookingDialog() {
   const [pendingBooking, setPendingBooking] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
 
+  // ✅ State để track thời gian còn lại (đếm ngược)
+  const [timeRemaining, setTimeRemaining] = useState(0);
+
   // ✅ CHECK PENDING BOOKING mỗi khi isAuthenticated hoặc currentUserId thay đổi
   useEffect(() => {
     if (isAuthenticated && currentUserId) {
-      // ✅ Reset dismissed flag khi user mới đăng nhập
       sessionStorage.removeItem("pendingBookingDismissed");
       checkPendingBooking();
     } else {
-      // ✅ Reset state khi user logout
       setPendingBooking(null);
       setShowDialog(false);
+      setTimeRemaining(0);
     }
   }, [isAuthenticated, currentUserId]);
-  const validatePending = async (bookingId) => {
-    const res = await fetch(`/api/bookings/${bookingId}/validate`);
-    const result = await res.json();
-    if (result.success && result.has_pending) {
-      navigate(`/movies/${movieId}`, {
-        state: {
-          resumeBooking: true,
-          bookingId: bookingId,
-          showtimeId: result.showtime_id,
-        },
-      });
-    } else {
-      console.info("No pending booking, skip navigate");
+
+  // ✅ SỬA LẠI: useEffect riêng để SET initial time khi pendingBooking có data
+  useEffect(() => {
+    if (pendingBooking && pendingBooking.time_remaining) {
+      console.log(
+        "⏰ Setting initial time from booking:",
+        pendingBooking.time_remaining
+      );
+      setTimeRemaining(pendingBooking.time_remaining);
     }
-  };
+  }, [pendingBooking]);
+
+  // ✅ SỬA LẠI: useEffect riêng để countdown (chỉ phụ thuộc vào timeRemaining)
+  useEffect(() => {
+    if (!showDialog || timeRemaining <= 0) {
+      console.log("⚠️ Skipping countdown:", { showDialog, timeRemaining });
+      return;
+    }
+
+    console.log("✅ Starting countdown from:", timeRemaining);
+
+    const interval = setInterval(() => {
+      console.log("⏱️ Countdown tick");
+      setTimeRemaining((prev) => {
+        console.log("📉 Current time:", prev);
+        if (prev <= 1) {
+          console.log("⏰ Time expired!");
+          clearInterval(interval);
+          setShowDialog(false);
+          setPendingBooking(null);
+          alert("Booking has expired!");
+          return 0;
+        }
+        const newTime = prev - 1;
+        console.log("📉 New time:", newTime);
+        return newTime;
+      });
+    }, 1000);
+
+    return () => {
+      console.log("🧹 Cleaning up countdown interval");
+      clearInterval(interval);
+    };
+  }, [showDialog, timeRemaining]); // ✅ Dependency: showDialog và timeRemaining (initial value)
 
   const checkPendingBooking = async () => {
-    // ✅ Kiểm tra xem user đã dismiss chưa (trong session hiện tại)
     const dismissed = sessionStorage.getItem("pendingBookingDismissed");
     if (dismissed === "true") {
       console.log("ℹ️ User đã dismiss dialog trong session này");
@@ -68,9 +98,10 @@ export default function PendingBookingDialog() {
       console.log("🔍 API Result:", result);
 
       if (result.success && result.has_pending) {
-        console.log("✅ Pending booking found!");
+        console.log("✅ Pending booking found!", result.booking);
         setPendingBooking(result.booking);
         setShowDialog(true);
+        // ✅ Không set timeRemaining ở đây nữa, để useEffect khác xử lý
       } else {
         console.log("ℹ️ No pending booking");
         sessionStorage.removeItem("pending_booking");
@@ -83,12 +114,10 @@ export default function PendingBookingDialog() {
   const handleContinue = () => {
     if (!pendingBooking) return;
 
-    // Điều hướng đến trang chi tiết phim với booking đang chờ
     const { movie_id, showtime_id, booking_id } = pendingBooking;
 
     setShowDialog(false);
 
-    // Navigate với state chứa thông tin booking
     navigate(`/movies/${movie_id}`, {
       state: {
         resumeBooking: true,
@@ -119,6 +148,7 @@ export default function PendingBookingDialog() {
       if (result.success) {
         setPendingBooking(null);
         setShowDialog(false);
+        setTimeRemaining(0);
         alert("Booking đã được hủy thành công!");
       } else {
         alert(result.message || "Failed to cancel booking");
@@ -131,14 +161,13 @@ export default function PendingBookingDialog() {
 
   const handleDismiss = () => {
     setShowDialog(false);
-    // ✅ Set flag để không hiển thị lại trong session này
+    setTimeRemaining(0);
     sessionStorage.setItem("pendingBookingDismissed", "true");
   };
 
   if (!showDialog || !pendingBooking) return null;
 
-  // Format thời gian còn lại
-  const timeRemaining = pendingBooking.time_remaining || 0;
+  // ✅ Format thời gian từ state countdown
   const minutes = Math.floor(timeRemaining / 60);
   const seconds = timeRemaining % 60;
 
@@ -164,8 +193,12 @@ export default function PendingBookingDialog() {
           </p>
           <p className="time-info">
             <strong>Remaining Time:</strong>{" "}
-            <span className="time-countdown">
-              {minutes} minutes {seconds} seconds
+            <span
+              className={`time-countdown ${
+                timeRemaining < 60 ? "time-critical" : ""
+              }`}
+            >
+              {minutes}m {seconds}s
             </span>
           </p>
         </div>

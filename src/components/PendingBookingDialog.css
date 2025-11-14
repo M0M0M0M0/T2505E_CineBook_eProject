@@ -185,3 +185,24 @@
     width: 100%;
   }
 }
+.time-countdown {
+  font-weight: bold;
+  color: #ffc107;
+  font-size: 1.1em;
+}
+
+/* ✅ Đổi màu đỏ khi còn dưới 1 phút */
+.time-countdown.time-critical {
+  color: #dc3545;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}

@@ -34,13 +34,69 @@ export default function Profile() {
       Authorization: `Bearer ${token}`,
     },
   };
+  const parseDDMMYYYY_UTC = (dateString) => {
+    if (!dateString || typeof dateString !== "string") return null;
 
+    try {
+      // Format: "14/11/2025 05:54" (này là UTC time đã được format)
+      const parts = dateString.split(" ");
+      if (parts.length !== 2) return null;
+
+      const datePart = parts[0]; // "14/11/2025"
+      const timePart = parts[1]; // "05:54"
+
+      const [day, month, year] = datePart.split("/");
+      const [hour, minute] = timePart.split(":");
+
+      // ✅ Tạo Date object với UTC time
+      const date = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
+
+      if (isNaN(date.getTime())) return null;
+
+      return date;
+    } catch (err) {
+      console.error("Error parsing DD/MM/YYYY UTC date:", err);
+      return null;
+    }
+  };
+
+  const [countdowns, setCountdowns] = useState({});
+  useEffect(() => {
+    if (tickets.length === 0) return;
+
+    const interval = setInterval(() => {
+      const newCountdowns = {};
+
+      tickets.forEach((ticket) => {
+        if (ticket.status === "pending" && ticket.expires_at) {
+          newCountdowns[ticket.booking_id] = getRemainingTime(
+            ticket.expires_at
+          );
+        }
+      });
+
+      setCountdowns(newCountdowns);
+    }, 1000); // Update mỗi 1 giây
+
+    return () => clearInterval(interval);
+  }, [tickets]);
   // ✅ HELPER FUNCTION: Convert UTC time to Vietnam local time
   const formatDateTimeVN = (utcTimeString) => {
     if (!utcTimeString) return "N/A";
 
     try {
+      // ✅ KIỂM TRA: Nếu đã là format DD/MM/YYYY HH:MM thì return luôn
+      if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/.test(utcTimeString)) {
+        return utcTimeString; // Backend đã format sẵn rồi
+      }
+
+      // Nếu không, parse như bình thường
       const date = new Date(utcTimeString);
+
+      if (isNaN(date.getTime())) {
+        console.error("❌ Invalid date:", utcTimeString);
+        return "N/A";
+      }
 
       // Format: DD/MM/YYYY HH:MM
       return date.toLocaleString("en-GB", {
@@ -54,7 +110,7 @@ export default function Profile() {
       });
     } catch (err) {
       console.error("Error formatting time:", err);
-      return utcTimeString;
+      return "N/A";
     }
   };
 
@@ -63,7 +119,16 @@ export default function Profile() {
     if (!utcTimeString) return "N/A";
 
     try {
+      // ✅ KIỂM TRA: Nếu đã là format DD/MM/YYYY
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(utcTimeString)) {
+        return utcTimeString;
+      }
+
       const date = new Date(utcTimeString);
+
+      if (isNaN(date.getTime())) {
+        return "N/A";
+      }
 
       // Format: DD/MM/YYYY
       return date.toLocaleDateString("en-GB", {
@@ -74,7 +139,7 @@ export default function Profile() {
       });
     } catch (err) {
       console.error("Error formatting date:", err);
-      return utcTimeString;
+      return "N/A";
     }
   };
 
@@ -83,7 +148,19 @@ export default function Profile() {
     if (!expiresAt) return null;
 
     try {
-      const expiry = new Date(expiresAt);
+      let expiry;
+
+      // ✅ Parse DD/MM/YYYY HH:MM format (UTC từ backend)
+      if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/.test(expiresAt)) {
+        expiry = parseDDMMYYYY_UTC(expiresAt);
+        if (!expiry) return "Invalid date";
+      } else {
+        expiry = new Date(expiresAt);
+      }
+
+      if (isNaN(expiry.getTime())) return "Invalid date";
+
+      // ✅ So sánh với thời gian hiện tại (UTC)
       const now = new Date();
       const diffMs = expiry - now;
 
@@ -98,7 +175,6 @@ export default function Profile() {
       return null;
     }
   };
-
   // ✅ THÊM: Đọc query parameter để mở tab
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -462,7 +538,12 @@ export default function Profile() {
             {/* ✅ Hiển thị thời gian còn lại với VN timezone */}
             {ticket.status === "pending" && ticket.expires_at && (
               <span className="ms-2 text-white small">
-                (Expires: {formatDateTimeVN(ticket.expires_at)})
+                (Expires:
+                {(() => {
+                  const remaining = getRemainingTime(ticket.expires_at);
+                  return remaining ? `  ${remaining}` : "";
+                })()}
+                )
               </span>
             )}
           </p>
