@@ -45,6 +45,7 @@ export default function BookingSection({
   bookingId,
   setBookingId,
 }) {
+  const [pendingCountdown, setPendingCountdown] = useState(0);
   // -------------------- STATE --------------------
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -218,6 +219,44 @@ export default function BookingSection({
   };
 
   // ==================== EFFECTS ====================
+  useEffect(() => {
+    if (pendingBooking && pendingBooking.time_remaining) {
+      // console.log(
+      //   "⏰ Setting initial countdown:",
+      //   pendingBooking.time_remaining
+      // );
+      setPendingCountdown(pendingBooking.time_remaining);
+    }
+  }, [pendingBooking]);
+  useEffect(() => {
+    if (!showPendingDialog || pendingCountdown <= 0) {
+      return;
+    }
+
+    // console.log("✅ Starting countdown from:", pendingCountdown);
+
+    const interval = setInterval(() => {
+      setPendingCountdown((prev) => {
+        if (prev <= 1) {
+          console.log("⏰ Time expired!");
+          clearInterval(interval);
+          setShowPendingDialog(false);
+          setPendingBooking(null);
+          setBookingId(null);
+          setMyBookingSeats([]);
+          localStorage.removeItem(`booking_${showtimeId}`);
+          alert("Booking has expired!");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      // console.log("🧹 Cleaning up countdown");
+      clearInterval(interval);
+    };
+  }, [showPendingDialog, pendingCountdown]);
 
   // Reset flag khi đổi showtime
   useEffect(() => {
@@ -710,9 +749,8 @@ export default function BookingSection({
             </p>
             <p>
               Time remaining:{" "}
-              <strong>
-                {Math.floor(pendingBooking.time_remaining / 60)} minutes{" "}
-                {pendingBooking.time_remaining % 60} seconds
+              <strong className={pendingCountdown < 60 ? "text-danger" : ""}>
+                {Math.floor(pendingCountdown / 60)}m {pendingCountdown % 60}s
               </strong>
             </p>
             <div className="pending-dialog-buttons">

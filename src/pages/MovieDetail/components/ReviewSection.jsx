@@ -311,7 +311,7 @@ export default function ReviewSection({ movieId }) {
     <div
       className="card mt-4"
       data-bs-theme="dark"
-      style={{ maxWidth: "900px", margin: "2rem auto" }}
+      style={{ width: "100%", margin: "2rem 0" }}
     >
       <div className="card-header">
         <h5 className="mb-0">Reviews & Comments</h5>

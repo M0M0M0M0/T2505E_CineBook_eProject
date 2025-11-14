@@ -31,35 +31,33 @@
 /* HEADER */
 .movie-detail-header {
   display: flex;
-  flex-wrap: nowrap;           /* Giữ ảnh và text cùng 1 dòng */
+  flex-wrap: nowrap; /* Giữ ảnh và text cùng 1 dòng */
   gap: 24px;
-  align-items: flex-start;     /* Căn đỉnh */
+  align-items: flex-start; /* Căn đỉnh */
   justify-content: flex-start; /* Căn trái */
   margin-bottom: 20px;
 }
 
 @media (max-width: 768px) {
   .movie-detail-header {
-    flex-wrap: wrap;           /* Cho mobile xuống dòng */
+    flex-wrap: wrap; /* Cho mobile xuống dòng */
     justify-content: center;
     text-align: center;
   }
 }
 
-
 /* Poster linh hoạt hơn để tránh tụt */
 .md-poster {
   width: 260px;
   max-height: 380px;
-  height: auto;               /* để ảnh co giãn theo tỷ lệ */
-  aspect-ratio: 2 / 3;        /* đảm bảo giữ tỉ lệ đứng */
+  height: auto; /* để ảnh co giãn theo tỷ lệ */
+  aspect-ratio: 2 / 3; /* đảm bảo giữ tỉ lệ đứng */
   object-fit: cover;
   border-radius: 10px;
   border: 1px solid #333;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
-  align-self: flex-start;     /* ép ảnh luôn bám trên cùng */
+  align-self: flex-start; /* ép ảnh luôn bám trên cùng */
 }
-
 
 .md-title {
   font-size: 32px;
@@ -280,4 +278,22 @@
 }
 .movie-detail-overview {
   color: #ffd54f;
+}
+.md-overview {
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.md-overview p {
+  max-width: 95%;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ✅ Đảm bảo col-md-8 không bị tràn */
+.movie-detail-header .col-md-8 {
+  max-width: 100%;
+  overflow: hidden;
 }

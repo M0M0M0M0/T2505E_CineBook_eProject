@@ -380,14 +380,55 @@ export default function MovieDetail() {
         </div>
         {/* Chỉ hiển thị ReviewSection khi đang ở step 'detail' */}
         {step === "detail" && (
-          <div
-            className="movie-review-section-wrapper"
-            style={{ marginTop: "50px" }}
-          >
-            <hr style={{ borderColor: "#444" }} />
-            {/* Truyền `id` (từ useParams) vào component */}
-            <ReviewSection movieId={id} />
-          </div>
+          <>
+            {/* ✅ TRAILER SECTION */}
+            {embedTrailer && (
+              <div
+                className="trailer-section-wrapper"
+                style={{ marginTop: "50px" }}
+              >
+                <hr style={{ borderColor: "#444" }} />
+                <h4 style={{ color: "#ffd54f", marginBottom: "20px" }}>
+                  🎬 Official Trailer
+                </h4>
+                <div
+                  className="trailer-embed-container"
+                  style={{
+                    position: "relative",
+                    paddingBottom: "56.25%", // 16:9 aspect ratio
+                    height: 0,
+                    overflow: "hidden",
+                    borderRadius: "12px",
+                    boxShadow: "0 8px 30px rgba(0, 0, 0, 0.6)",
+                  }}
+                >
+                  <iframe
+                    src={embedTrailer}
+                    title="Movie Trailer"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                    }}
+                  ></iframe>
+                </div>
+              </div>
+            )}
+
+            {/* ✅ REVIEW SECTION */}
+            <div
+              className="movie-review-section-wrapper"
+              style={{ marginTop: "50px" }}
+            >
+              <hr style={{ borderColor: "#444" }} />
+              <ReviewSection movieId={id} />
+            </div>
+          </>
         )}
         {/* STEPS */}
         {step === "showtime" && (
