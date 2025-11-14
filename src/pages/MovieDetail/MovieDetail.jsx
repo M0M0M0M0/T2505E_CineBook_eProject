@@ -161,7 +161,7 @@ export default function MovieDetail() {
           setFoodTotal(foodTotal || 0);
         }
 
-        console.log("🎯 Resuming to step:", targetStep);
+        // console.log("🎯 Resuming to step:", targetStep);
         setStep(targetStep || "food");
       } else {
         throw new Error("Invalid showtime data");
@@ -224,7 +224,7 @@ export default function MovieDetail() {
     const user = localStorage.getItem("user");
     const userId = localStorage.getItem("user_id");
 
-    console.log("🔍 Check auth:", { token, user, userId });
+    // console.log("🔍 Check auth:", { token, user, userId });
 
     if (!token || !userId) {
       alert("Vui lòng đăng nhập để tiếp tục đặt vé!");
@@ -273,7 +273,7 @@ export default function MovieDetail() {
   };
 
   const handlePaymentSuccess = () => {
-    console.log("🎉 Payment successful, clearing all booking data");
+    // console.log("Payment successful, clearing all booking data");
 
     setSelectedSeats([]);
     setSeatTotal(0);
@@ -378,10 +378,13 @@ export default function MovieDetail() {
             </div>
           </div>
         </div>
-              {/* Chỉ hiển thị ReviewSection khi đang ở step 'detail' */}
+        {/* Chỉ hiển thị ReviewSection khi đang ở step 'detail' */}
         {step === "detail" && (
-          <div className="movie-review-section-wrapper" style={{ marginTop: '50px' }}>
-            <hr style={{ borderColor: '#444' }} />
+          <div
+            className="movie-review-section-wrapper"
+            style={{ marginTop: "50px" }}
+          >
+            <hr style={{ borderColor: "#444" }} />
             {/* Truyền `id` (từ useParams) vào component */}
             <ReviewSection movieId={id} />
           </div>
@@ -405,7 +408,6 @@ export default function MovieDetail() {
               onSelectSeats={handleSelectSeats}
               onBack={() => setStep("showtime")}
               showtimeId={selectedShowtime.showtime_id}
-              
               bookingId={bookingId}
               setBookingId={setBookingId}
             />
