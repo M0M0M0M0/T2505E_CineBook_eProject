@@ -18,8 +18,8 @@ export default function MovieCard({ movie, isComingSoon = false }) {
     if (!url) return "";
     return url.includes("watch?v=") ? url.replace("watch?v=", "embed/") : url;
   };
-  console.log("Trailer link value:", movie.trailer_link);
-  console.log("Embed URL:", getEmbedUrl(movie.trailer_link));
+  // console.log("Trailer link value:", movie.trailer_link);
+  // console.log("Embed URL:", getEmbedUrl(movie.trailer_link));
 
   return (
     <>

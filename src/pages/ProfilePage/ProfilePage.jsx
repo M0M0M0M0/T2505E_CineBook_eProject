@@ -35,6 +35,70 @@ export default function Profile() {
     },
   };
 
+  // ✅ HELPER FUNCTION: Convert UTC time to Vietnam local time
+  const formatDateTimeVN = (utcTimeString) => {
+    if (!utcTimeString) return "N/A";
+
+    try {
+      const date = new Date(utcTimeString);
+
+      // Format: DD/MM/YYYY HH:MM
+      return date.toLocaleString("en-GB", {
+        timeZone: "Asia/Ho_Chi_Minh",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+    } catch (err) {
+      console.error("Error formatting time:", err);
+      return utcTimeString;
+    }
+  };
+
+  // ✅ HELPER FUNCTION: Format only date
+  const formatDateVN = (utcTimeString) => {
+    if (!utcTimeString) return "N/A";
+
+    try {
+      const date = new Date(utcTimeString);
+
+      // Format: DD/MM/YYYY
+      return date.toLocaleDateString("en-GB", {
+        timeZone: "Asia/Ho_Chi_Minh",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    } catch (err) {
+      console.error("Error formatting date:", err);
+      return utcTimeString;
+    }
+  };
+
+  // ✅ HELPER FUNCTION: Calculate remaining time
+  const getRemainingTime = (expiresAt) => {
+    if (!expiresAt) return null;
+
+    try {
+      const expiry = new Date(expiresAt);
+      const now = new Date();
+      const diffMs = expiry - now;
+
+      if (diffMs <= 0) return "Expired";
+
+      const minutes = Math.floor(diffMs / 60000);
+      const seconds = Math.floor((diffMs % 60000) / 1000);
+
+      return `${minutes}m ${seconds}s left`;
+    } catch (err) {
+      console.error("Error calculating time:", err);
+      return null;
+    }
+  };
+
   // ✅ THÊM: Đọc query parameter để mở tab
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -305,8 +369,9 @@ export default function Profile() {
     qrImage.src = qrCodeDataUrl;
   };
 
-  // ✅ CẬP NHẬT: Render ticket card với nút Continue/Cancel cho pending bookings
+  // ✅ CẬP NHẬT: Render ticket card với format thời gian VN
   const renderTicketCard = (ticket) => (
+    
     <div key={ticket.booking_id} className="ticket-card">
       <div className="ticket-card-content">
         <img
@@ -334,10 +399,10 @@ export default function Profile() {
             >
               {ticket.status === "completed" ? "✅ Confirmed" : "⏳ Pending"}
             </span>
-            {/* ✅ Hiển thị thời gian còn lại nếu pending */}
+            {/* ✅ Hiển thị thời gian còn lại với VN timezone */}
             {ticket.status === "pending" && ticket.expires_at && (
               <span className="ms-2 text-white small">
-                (Expires: {ticket.expires_at})
+                (Expires: {formatDateTimeVN(ticket.expires_at)})
               </span>
             )}
           </p>
@@ -585,7 +650,7 @@ export default function Profile() {
         )}
       </div>
 
-      {/* Modal - Giữ nguyên code cũ */}
+      {/* Modal - ✅ CẬP NHẬT với format thời gian VN */}
       {selectedTicket && (
         <div className="fade-modal show" onClick={handleCloseModal}>
           <div
@@ -684,13 +749,22 @@ export default function Profile() {
                         {selectedTicket.payment_method}
                       </p>
                       <p>
-                        <strong>Booked At:</strong> {selectedTicket.created_at}
+                        <strong>Booked At:</strong>{" "}
+                        {formatDateTimeVN(selectedTicket.created_at)}
                       </p>
                       <p>
                         <strong>Status:</strong>{" "}
                         {selectedTicket.status === "completed" ? "✅" : "⏳"}{" "}
                         {selectedTicket.status}
                       </p>
+                      {/* ✅ Hiển thị expires_at cho pending bookings */}
+                      {selectedTicket.status === "pending" &&
+                        selectedTicket.expires_at && (
+                          <p>
+                            <strong>Expires At:</strong>{" "}
+                            {formatDateTimeVN(selectedTicket.expires_at)}
+                          </p>
+                        )}
                     </section>
                     <hr />
                     {/* QR CODE SECTION */}

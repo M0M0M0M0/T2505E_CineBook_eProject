@@ -19,7 +19,7 @@ export default function ShowtimeSelector({ onSelectShowtime }) {
         setLoading(true);
         const movieId = window.location.pathname.split("/").pop();
 
-        console.log("Fetching showtimes for movie:", movieId);
+        // console.log("Fetching showtimes for movie:", movieId);
 
         const response = await fetch(
           `http://127.0.0.1:8000/api/movies/${movieId}/showtimes`
