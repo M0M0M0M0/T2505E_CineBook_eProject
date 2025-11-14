@@ -289,6 +289,8 @@ export default function BookingSection({
   }, [showtimeId]);
 
   // Initial load: restore bookingId from sessionStorage
+  // Initial load: restore bookingId from sessionStorage
+  // Initial load: restore bookingId from sessionStorage
   useEffect(() => {
     const restoreAndValidateBooking = async () => {
       if (!bookingId && showtimeId) {
@@ -297,7 +299,6 @@ export default function BookingSection({
         if (savedBookingId) {
           console.log("Found saved bookingId:", savedBookingId);
 
-          // ✅ VALIDATE: Kiểm tra booking có còn pending không
           try {
             const token = localStorage.getItem("token");
             const response = await fetch(
@@ -312,12 +313,43 @@ export default function BookingSection({
 
             if (response.ok) {
               const result = await response.json();
-              const bookingStatus = result.data?.status || result.status;
+              console.log("🔍 Full API response:", result);
 
-              // Chỉ restore nếu booking vẫn pending
+              const bookingStatus = result.status;
+
               if (bookingStatus === "pending" || bookingStatus === "hold") {
                 console.log("Restored valid pending booking:", savedBookingId);
+
+                // ✅ LẤY SEATS TỪ API (SAU KHI ĐÃ SỬA)
+                const seats = result.seats || result.data?.seats || [];
+
+                console.log("🎫 Extracted seats:", seats);
+
+                // ✅ TÍNH THỜI GIAN CÒN LẠI
+                const expiresAt = new Date(result.expires_at);
+                const now = new Date();
+                const timeRemaining = Math.max(
+                  0,
+                  Math.floor((expiresAt - now) / 1000)
+                );
+
+                console.log("⏰ Time remaining:", timeRemaining, "seconds");
+
+                const bookingData = {
+                  booking_id: savedBookingId,
+                  seats: Array.isArray(seats) ? seats : [],
+                  time_remaining: timeRemaining,
+                };
+
+                console.log("📦 Setting pendingBooking:", bookingData);
+
+                // ✅ SET STATE
+                setPendingBooking(bookingData);
+                setShowPendingDialog(true);
                 setBookingId(savedBookingId);
+                setMyBookingSeats(bookingData.seats);
+
+                hasCheckedPendingRef.current = true;
               } else {
                 console.log(
                   "Booking is not pending (status:",
@@ -327,7 +359,6 @@ export default function BookingSection({
                 sessionStorage.removeItem(`booking_${showtimeId}`);
               }
             } else {
-              // Booking không tồn tại hoặc expired
               console.log("Booking validation failed, clearing");
               sessionStorage.removeItem(`booking_${showtimeId}`);
             }
@@ -516,18 +547,51 @@ export default function BookingSection({
   };
 
   // Handle pending booking continuation
-  const handleContinuePending = () => {
-    setSelectedSeats(pendingBooking.seats);
-    setBookingId(pendingBooking.booking_id);
-    setMyBookingSeats(pendingBooking.seats);
-    sessionStorage.setItem(`booking_${showtimeId}`, pendingBooking.booking_id);
-    setShowPendingDialog(false);
+  const handleContinuePending = async () => {
+    try {
+      // Validate data
+      if (
+        !pendingBooking ||
+        !pendingBooking.seats ||
+        pendingBooking.seats.length === 0
+      ) {
+        alert("Invalid booking data");
+        return;
+      }
 
-    onSelectSeats({
-      seats: pendingBooking.seats,
-      total: calculateTotal(pendingBooking.seats),
-      booking_id: pendingBooking.booking_id,
-    });
+      const seats = pendingBooking.seats;
+      const bookingIdToUse = pendingBooking.booking_id;
+      const total = calculateTotal(seats);
+
+      console.log("✅ Continuing with pending booking:", {
+        booking_id: bookingIdToUse,
+        seats: seats,
+        total: total,
+      });
+
+      // Update state
+      setSelectedSeats(seats);
+      setBookingId(bookingIdToUse);
+      setMyBookingSeats(seats);
+
+      // Save to sessionStorage
+      sessionStorage.setItem(`booking_${showtimeId}`, bookingIdToUse);
+      sessionStorage.setItem(`went_to_food_${showtimeId}`, "true");
+
+      // Close dialog
+      setShowPendingDialog(false);
+      setPendingBooking(null);
+
+      // ✅ Chuyển sang Food step
+      onSelectSeats({
+        seats: seats,
+        total: total,
+        booking_id: bookingIdToUse,
+      });
+    } catch (err) {
+      console.error("❌ Error continuing pending booking:", err);
+      alert("Failed to continue booking. Please try again.");
+    }
   };
 
   // Handle pending booking cancellation
