@@ -566,7 +566,7 @@ export default function Profile() {
             ) : tickets.length > 0 ? (
               tickets.map(renderTicketCard)
             ) : (
-              <p className="text-muted">No current bookings</p>
+              <p className="text-white">No current bookings</p>
             )}
           </div>
         )}
@@ -579,7 +579,7 @@ export default function Profile() {
             ) : historyTickets.length > 0 ? (
               historyTickets.map(renderTicketCard)
             ) : (
-              <p className="text-muted">No past bookings</p>
+              <p className="text-white">No past bookings</p>
             )}
           </div>
         )}
