@@ -334,9 +334,9 @@ export default function BookingSection({
             body: JSON.stringify({ showtime_id: showtimeId }),
           });
 
-          console.log("📡 check-pending response status:", response.status);
+          // console.log("📡 check-pending response status:", response.status);
           const result = await response.json();
-          console.log("📦 check-pending result:", result);
+          // console.log("📦 check-pending result:", result);
 
           if (result.success && result.has_pending) {
             // Tìm thấy pending booking từ server
@@ -358,13 +358,13 @@ export default function BookingSection({
 
             console.log("✅ Dialog should show now from server data");
           } else {
-            console.log("ℹ️ No pending booking found on server");
+            // console.log("ℹ️ No pending booking found on server");
           }
         } catch (err) {
-          console.error("💥 Error checking pending booking:", err);
+          // console.error("💥 Error checking pending booking:", err);
         } finally {
           hasCheckedPendingRef.current = true;
-          console.log("🏁 Pending check completed");
+          // console.log("🏁 Pending check completed");
         }
       } else {
         console.log("⏭️ Already checked pending, skipping");
@@ -380,10 +380,10 @@ export default function BookingSection({
       const wentToFood = localStorage.getItem(`went_to_food_${showtimeId}`);
 
       if (wentToFood === "true" && bookingId) {
-        console.log(
-          "User returned from Food page, clearing booking:",
-          bookingId
-        );
+        // console.log(
+        //   "User returned from Food page, clearing booking:",
+        //   bookingId
+        // );
 
         try {
           await cancelBooking(bookingId);
@@ -396,7 +396,7 @@ export default function BookingSection({
 
           await fetchReservedSeats();
 
-          console.log("Booking cleared successfully, ready for new booking");
+          // console.log("Booking cleared successfully, ready for new booking");
         } catch (err) {
           console.error("Error clearing booking on return:", err);
         }
@@ -408,7 +408,7 @@ export default function BookingSection({
 
   useEffect(() => {
     if (!bookingId && !localStorage.getItem(`booking_${showtimeId}`)) {
-      console.log("🆕 Starting fresh booking, clearing selected seats");
+      // console.log("🆕 Starting fresh booking, clearing selected seats");
       setSelectedSeats([]);
       setMyBookingSeats([]);
     }
@@ -438,18 +438,18 @@ export default function BookingSection({
   // Sync selectedSeats with myBookingSeats when coming back from another page
   useEffect(() => {
     if (bookingId && myBookingSeats.length > 0 && selectedSeats.length === 0) {
-      console.log("Syncing selectedSeats with myBookingSeats:", myBookingSeats);
+      // console.log("Syncing selectedSeats with myBookingSeats:", myBookingSeats);
       setSelectedSeats(myBookingSeats);
     }
   }, [bookingId, myBookingSeats, selectedSeats.length, setSelectedSeats]);
 
   // Debug dialog state
-  useEffect(() => {
-    console.log("🎭 Dialog state:", {
-      showPendingDialog,
-      pendingBooking,
-    });
-  }, [showPendingDialog, pendingBooking]);
+  // useEffect(() => {
+  //   console.log("🎭 Dialog state:", {
+  //     showPendingDialog,
+  //     pendingBooking,
+  //   });
+  // }, [showPendingDialog, pendingBooking]);
 
   // ==================== EVENT HANDLERS ====================
 
@@ -529,19 +529,19 @@ export default function BookingSection({
       // ✅ TẠO HOẶC CẬP NHẬT BOOKING CHỈ KHI USER CLICK NEXT
       if (!currentBookingId) {
         // Tạo booking mới
-        console.log("Creating new booking with seats:", selectedSeats);
+        // console.log("Creating new booking with seats:", selectedSeats);
         currentBookingId = await createBooking(selectedSeats);
         setBookingId(currentBookingId);
         localStorage.setItem(`booking_${showtimeId}`, currentBookingId);
         setMyBookingSeats(selectedSeats);
       } else {
         // Cập nhật booking hiện tại
-        console.log(
-          "Updating booking",
-          currentBookingId,
-          "with seats:",
-          selectedSeats
-        );
+        // console.log(
+        //   "Updating booking",
+        //   currentBookingId,
+        //   "with seats:",
+        //   selectedSeats
+        // );
         await updateBookingSeats(currentBookingId, selectedSeats);
         setMyBookingSeats(selectedSeats);
       }
@@ -600,11 +600,11 @@ export default function BookingSection({
       const bookingIdToUse = pendingBooking.booking_id;
       const total = calculateTotal(seats);
 
-      console.log("✅ Continuing with pending booking:", {
-        booking_id: bookingIdToUse,
-        seats: seats,
-        total: total,
-      });
+      // console.log("✅ Continuing with pending booking:", {
+      //   booking_id: bookingIdToUse,
+      //   seats: seats,
+      //   total: total,
+      // });
 
       // Update state
       setSelectedSeats(seats);

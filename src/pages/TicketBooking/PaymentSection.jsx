@@ -71,7 +71,7 @@ export default function PaymentSection({
 
   // ✅ Clear booking data sau khi thanh toán thành công
   const clearBookingData = () => {
-    console.log("🧹 Clearing booking data after successful payment");
+    // console.log("🧹 Clearing booking data after successful payment");
 
     if (setBookingId) {
       setBookingId(null);
@@ -99,8 +99,8 @@ export default function PaymentSection({
 
     const token = localStorage.getItem("token");
 
-    console.log("🔍 DEBUG Payment - Token:", token);
-    console.log("🔍 DEBUG Payment - Booking ID:", bookingId);
+    // console.log("🔍 DEBUG Payment - Token:", token);
+    // console.log("🔍 DEBUG Payment - Booking ID:", bookingId);
 
     if (!token) {
       alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
@@ -114,7 +114,7 @@ export default function PaymentSection({
         seat_codes: selectedSeats,
       };
 
-      console.log("🔍 DEBUG Payment - Request body:", requestBody);
+      // console.log("🔍 DEBUG Payment - Request body:", requestBody);
 
       const response = await fetch(
         "http://127.0.0.1:8000/api/bookings/finalize",
@@ -129,10 +129,10 @@ export default function PaymentSection({
         }
       );
 
-      console.log("🔍 DEBUG Payment - Response status:", response.status);
+      // console.log("🔍 DEBUG Payment - Response status:", response.status);
 
       const result = await response.json();
-      console.log("🔍 DEBUG Payment - Response data:", result);
+      // console.log("🔍 DEBUG Payment - Response data:", result);
 
       if (response.ok && result.success) {
         const code = generateTicketCode();
@@ -149,7 +149,7 @@ export default function PaymentSection({
             "en-US"
           )}`
         );
-        console.log("✅ Finalized booking and cleared booking data:", result);
+        // console.log("✅ Finalized booking and cleared booking data:", result);
       } else {
         alert(result.message || "Thanh toán thất bại hoặc Booking đã hết hạn.");
       }

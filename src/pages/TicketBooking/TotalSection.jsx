@@ -12,15 +12,15 @@ export default function TotalSection({
   onNext, // ✅ callback sang bước thanh toán
 }) {
   const handleTotal = () => {
-    console.log("Tổng thanh toán:", {
-      movieTitle,
-      selectedShowtime,
-      selectedSeats,
-      selectedFoods,
-      seatTotal,
-      foodTotal,
-      total: seatTotal + foodTotal,
-    });
+    // console.log("Tổng thanh toán:", {
+    //   movieTitle,
+    //   selectedShowtime,
+    //   selectedSeats,
+    //   selectedFoods,
+    //   seatTotal,
+    //   foodTotal,
+    //   total: seatTotal + foodTotal,
+    // });
 
     if (onNext) onNext(); // ✅ chuyển sang bước thanh toán
   };

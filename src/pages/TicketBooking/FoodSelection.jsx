@@ -97,7 +97,7 @@ export default function FoodSelection({
       }
     );
 
-    console.log("🍿 DEBUG Food - Data to send:", { foods: foodsToSend });
+    // console.log("🍿 DEBUG Food - Data to send:", { foods: foodsToSend });
 
     try {
       const response = await fetch(
@@ -113,10 +113,10 @@ export default function FoodSelection({
         }
       );
 
-      console.log("🍿 DEBUG Food - Response status:", response.status);
+      // console.log("🍿 DEBUG Food - Response status:", response.status);
 
       const result = await response.json();
-      console.log("🍿 DEBUG Food - Response data:", result);
+      // console.log("🍿 DEBUG Food - Response data:", result);
 
       if (response.ok && result.success) {
         // API thành công → chuyển sang bước tiếp theo
