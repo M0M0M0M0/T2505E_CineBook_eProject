@@ -377,7 +377,7 @@ export default function Header() {
                   </div>
 
                   {notifications.length === 0 ? (
-                    <div className="text-center text-muted small py-3">
+                    <div className="text-center text-white small py-3">
                       No notifications
                     </div>
                   ) : (

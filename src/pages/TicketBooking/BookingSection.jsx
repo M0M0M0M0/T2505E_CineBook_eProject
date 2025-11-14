@@ -42,7 +42,6 @@ export default function BookingSection({
   onSelectSeats,
   onBack,
   showtimeId,
-  currentUserId,
   bookingId,
   setBookingId,
 }) {
@@ -69,6 +68,14 @@ export default function BookingSection({
   const soldSeats = allReservedSeats.filter(
     (seat) => !myBookingSeats.includes(seat)
   );
+
+  const [currentUserId, setCurrentUserId] = useState(null);
+  useEffect(() => {
+    // ✅ Lấy user_id trực tiếp từ localStorage
+    const userId = localStorage.getItem("user_id");
+    console.log("📝 User ID from localStorage:", userId);
+    setCurrentUserId(userId);
+  }, []);
 
   // ==================== API CALLS ====================
 
@@ -139,43 +146,6 @@ export default function BookingSection({
       setMyBookingSeats([]);
     }
   }, []);
-
-  // Check for pending booking
-  const checkPendingBooking = useCallback(async () => {
-    if (!showtimeId || !currentUserId || hasCheckedPendingRef.current) return;
-
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      const response = await fetch(`${API_BASE}/bookings/check-pending`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ showtime_id: showtimeId }),
-      });
-
-      const result = await response.json();
-
-      if (result.success && result.has_pending) {
-        setPendingBooking(result.booking);
-        setShowPendingDialog(true);
-      } else {
-        // Clean up stale booking ID
-        if (bookingId) {
-          console.log("Clearing stale booking ID");
-          setBookingId(null);
-          sessionStorage.removeItem(`booking_${showtimeId}`);
-        }
-      }
-    } catch (err) {
-      console.error("Error checking pending booking:", err);
-    } finally {
-      hasCheckedPendingRef.current = true;
-    }
-  }, [showtimeId, currentUserId, bookingId, setBookingId]);
 
   // Create new booking (hold seats)
   const createBooking = async (seats) => {
@@ -249,10 +219,165 @@ export default function BookingSection({
 
   // ==================== EFFECTS ====================
 
+  // Reset flag khi đổi showtime
+  useEffect(() => {
+    hasCheckedPendingRef.current = false;
+    console.log("🔄 Reset hasCheckedPendingRef for new showtime:", showtimeId);
+  }, [showtimeId]);
+
+  // ✅ CHECK PENDING BOOKING - useEffect DUY NHẤT
+  useEffect(() => {
+    console.log("🔍 useEffect check pending triggered", {
+      showtimeId,
+      currentUserId,
+      hasCheckedPending: hasCheckedPendingRef.current,
+    });
+
+    const checkPendingBooking = async () => {
+      if (!showtimeId || !currentUserId) {
+        console.log("❌ Missing showtimeId or currentUserId");
+        return;
+      }
+
+      console.log("🚀 Starting pending booking check...");
+
+      // ✅ KIỂM TRA: Nếu đã có bookingId từ localStorage thì validate nó
+      const savedBookingId = localStorage.getItem(`booking_${showtimeId}`);
+
+      console.log("💾 Saved bookingId from localStorage:", savedBookingId);
+
+      if (savedBookingId) {
+        // Validate booking từ localStorage
+        try {
+          console.log("🔄 Validating saved booking...");
+          const token = localStorage.getItem("token");
+          const response = await fetch(
+            `${API_BASE}/bookings/${savedBookingId}/validate`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: token ? `Bearer ${token}` : "",
+              },
+            }
+          );
+
+          console.log("📡 Validate response status:", response.status);
+
+          if (response.ok) {
+            const result = await response.json();
+            console.log("✅ Validate result:", result);
+
+            if (result.status === "pending" || result.status === "hold") {
+              // Booking còn valid, hiển thị dialog
+              const seats = result.seats || result.data?.seats || [];
+              const expiresAt = new Date(result.expires_at);
+              const now = new Date();
+              const timeRemaining = Math.max(
+                0,
+                Math.floor((expiresAt - now) / 1000)
+              );
+
+              console.log("🎫 Found valid booking:", {
+                booking_id: savedBookingId,
+                seats,
+                timeRemaining,
+              });
+
+              setPendingBooking({
+                booking_id: savedBookingId,
+                seats: Array.isArray(seats) ? seats : [],
+                time_remaining: timeRemaining,
+              });
+              setShowPendingDialog(true);
+              setBookingId(savedBookingId);
+              setMyBookingSeats(seats);
+              hasCheckedPendingRef.current = true;
+
+              console.log("✅ Dialog should show now");
+              return; // ✅ Đã tìm thấy, không cần check thêm
+            } else {
+              // Booking đã hết hạn hoặc không còn pending
+              console.log(
+                "⚠️ Booking not pending anymore, status:",
+                result.status
+              );
+              localStorage.removeItem(`booking_${showtimeId}`);
+            }
+          } else {
+            // Booking không tồn tại
+            console.log("❌ Booking validation failed");
+            localStorage.removeItem(`booking_${showtimeId}`);
+          }
+        } catch (err) {
+          console.error("💥 Error validating saved booking:", err);
+          localStorage.removeItem(`booking_${showtimeId}`);
+        }
+      }
+
+      // ✅ NẾU KHÔNG CÓ localStorage HOẶC VALIDATE THẤT BẠI
+      // Gọi API check-pending để tìm booking từ server
+      if (!hasCheckedPendingRef.current) {
+        console.log("🔍 Checking pending booking from server...");
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            console.log("❌ No auth token");
+            return;
+          }
+
+          const response = await fetch(`${API_BASE}/bookings/check-pending`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ showtime_id: showtimeId }),
+          });
+
+          console.log("📡 check-pending response status:", response.status);
+          const result = await response.json();
+          console.log("📦 check-pending result:", result);
+
+          if (result.success && result.has_pending) {
+            // Tìm thấy pending booking từ server
+            console.log(
+              "🎉 Found pending booking from server:",
+              result.booking
+            );
+
+            setPendingBooking(result.booking);
+            setShowPendingDialog(true);
+
+            // Lưu lại vào localStorage để lần sau dùng
+            localStorage.setItem(
+              `booking_${showtimeId}`,
+              result.booking.booking_id
+            );
+            setBookingId(result.booking.booking_id);
+            setMyBookingSeats(result.booking.seats || []);
+
+            console.log("✅ Dialog should show now from server data");
+          } else {
+            console.log("ℹ️ No pending booking found on server");
+          }
+        } catch (err) {
+          console.error("💥 Error checking pending booking:", err);
+        } finally {
+          hasCheckedPendingRef.current = true;
+          console.log("🏁 Pending check completed");
+        }
+      } else {
+        console.log("⏭️ Already checked pending, skipping");
+      }
+    };
+
+    checkPendingBooking();
+  }, [showtimeId, currentUserId, setBookingId]);
+
   // Detect if user is coming back from Food page and clear booking
   useEffect(() => {
     const handleClearBookingOnReturn = async () => {
-      const wentToFood = sessionStorage.getItem(`went_to_food_${showtimeId}`);
+      const wentToFood = localStorage.getItem(`went_to_food_${showtimeId}`);
 
       if (wentToFood === "true" && bookingId) {
         console.log(
@@ -266,8 +391,8 @@ export default function BookingSection({
           setBookingId(null);
           setMyBookingSeats([]);
           setSelectedSeats([]);
-          sessionStorage.removeItem(`booking_${showtimeId}`);
-          sessionStorage.removeItem(`went_to_food_${showtimeId}`);
+          localStorage.removeItem(`booking_${showtimeId}`);
+          localStorage.removeItem(`went_to_food_${showtimeId}`);
 
           await fetchReservedSeats();
 
@@ -280,111 +405,19 @@ export default function BookingSection({
 
     handleClearBookingOnReturn();
   }, []);
+
   useEffect(() => {
-    if (!bookingId && !sessionStorage.getItem(`booking_${showtimeId}`)) {
+    if (!bookingId && !localStorage.getItem(`booking_${showtimeId}`)) {
       console.log("🆕 Starting fresh booking, clearing selected seats");
       setSelectedSeats([]);
       setMyBookingSeats([]);
     }
   }, [showtimeId]);
 
-  // Initial load: restore bookingId from sessionStorage
-  // Initial load: restore bookingId from sessionStorage
-  // Initial load: restore bookingId from sessionStorage
-  useEffect(() => {
-    const restoreAndValidateBooking = async () => {
-      if (!bookingId && showtimeId) {
-        const savedBookingId = sessionStorage.getItem(`booking_${showtimeId}`);
-
-        if (savedBookingId) {
-          console.log("Found saved bookingId:", savedBookingId);
-
-          try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(
-              `${API_BASE}/bookings/${savedBookingId}/validate`,
-              {
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: token ? `Bearer ${token}` : "",
-                },
-              }
-            );
-
-            if (response.ok) {
-              const result = await response.json();
-              console.log("🔍 Full API response:", result);
-
-              const bookingStatus = result.status;
-
-              if (bookingStatus === "pending" || bookingStatus === "hold") {
-                console.log("Restored valid pending booking:", savedBookingId);
-
-                // ✅ LẤY SEATS TỪ API (SAU KHI ĐÃ SỬA)
-                const seats = result.seats || result.data?.seats || [];
-
-                console.log("🎫 Extracted seats:", seats);
-
-                // ✅ TÍNH THỜI GIAN CÒN LẠI
-                const expiresAt = new Date(result.expires_at);
-                const now = new Date();
-                const timeRemaining = Math.max(
-                  0,
-                  Math.floor((expiresAt - now) / 1000)
-                );
-
-                console.log("⏰ Time remaining:", timeRemaining, "seconds");
-
-                const bookingData = {
-                  booking_id: savedBookingId,
-                  seats: Array.isArray(seats) ? seats : [],
-                  time_remaining: timeRemaining,
-                };
-
-                console.log("📦 Setting pendingBooking:", bookingData);
-
-                // ✅ SET STATE
-                setPendingBooking(bookingData);
-                setShowPendingDialog(true);
-                setBookingId(savedBookingId);
-                setMyBookingSeats(bookingData.seats);
-
-                hasCheckedPendingRef.current = true;
-              } else {
-                console.log(
-                  "Booking is not pending (status:",
-                  bookingStatus,
-                  "), clearing"
-                );
-                sessionStorage.removeItem(`booking_${showtimeId}`);
-              }
-            } else {
-              console.log("Booking validation failed, clearing");
-              sessionStorage.removeItem(`booking_${showtimeId}`);
-            }
-          } catch (err) {
-            console.error("Error validating saved booking:", err);
-            sessionStorage.removeItem(`booking_${showtimeId}`);
-          }
-        }
-      }
-    };
-
-    restoreAndValidateBooking();
-  }, [showtimeId, bookingId, setBookingId]);
-
-  // Check for pending booking on mount
-  useEffect(() => {
-    if (showtimeId && currentUserId && !bookingId) {
-      checkPendingBooking();
-    }
-  }, [showtimeId, currentUserId, bookingId, checkPendingBooking]);
-
   // Load booking details when bookingId changes
   useEffect(() => {
     if (bookingId) {
       fetchBookingDetails(bookingId);
-      hasCheckedPendingRef.current = true;
     }
   }, [bookingId, fetchBookingDetails]);
 
@@ -409,6 +442,14 @@ export default function BookingSection({
       setSelectedSeats(myBookingSeats);
     }
   }, [bookingId, myBookingSeats, selectedSeats.length, setSelectedSeats]);
+
+  // Debug dialog state
+  useEffect(() => {
+    console.log("🎭 Dialog state:", {
+      showPendingDialog,
+      pendingBooking,
+    });
+  }, [showPendingDialog, pendingBooking]);
 
   // ==================== EVENT HANDLERS ====================
 
@@ -469,8 +510,6 @@ export default function BookingSection({
   };
 
   // Handle continue to next step
-  // Thay thế hàm handleContinue bằng version mới này:
-
   const handleContinue = async () => {
     if (selectedSeats.length === 0) {
       alert("Please select at least one seat");
@@ -493,7 +532,7 @@ export default function BookingSection({
         console.log("Creating new booking with seats:", selectedSeats);
         currentBookingId = await createBooking(selectedSeats);
         setBookingId(currentBookingId);
-        sessionStorage.setItem(`booking_${showtimeId}`, currentBookingId);
+        localStorage.setItem(`booking_${showtimeId}`, currentBookingId);
         setMyBookingSeats(selectedSeats);
       } else {
         // Cập nhật booking hiện tại
@@ -508,7 +547,7 @@ export default function BookingSection({
       }
 
       // Set flag: User is going to Food page
-      sessionStorage.setItem(`went_to_food_${showtimeId}`, "true");
+      localStorage.setItem(`went_to_food_${showtimeId}`, "true");
 
       // Proceed to next step
       onSelectSeats({
@@ -522,8 +561,6 @@ export default function BookingSection({
       // ✅ XỬ LÝ LỖI: Refresh lại danh sách ghế và clear selected seats có vấn đề
       await fetchReservedSeats();
 
-      // Tìm ghế nào bị conflict (đã được người khác đặt)
-      // Giả sử API trả về message có chứa thông tin ghế bị trùng
       const errorMessage = err.message || "Failed to process booking";
 
       // Show error to user
@@ -538,7 +575,7 @@ export default function BookingSection({
           await cancelBooking(bookingId);
           setBookingId(null);
           setMyBookingSeats([]);
-          sessionStorage.removeItem(`booking_${showtimeId}`);
+          localStorage.removeItem(`booking_${showtimeId}`);
         } catch (cancelErr) {
           console.error("Failed to cancel booking after error:", cancelErr);
         }
@@ -574,9 +611,9 @@ export default function BookingSection({
       setBookingId(bookingIdToUse);
       setMyBookingSeats(seats);
 
-      // Save to sessionStorage
-      sessionStorage.setItem(`booking_${showtimeId}`, bookingIdToUse);
-      sessionStorage.setItem(`went_to_food_${showtimeId}`, "true");
+      // Save to localStorage
+      localStorage.setItem(`booking_${showtimeId}`, bookingIdToUse);
+      localStorage.setItem(`went_to_food_${showtimeId}`, "true");
 
       // Close dialog
       setShowPendingDialog(false);
@@ -604,7 +641,7 @@ export default function BookingSection({
       setSelectedSeats([]);
       setBookingId(null);
       setMyBookingSeats([]);
-      sessionStorage.removeItem(`booking_${showtimeId}`);
+      localStorage.removeItem(`booking_${showtimeId}`);
 
       await fetchReservedSeats();
     } catch (err) {

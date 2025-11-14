@@ -355,7 +355,7 @@ export default function PaymentSection({
           ) : (
             <p>Generating QR code...</p>
           )}
-          <p className="small text-muted">
+          <p className="small text-white">
             Scan this QR code at the theater entrance 🎫
           </p>
 

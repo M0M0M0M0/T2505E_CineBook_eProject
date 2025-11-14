@@ -228,8 +228,8 @@ export default function Theaters() {
     >
       <Container className="py-5">
         <header className="text-center mb-5">
-          <h1 className="display-4 fw-bold " style={{ color: '#ffd27a' }} >Movies Schedules</h1>
-          <p className="lead text-muted">Choose a theater and book your tickets today!</p>
+          <h1 className="display-4 fw-bold " style={{ color: '#ffd27a' }} ><b>Movies Schedules</b></h1>
+          <p className="lead text-muted"><b>Choose a theater and book your tickets today!</b></p>
         </header>
 
         <Row>

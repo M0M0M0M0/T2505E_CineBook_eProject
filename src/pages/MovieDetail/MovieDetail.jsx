@@ -405,7 +405,7 @@ export default function MovieDetail() {
               onSelectSeats={handleSelectSeats}
               onBack={() => setStep("showtime")}
               showtimeId={selectedShowtime.showtime_id}
-              currentUserId={currentUserId}
+              
               bookingId={bookingId}
               setBookingId={setBookingId}
             />

@@ -336,7 +336,7 @@ export default function Profile() {
             </span>
             {/* ✅ Hiển thị thời gian còn lại nếu pending */}
             {ticket.status === "pending" && ticket.expires_at && (
-              <span className="ms-2 text-muted small">
+              <span className="ms-2 text-white small">
                 (Expires: {ticket.expires_at})
               </span>
             )}
