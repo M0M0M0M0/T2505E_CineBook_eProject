@@ -1,7 +1,7 @@
 import React, { useState, useMemo,useRef} from 'react';
-import './Career.css'; // Import file CSS
+import './Career.css'; 
 
-// (Dữ liệu giả lập cho các vị trí tuyển dụng)
+
 const allJobs = [
   {
     id: 1,
@@ -40,7 +40,7 @@ const allJobs = [
   },
 ];
 
-// Component Trang Tuyển dụng
+
 export default function Careers() {
   const [filters, setFilters] = useState({
     department: 'All',
@@ -50,7 +50,7 @@ export default function Careers() {
   const generalApplyRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Lọc danh sách công việc dựa trên bộ lọc
+
   const filteredJobs = useMemo(() => {
     return allJobs.filter(job => {
       const passesDept = filters.department === 'All' || job.department === filters.department;
@@ -84,7 +84,7 @@ const handleSubmitCvClick = () => {
   return (
     <div className="careers-page">
       
-      {/* 1. HERO SECTION */}
+      {/* HERO SECTION */}
       <div className="careers-hero container text-center py-5">
         <h1 className="display-4 fw-bold">Join Our Team</h1>
         <p className="lead col-lg-8 mx-auto">
@@ -93,7 +93,7 @@ const handleSubmitCvClick = () => {
         </p>
       </div>
 
-      {/* 2. WHY WORK WITH US? (Perks & Benefits) */}
+      {/* WHY WORK WITH US? (Perks & Benefits) */}
       <div className="why-work-section container py-5">
         <h2 className="text-center fw-bold mb-5">Perks & Benefits</h2>
         <div className="row g-4 row-cols-1 row-cols-md-3">
@@ -130,7 +130,7 @@ const handleSubmitCvClick = () => {
         </div>
       </div>
 
-      {/* 3. OPEN POSITIONS */}
+      {/*  OPEN POSITIONS */}
       <div className="open-positions-section container py-5">
         <h2 className="text-center fw-bold mb-5">Open Positions</h2>
         
@@ -160,8 +160,7 @@ const handleSubmitCvClick = () => {
         <div className="job-list-container">
           {filteredJobs.length > 0 ? (
             filteredJobs.map(job => (
-              // <-- 6. Cải tiến Responsive cho Job Card
-              // Thêm các class `d-flex`, `flex-column`, `flex-md-row`...
+              
               <div 
                 className="job-card d-flex flex-column flex-md-row justify-content-between align-items-md-center" 
                 key={job.id}
@@ -177,7 +176,7 @@ const handleSubmitCvClick = () => {
                   </div>
                 </div>
                 <div className="job-card-apply mt-3 mt-md-0">
-                  {/* <-- 7. Gắn hàm 'handleApplyClick' vào nút */}
+                  
                   <button className="btn btn-warning" onClick={handleApplyClick}>
                     Apply Now
                   </button>
@@ -193,8 +192,7 @@ const handleSubmitCvClick = () => {
         </div>
       </div>
       
-      {/* 4. GENERAL APPLICATION */}
-      {/* <-- 8. Gắn 'ref' vào đây */}
+      {/*  GENERAL APPLICATION */}
       <div className="general-apply-section py-5" ref={generalApplyRef}>
         <div className="container text-center p-5 rounded">
           <h3 className="fw-bold mb-3">Don't see a fit?</h3>
@@ -203,18 +201,16 @@ const handleSubmitCvClick = () => {
             we'll contact you if a suitable position opens up.
           </p>
           
-          {/* <-- 9. Gắn hàm 'handleSubmitCvClick' vào nút */}
           <button className="btn btn-outline-warning btn-lg" onClick={handleSubmitCvClick}>
             Submit Your CV
           </button>
 
-          {/* <-- 10. Thêm thẻ input file bị ẩn */}
           <input 
             type="file" 
             ref={fileInputRef} 
             onChange={handleFileChange}
             style={{ display: 'none' }} 
-            accept=".pdf,.doc,.docx" // Giới hạn loại file (tùy chọn)
+            accept=".pdf,.doc,.docx" 
           />
         </div>
       </div>
