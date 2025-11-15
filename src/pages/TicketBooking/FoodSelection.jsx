@@ -3,12 +3,12 @@ import "./FoodSelection.css";
 
 export default function FoodSelection({
   selectedSeats,
-  seatTotal, // Đã là USD
+  seatTotal,
   onComplete,
   selectedFoods,
   setSelectedFoods,
   onBack,
-  bookingId, // ⬅️ THÊM PROP MỚI: Nhận Booking ID
+  bookingId, 
 }) {
   const [foodMenu, setFoodMenu] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +65,6 @@ export default function FoodSelection({
     });
   };
 
-  // ✅ SỬA LẠI HÀM NÀY: XỬ LÝ GỌI API TRƯỚC KHI CHUYỂN BƯỚC
   const handleContinueWithApi = async () => {
     if (!bookingId) {
       alert("Booking ID not found. Please try again.");
@@ -73,7 +72,6 @@ export default function FoodSelection({
       return;
     }
 
-    // Lấy token từ localStorage
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -82,17 +80,17 @@ export default function FoodSelection({
       return;
     }
 
-    // ✅ SỬA LẠI: Chuyển đổi format foods để gửi API
+
     const foodsToSend = Object.entries(selectedFoods).map(
       ([name, quantity]) => {
-        // ✅ TÌM food item TRONG scope của map function
+
         const foodItem = foodMenu.find((item) => item.name === name);
 
         return {
           food_id: foodItem?.id || null,
           food_name: name,
           quantity: quantity,
-          price: foodItem?.price || 0, // ✅ THÊM PRICE
+          price: foodItem?.price || 0, 
         };
       }
     );
@@ -119,7 +117,7 @@ export default function FoodSelection({
       // console.log("🍿 DEBUG Food - Response data:", result);
 
       if (response.ok && result.success) {
-        // API thành công → chuyển sang bước tiếp theo
+        
         onComplete({
           foods: selectedFoods,
           total: foodTotal,
@@ -149,7 +147,7 @@ export default function FoodSelection({
             </span>
 
             <div className="quantity-controls">
-              {/* Nút TRỪ */}
+
               <button
                 onClick={() =>
                   updateFoodQuantity(
@@ -162,12 +160,12 @@ export default function FoodSelection({
                 −
               </button>
 
-              {/* Hiển thị số lượng */}
+              
               <span className="quantity-display">
                 {selectedFoods[item.name] || 0}
               </span>
 
-              {/* Nút CỘNG */}
+             
               <button
                 onClick={() =>
                   updateFoodQuantity(

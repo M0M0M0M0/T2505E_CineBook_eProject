@@ -30,7 +30,6 @@ export default function PaymentSection({
 
   const total = seatTotal + foodTotal;
 
-  // ✅ Generate QR code khi có finalizedBookingData
   useEffect(() => {
     if (finalizedBookingData && isPaid) {
       const qrData = JSON.stringify({
@@ -69,7 +68,7 @@ export default function PaymentSection({
     });
   };
 
-  // ✅ Clear booking data sau khi thanh toán thành công
+
   const clearBookingData = () => {
     // console.log("🧹 Clearing booking data after successful payment");
 
@@ -138,10 +137,10 @@ export default function PaymentSection({
         const code = generateTicketCode();
         setIsPaid(true);
 
-        // ✅ Lưu thông tin booking để tạo QR code
+        
         setFinalizedBookingData(result.data || {});
 
-        // ✅ Clear booking data
+        
         clearBookingData();
 
         alert(
@@ -162,12 +161,12 @@ export default function PaymentSection({
     }
   };
 
-  // ✅ Điều hướng đến My Tickets với query parameter
+
   const handleGoToMyTickets = () => {
     navigate("/profile?tab=tickets");
   };
 
-  // ✅ Clear booking khi user click Finish
+
   const handleFinish = () => {
     clearBookingData();
 
@@ -344,7 +343,6 @@ export default function PaymentSection({
             <strong>Seats:</strong> {selectedSeats.join(", ")}
           </p>
 
-          {/* ✅ QR Code giống ProfilePage */}
           {qrCodeDataUrl ? (
             <img
               src={qrCodeDataUrl}
@@ -362,7 +360,6 @@ export default function PaymentSection({
             Scan this QR code at the theater entrance 🎫
           </p>
 
-          {/* ✅ 2 Buttons mới */}
           <div className="payment-buttons" style={{ marginTop: "20px" }}>
             <button className="payment-button" onClick={handleGoToMyTickets}>
               🎫 View My Tickets

@@ -8,8 +8,8 @@ export default function TotalSection({
   seatTotal = 0,
   selectedFoods = [],
   foodTotal = 0,
-  onBack, // callback quay lại
-  onNext, // ✅ callback sang bước thanh toán
+  onBack, 
+  onNext, 
 }) {
   const handleTotal = () => {
     // console.log("Tổng thanh toán:", {
@@ -22,7 +22,7 @@ export default function TotalSection({
     //   total: seatTotal + foodTotal,
     // });
 
-    if (onNext) onNext(); // ✅ chuyển sang bước thanh toán
+    if (onNext) onNext(); 
   };
 
   return (
