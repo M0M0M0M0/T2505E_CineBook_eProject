@@ -1,7 +1,7 @@
 import React from 'react';
-import './LegalPages.css'; // Sử dụng file CSS chung
+import './LegalPages.css'; 
 
-// Trang Điều khoản Dịch vụ
+
 export default function Terms() {
   return (
     <div className="legal-page">

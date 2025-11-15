@@ -1,7 +1,7 @@
 import React from 'react';
-import './LegalPages.css'; // Sử dụng file CSS chung
+import './LegalPages.css'; 
 
-// Trang Chính sách Bảo mật
+
 export default function Privacy() {
   return (
     <div className="legal-page">

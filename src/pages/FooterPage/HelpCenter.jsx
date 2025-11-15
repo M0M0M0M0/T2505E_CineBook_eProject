@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './HelpCenter.css'; // File CSS cho giao diện dark mode
+import './HelpCenter.css'; 
 
-// Component Trang Trung tâm Hỗ trợ (Help Center)
+
 export default function HelpCenter() {
   return (
     <div className="help-center-page">
-      {/* 1. THANH TÌM KIẾM LỚN (HERO) */}
+
       <div className="hero-search-bar container text-center py-5">
         <h1 className="display-5 fw-bold mb-3">How can we help?</h1>
         <p className="lead mb-4">
@@ -25,12 +25,12 @@ export default function HelpCenter() {
         </form>
       </div>
 
-      {/* 2. CÁC CHỦ ĐỀ CHÍNH (GRID) */}
+
       <div className="help-topics-grid container py-5">
         <h2 className="text-center fw-bold mb-4">Browse by Topic</h2>
         <div className="row g-4 row-cols-1 row-cols-md-2 row-cols-lg-4">
           
-          {/* Topic Card 1: Booking & Tickets */}
+          {/* Booking & Tickets */}
           <div className="col">
             <div className="help-topic-card h-100">
               {/* Icon (Inline SVG) */}
@@ -42,7 +42,7 @@ export default function HelpCenter() {
             </div>
           </div>
 
-          {/* Topic Card 2: Account & Profile */}
+          {/* Account & Profile */}
           <div className="col">
             <div className="help-topic-card h-100">
               {/* Icon (Inline SVG) */}
@@ -54,7 +54,7 @@ export default function HelpCenter() {
             </div>
           </div>
 
-          {/* Topic Card 3: Promotions & Vouchers */}
+          {/* Promotions & Vouchers */}
           <div className="col">
             <div className="help-topic-card h-100">
               {/* Icon (Inline SVG) */}
@@ -66,7 +66,7 @@ export default function HelpCenter() {
             </div>
           </div>
 
-          {/* Topic Card 4: Theaters & Policies */}
+          {/* Theaters & Policies */}
           <div className="col">
             <div className="help-topic-card h-100">
               {/* Icon (Inline SVG) */}
@@ -81,10 +81,10 @@ export default function HelpCenter() {
         </div>
       </div>
 
-      {/* 3. CÂU HỎI THƯỜNG GẶP (FAQs) */}
+
       <div className="faq-section container py-5">
         <h2 className="text-center fw-bold mb-4">Frequently Asked Questions</h2>
-        {/* Sử dụng data-bs-theme="dark" của Bootstrap 5.3+ để Accordion tự động có nền tối */}
+
         <div className="accordion w-75 mx-auto" id="faqAccordion" data-bs-theme="dark">
           
           <div className="accordion-item">
@@ -129,7 +129,7 @@ export default function HelpCenter() {
         </div>
       </div>
 
-      {/* 4. LIÊN HỆ (CONTACT) */}
+      {/* CONTACT */}
       <div className="contact-box-wrapper py-5">
         <div className="container contact-box text-center p-5">
           <h2 className="fw-bold mb-3">Still need help?</h2>

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import './SiteMap.css'; // Import custom CSS file
+import './SiteMap.css'; 
 
-// Data for 15 cinemas with Google Map embed links
+
 const locationsData = [
   {
     id: 1,
@@ -181,10 +181,7 @@ export default function SiteMap() {
         {/* === MAP COLUMN (RIGHT) === */}
         <div className="col-lg-7">
           <div className="sitemap-map-container shadow rounded">
-            {/* SỬA LỖI: Comment (ghi chú) đã được đóng lại chính xác.
-              Use 'key' to force React to re-render the iframe when the src changes.
-              This is the most reliable way to reload the iframe.
-            */}
+            
             <iframe
               key={selectedMapUrl}
               src={selectedMapUrl}
