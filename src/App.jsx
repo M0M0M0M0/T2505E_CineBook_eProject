@@ -20,7 +20,7 @@ import ForgotPassword from "./pages/Auth/ForgotPassword";
 import PendingBookingDialog from "./components/PendingBookingDialog.jsx";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute.jsx";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard.jsx";
-import AboutUs from "./pages/AboutUs/AboutUs.jsx";
+import AboutUs from "./pages/FooterPage/AboutUs.jsx";
 function App() {
   const [count, setCount] = useState(0);
   return (
