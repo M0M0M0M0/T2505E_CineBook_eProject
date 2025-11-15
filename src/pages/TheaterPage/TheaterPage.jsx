@@ -3,8 +3,7 @@ import { Container, Row, Col, Card, Button, Form, ListGroup, Image } from 'react
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css'
 import { CalendarEvent } from 'react-bootstrap-icons'
-// Import hook để đọc URL
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import backgroundImage from '../../assets/img/background-theater.jpg';
 import './TheaterPage.css';
 
@@ -19,13 +18,16 @@ const MovieCard = ({ movie, selectedDate }) => {
     <ListGroup.Item className="px-0 py-3" style={{ backgroundColor: '#000000ff' }}>
       <Row className="g-3 align-items-start">
         <Col sm={3} m={2}>
-          <Image
-            src={movie.poster}
-            alt={`Poster for ${movie.title}`}
-            fluid
-            rounded
-            onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x150/cccccc/FFFFFF?text=Error'; }}
-          />
+          {/* THAY ĐỔI 2: Bọc thẻ Image bằng Link */}
+          <Link to={`/movie/${movie.id}`}>
+            <Image
+              src={movie.poster}
+              alt={`Poster for ${movie.title}`}
+              fluid
+              rounded
+              onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x150/cccccc/FFFFFF?text=Error'; }}
+            />
+          </Link>
         </Col>
         <Col xs={9} sm={10}>
           <h5 className="fw-bold mb-1" style={{ color: '#ffd27a' }}>{movie.title}</h5>
@@ -92,7 +94,7 @@ const TheaterCard = ({ theater, selectedDate }) => {
 export default function Theaters() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Đổi tên hàm để rõ nghĩa hơn: nó lấy region từ URL
+  
   const getRegionFromUrl = () => {
     const regionFromUrl = searchParams.get('region');
     return regionFromUrl || 'All Cities';
@@ -102,7 +104,7 @@ export default function Theaters() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Dùng hàm getRegionFromUrl để set state ban đầu
+  
   const [selectedRegion, setSelectedRegion] = useState(getRegionFromUrl);
   const [selectedDate, setSelectedDate] = useState(new Date()); 
   const [selectedTheaterId, setSelectedTheaterId] = useState('All Theaters');
@@ -116,7 +118,7 @@ export default function Theaters() {
 
   const selectedDateString = useMemo(() => formatDateToString(selectedDate), [selectedDate]);
 
-  // useEffect để tải data (không đổi)
+  
   useEffect(() => {
     const fetchShowtimes = async () => {
       try {
@@ -141,19 +143,15 @@ export default function Theaters() {
     fetchShowtimes();
   }, []);
 
-  // === CẬP NHẬT QUAN TRỌNG ===
-  // useEffect này lắng nghe sự thay đổi của [searchParams]
-  // (Khi bạn bấm link trên Header, searchParams thay đổi)
+ 
   useEffect(() => {
     const regionFromUrl = getRegionFromUrl();
-    
-    // Nếu region từ URL khác với region đang chọn trong state
+   
     if (regionFromUrl !== selectedRegion) {
-      setSelectedRegion(regionFromUrl); // Cập nhật state
-      setSelectedTheaterId('All Theaters'); // Reset chọn rạp
+      setSelectedRegion(regionFromUrl); 
+      setSelectedTheaterId('All Theaters');
     }
-  }, [searchParams]); // Phụ thuộc vào searchParams
-  // ==========================
+  }, [searchParams]); 
 
   const regions = useMemo(() => {
     return ['All Cities', ...new Set(allTheatersData.map(t => t.region))];
@@ -166,7 +164,7 @@ export default function Theaters() {
     return allTheatersData.filter(t => t.region === selectedRegion);
   }, [selectedRegion, allTheatersData]);
 
-  // Hàm này (khi người dùng tự đổi) sẽ cập nhật state VÀ URL
+ 
   const handleRegionChange = (e) => {
     const newRegion = e.target.value;
     setSelectedRegion(newRegion);
@@ -178,7 +176,7 @@ export default function Theaters() {
     } else {
       newSearchParams.set('region', newRegion);
     }
-    setSearchParams(newSearchParams); // Cập nhật URL
+    setSearchParams(newSearchParams); 
   }; 
 
   const filteredTheaters = useMemo(() => {
@@ -237,9 +235,6 @@ export default function Theaters() {
             
             <Row className="mb-5 g-3">
               <Col md={4}>
-                {/* Giờ đây, `value={selectedRegion}` sẽ luôn được cập nhật
-                  dù bạn đổi bằng dropdown NÀY hay bấm link trên HEADER
-                */}
                 <Form.Select value={selectedRegion} onChange={handleRegionChange} className="custom-select-dark">
                   {regions.map(region => <option key={region} value={region}>{region}</option>)}
                 </Form.Select>
