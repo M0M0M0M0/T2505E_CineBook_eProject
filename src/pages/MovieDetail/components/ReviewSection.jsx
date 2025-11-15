@@ -4,7 +4,7 @@ import "./ReviewSection.css";
 
 const API_BASE_URL = "http://localhost:8000";
 
-// ==================== ICONS ====================
+//  ICONS 
 const StarIcon = ({ filled, onClick, onMouseEnter, onMouseLeave }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -60,7 +60,7 @@ const TrashIcon = ({ className = "" }) => (
   </svg>
 );
 
-// ==================== COMPONENTS ====================
+//  COMPONENTS 
 const StarRating = ({ rating, setRating }) => {
   const [hoverRating, setHoverRating] = useState(0);
   const handleMouseEnter = (index) => setHoverRating(index);
@@ -93,13 +93,13 @@ const ReadOnlyStars = ({ rating }) => {
   );
 };
 
-// ==================== MAIN COMPONENT ====================
+//  MAIN COMPONENT 
 export default function ReviewSection({ movieId }) {
   // Auth
   const token = localStorage.getItem("token");
   const isAuthenticated = !!token;
   const currentUserId = localStorage.getItem("user_id");
-  const userType = localStorage.getItem("user_type"); // 'staff' hoặc 'web_user'
+  const userType = localStorage.getItem("user_type"); 
   const isAdmin = userType === "staff" || userType === "admin";
   const getUserData = () => {
     const userStr = localStorage.getItem("user");
@@ -121,15 +121,15 @@ export default function ReviewSection({ movieId }) {
   const [submitMessage, setSubmitMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // ✅ Filter state
-  const [sortBy, setSortBy] = useState("newest"); // 'newest' | 'oldest'
-  const [filterRating, setFilterRating] = useState("all"); // 'all' | '5' | '4' | '3' | '2' | '1'
+  //  Filter state
+  const [sortBy, setSortBy] = useState("newest"); 
+  const [filterRating, setFilterRating] = useState("all");
 
   // Confirm delete dialog
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState(null);
 
-  // ==================== API CALLS ====================
+  //  API CALLS 
   const fetchReviews = useCallback(async () => {
     if (!movieId) return;
 
@@ -165,7 +165,7 @@ export default function ReviewSection({ movieId }) {
     fetchReviews();
   }, [fetchReviews]);
 
-  // ✅ Apply filters
+  //  Apply filters
   useEffect(() => {
     let result = [...reviews];
 
@@ -253,13 +253,13 @@ export default function ReviewSection({ movieId }) {
     }
   };
 
-  // ✅ Confirm delete
+  //  Confirm delete
   const confirmDelete = (reviewId) => {
     setReviewToDelete(reviewId);
     setShowDeleteConfirm(true);
   };
 
-  // ✅ Delete review
+  //  Delete review
   const handleDeleteReview = async () => {
     if (!reviewToDelete) return;
 
@@ -306,7 +306,7 @@ export default function ReviewSection({ movieId }) {
     }
   };
 
-  // ==================== RENDER ====================
+  //  RENDER 
   return (
     <div
       className="card mt-4"
@@ -359,7 +359,7 @@ export default function ReviewSection({ movieId }) {
         </div>
       )}
 
-      {/* ✅ FILTERS */}
+      {/*  FILTERS */}
       <div className="card-body border-bottom">
         <div className="row g-3">
           {/* Sort by date */}
@@ -449,11 +449,9 @@ export default function ReviewSection({ movieId }) {
                     <div className="d-flex justify-content-between align-items-start">
                       <div>
                         <h6 className="mb-0 d-flex align-items-center gap-2">
-                          {/* ✅ Sửa logic hiển thị tên */}
                           {review.user?.full_name ||
                             (review.staff_id ? "Admin" : "Anonymous User")}
 
-                          {/* ✅ Sửa logic badge - kiểm tra cả staff_id */}
                           {(review.user_type === "staff" ||
                             review.staff_id) && (
                             <span className="badge bg-danger text-white">
@@ -497,7 +495,7 @@ export default function ReviewSection({ movieId }) {
         </div>
       </div>
 
-      {/* ✅ DELETE CONFIRMATION MODAL */}
+      {/*  DELETE CONFIRMATION MODAL */}
       {showDeleteConfirm && (
         <div
           className="modal show d-block"
