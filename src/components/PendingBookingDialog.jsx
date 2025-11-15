@@ -9,10 +9,8 @@ export default function PendingBookingDialog() {
   const [pendingBooking, setPendingBooking] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
 
-  // ✅ State để track thời gian còn lại (đếm ngược)
   const [timeRemaining, setTimeRemaining] = useState(0);
 
-  // ✅ CHECK PENDING BOOKING mỗi khi isAuthenticated hoặc currentUserId thay đổi
   useEffect(() => {
     if (isAuthenticated && currentUserId) {
       sessionStorage.removeItem("pendingBookingDismissed");
@@ -24,7 +22,6 @@ export default function PendingBookingDialog() {
     }
   }, [isAuthenticated, currentUserId]);
 
-  // ✅ SỬA LẠI: useEffect riêng để SET initial time khi pendingBooking có data
   useEffect(() => {
     if (pendingBooking && pendingBooking.time_remaining) {
       console.log(
@@ -35,7 +32,6 @@ export default function PendingBookingDialog() {
     }
   }, [pendingBooking]);
 
-  // ✅ SỬA LẠI: useEffect riêng để countdown (chỉ phụ thuộc vào timeRemaining)
   useEffect(() => {
     if (!showDialog || timeRemaining <= 0) {
       console.log("⚠️ Skipping countdown:", { showDialog, timeRemaining });
@@ -66,7 +62,7 @@ export default function PendingBookingDialog() {
       console.log("🧹 Cleaning up countdown interval");
       clearInterval(interval);
     };
-  }, [showDialog, timeRemaining]); // ✅ Dependency: showDialog và timeRemaining (initial value)
+  }, [showDialog, timeRemaining]); 
 
   const checkPendingBooking = async () => {
     const dismissed = sessionStorage.getItem("pendingBookingDismissed");
@@ -101,7 +97,6 @@ export default function PendingBookingDialog() {
         console.log("✅ Pending booking found!", result.booking);
         setPendingBooking(result.booking);
         setShowDialog(true);
-        // ✅ Không set timeRemaining ở đây nữa, để useEffect khác xử lý
       } else {
         console.log("ℹ️ No pending booking");
         sessionStorage.removeItem("pending_booking");
@@ -167,7 +162,6 @@ export default function PendingBookingDialog() {
 
   if (!showDialog || !pendingBooking) return null;
 
-  // ✅ Format thời gian từ state countdown
   const minutes = Math.floor(timeRemaining / 60);
   const seconds = timeRemaining % 60;
 
