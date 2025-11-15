@@ -1,0 +1,142 @@
+/* src/pages/HelpCenter.css */
+
+/* Biến màu (Color Variables) */
+:root {
+  --custom-yellow: #ffd27a;
+  --custom-yellow-darker: #e6b86a;
+  --custom-dark-bg: #000000;
+  --custom-dark-card: #2c3237;
+  --custom-light-text: #f8f9fa;
+  --custom-muted-text: #adb5bd;
+}
+
+/* === TỔNG THỂ TRANG === */
+.help-center-page {
+  background-color: var(--custom-dark-bg);
+  color: var(--custom-light-text);
+  padding-bottom: 2rem;
+}
+
+/* === TIÊU ĐỀ MÀU VÀNG === */
+.help-center-page h1,
+.help-center-page h2,
+.help-center-page h5 {
+  color: var(--custom-yellow);
+}
+
+.help-center-page p,
+.help-center-page .lead {
+  color: var(--custom-muted-text);
+}
+
+/* 1. THANH TÌM KIẾM */
+.hero-search-bar {
+  border-bottom: 1px solid var(--custom-dark-card);
+}
+
+/* Đổi màu input sang dark mode */
+.hero-search-bar .form-control {
+  background-color: var(--custom-dark-card);
+  border-color: #495057;
+  color: var(--custom-light-text);
+}
+.hero-search-bar .form-control:focus {
+  background-color: var(--custom-dark-card);
+  border-color: var(--custom-yellow);
+  color: var(--custom-light-text);
+  box-shadow: 0 0 0 0.25rem rgba(255, 210, 122, 0.25);
+}
+.hero-search-bar .form-control::placeholder {
+  color: var(--custom-muted-text);
+}
+
+/* Đổi màu nút search */
+.hero-search-bar .btn-warning {
+  background-color: var(--custom-yellow);
+  border-color: var(--custom-yellow);
+  color: var(--custom-dark-bg);
+  font-weight: 600;
+}
+.hero-search-bar .btn-warning:hover {
+  background-color: var(--custom-yellow-darker);
+  border-color: var(--custom-yellow-darker);
+  color: var(--custom-dark-bg);
+}
+
+
+/* 2. CÁC THẺ CHỦ ĐỀ */
+.help-topic-card {
+  background-color: var(--custom-dark-card);
+  border: 1px solid #495057;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.help-topic-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--custom-yellow);
+  cursor: pointer;
+}
+
+.help-topic-card .icon-wrapper {
+  color: var(--custom-yellow);
+  margin-bottom: 1rem;
+}
+
+.help-topic-card h5 {
+  font-weight: 600;
+}
+
+.help-topic-card p {
+  font-size: 0.9rem;
+  color: var(--custom-muted-text);
+}
+
+/* 3. ACCORDION (FAQs) */
+/* Chúng ta dùng data-bs-theme="dark", nhưng nếu muốn tùy chỉnh thêm
+  thì bạn có thể style các class .accordion-item, .accordion-button ở đây.
+  Ví dụ: đổi màu nút khi active.
+*/
+.faq-section .accordion-button:not(.collapsed) {
+  background-color: var(--custom-dark-card);
+  color: var(--custom-yellow);
+  box-shadow: none;
+}
+.faq-section .accordion-button:focus {
+  box-shadow: none;
+  border-color: transparent;
+}
+
+
+/* 4. HỘP LIÊN HỆ */
+.contact-box-wrapper {
+  background-color: var(--custom-dark-bg);
+}
+.contact-box {
+  background-color: var(--custom-dark-card);
+  border-radius: 0.5rem;
+  border: 1px solid #495057;
+}
+
+.contact-box .btn-warning {
+  background-color: var(--custom-yellow);
+  border-color: var(--custom-yellow);
+  color: var(--custom-dark-bg);
+  font-weight: 600;
+}
+.contact-box .btn-warning:hover {
+  background-color: var(--custom-yellow-darker);
+  border-color: var(--custom-yellow-darker);
+  color: var(--custom-dark-bg);
+}
+.contact-box .btn-outline-warning {
+  color: var(--custom-yellow);
+  border-color: var(--custom-yellow);
+}
+.contact-box .btn-outline-warning:hover {
+  background-color: var(--custom-yellow);
+  border-color: var(--custom-yellow);
+  color: var(--custom-dark-bg);
+}

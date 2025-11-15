@@ -1,0 +1,53 @@
+/* src/pages/LegalPages.css */
+/* File CSS này dùng chung cho Terms.jsx và Privacy.jsx */
+
+/* Sử dụng lại các biến màu */
+:root {
+  --custom-yellow: #ffd27a;
+  --custom-dark-bg: #000000;
+  --custom-dark-card: #2c3237;
+  --custom-light-text: #f8f9fa;
+  --custom-muted-text: #adb5bd;
+}
+
+.legal-page {
+  background-color: var(--custom-dark-bg);
+  color: var(--custom-light-text);
+  min-height: 90vh; /* Đảm bảo trang đủ dài */
+  line-height: 1.7; /* Tăng khoảng cách dòng cho dễ đọc */
+}
+
+/* Tiêu đề chính */
+.legal-page h1 {
+  color: var(--custom-yellow);
+  margin-bottom: 0.5rem;
+}
+
+/* Dòng "Last updated" */
+.legal-page .lead {
+  color: var(--custom-muted-text);
+  font-size: 1.1rem;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid var(--custom-dark-card);
+  padding-bottom: 1.5rem;
+}
+
+/* Các tiêu đề phụ (h2) */
+.legal-page h2 {
+  color: var(--custom-yellow);
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Nội dung chữ (p, li) */
+.legal-page p,
+.legal-page li {
+  color: var(--custom-light-text);
+  font-size: 1.05rem;
+}
+
+.legal-page ul,
+.legal-page ol {
+  padding-left: 2rem;
+}

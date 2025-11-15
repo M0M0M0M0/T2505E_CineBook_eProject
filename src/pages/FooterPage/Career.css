@@ -1,0 +1,158 @@
+/* src/pages/Careers.css */
+
+/* Sử dụng lại các biến màu */
+:root {
+  --custom-yellow: #ffd27a;
+  --custom-yellow-darker: #e6b86a;
+  --custom-dark-bg: #000000;
+  --custom-dark-card: #2c3237;
+  --custom-light-text: #f8f9fa;
+  --custom-muted-text: #adb5bd;
+}
+
+/* === TỔNG THỂ TRANG === */
+.careers-page {
+  background-color: var(--custom-dark-bg);
+  color: var(--custom-light-text);
+  padding-bottom: 2rem;
+}
+
+/* === TIÊU ĐỀ MÀU VÀNG === */
+.careers-page h1,
+.careers-page h2,
+.careers-page h3,
+.careers-page h5 {
+  color: var(--custom-yellow);
+}
+.careers-page .lead,
+.careers-page p {
+  color: var(--custom-muted-text);
+}
+
+/* 1. HERO SECTION */
+.careers-hero {
+  border-bottom: 1px solid var(--custom-dark-card);
+}
+
+/* 2. WHY WORK (PERKS) */
+.why-work-section {
+  border-bottom: 1px solid var(--custom-dark-card);
+}
+
+.perk-card {
+  background-color: var(--custom-dark-card);
+  border: 1px solid #495057;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.perk-card .perk-icon {
+  color: var(--custom-yellow);
+  margin-bottom: 1rem;
+}
+/* Style SVG bên trong */
+.perk-card .perk-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.perk-card h5 {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+.perk-card p {
+  font-size: 0.9rem;
+  color: var(--custom-muted-text);
+}
+
+/* 3. OPEN POSITIONS */
+.job-filters {
+  background-color: var(--custom-dark-card);
+  border: 1px solid #495057;
+}
+.job-filters .form-label {
+  color: var(--custom-muted-text);
+  font-weight: 500;
+}
+/* Style các ô <select> */
+.job-filters .form-select {
+  background-color: var(--custom-dark-bg);
+  border-color: #495057;
+  color: var(--custom-light-text);
+}
+.job-filters .form-select:focus {
+  background-color: var(--custom-dark-bg);
+  border-color: var(--custom-yellow);
+  color: var(--custom-light-text);
+  box-shadow: 0 0 0 0.25rem rgba(255, 210, 122, 0.25);
+}
+
+/* Danh sách công việc */
+.job-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--custom-dark-card);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #495057;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+.job-card:hover {
+  border-color: var(--custom-yellow);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.job-card-info .job-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.job-card-info .job-meta {
+  color: var(--custom-muted-text);
+  font-size: 0.9rem;
+}
+/* Thêm dấu chấm giữa các span */
+.job-card-info .job-meta span + span {
+  margin-left: 0.5rem;
+}
+
+/* Nút Apply */
+.job-card-apply .btn-warning {
+  background-color: var(--custom-yellow);
+  border-color: var(--custom-yellow);
+  color: var(--custom-dark-bg);
+  font-weight: 600;
+}
+.job-card-apply .btn-warning:hover {
+  background-color: var(--custom-yellow-darker);
+  border-color: var(--custom-yellow-darker);
+  color: var(--custom-dark-bg);
+}
+
+/* Khi không tìm thấy việc */
+.job-card-empty {
+  background-color: var(--custom-dark-card);
+  border-radius: 0.5rem;
+  border: 1px solid #495057;
+}
+
+/* 4. GENERAL APPLY */
+.general-apply-section {
+  background-color: var(--custom-dark-bg);
+}
+.general-apply-section .container {
+  background-color: var(--custom-dark-card);
+  border: 1px solid #495057;
+}
+.general-apply-section .btn-outline-warning {
+  color: var(--custom-yellow);
+  border-color: var(--custom-yellow);
+}
+.general-apply-section .btn-outline-warning:hover {
+  background-color: var(--custom-yellow);
+  border-color: var(--custom-yellow);
+  color: var(--custom-dark-bg);
+}

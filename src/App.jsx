@@ -22,6 +22,11 @@ import ProtectedAdminRoute from "./components/ProtectedAdminRoute.jsx";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard.jsx";
 import AboutUs from "./pages/FooterPage/AboutUs.jsx";
 import SiteMap from "./pages/FooterPage/SiteMap.jsx";
+import HelpCenter from "./pages/FooterPage/HelpCenter.jsx";
+import ContactUs from "./pages/FooterPage/ContactUs.jsx";
+import Career from "./pages/FooterPage/Career.jsx";
+import Terms from "./pages/FooterPage/Terms.jsx";
+import Privacy from "./pages/FooterPage/Privacy.jsx";
 function App() {
   const [count, setCount] = useState(0);
   return (
@@ -38,6 +43,11 @@ function App() {
         <Route path="/about" element={<AboutUs />} />
         <Route path="/sitemap" element={<SiteMap />} />
         <Route path="/admin" element={<Dashboard />} />
+        <Route path="/help" element={<HelpCenter />} />
+        <Route path="/contact" element={<ContactUs />} />
+        <Route path="/careers" element={<Career />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
         <Route path="/offers" element={<Offers />} />
         <Route path="/theaters" element={<Theaters />} />
         <Route path="/login" element={<Login />} />
