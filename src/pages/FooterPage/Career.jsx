@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo,useRef} from 'react';
 import './Career.css'; // Import file CSS
 
 // (Dữ liệu giả lập cho các vị trí tuyển dụng)
@@ -47,6 +47,9 @@ export default function Careers() {
     location: 'All',
   });
 
+  const generalApplyRef = useRef(null);
+  const fileInputRef = useRef(null);
+
   // Lọc danh sách công việc dựa trên bộ lọc
   const filteredJobs = useMemo(() => {
     return allJobs.filter(job => {
@@ -61,6 +64,23 @@ export default function Careers() {
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleApplyClick = () => {
+    generalApplyRef.current?.scrollIntoView({
+      behavior: 'smooth', 
+      block: 'start'
+    });
+  };
+const handleSubmitCvClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      console.log("Đã chọn file:", file.name);
+      
+    }
+  };
   return (
     <div className="careers-page">
       
@@ -137,11 +157,15 @@ export default function Careers() {
           </div>
         </div>
 
-        {/* Job List */}
         <div className="job-list-container">
           {filteredJobs.length > 0 ? (
             filteredJobs.map(job => (
-              <div className="job-card" key={job.id}>
+              // <-- 6. Cải tiến Responsive cho Job Card
+              // Thêm các class `d-flex`, `flex-column`, `flex-md-row`...
+              <div 
+                className="job-card d-flex flex-column flex-md-row justify-content-between align-items-md-center" 
+                key={job.id}
+              >
                 <div className="job-card-info">
                   <h5 className="job-title">{job.title}</h5>
                   <div className="job-meta">
@@ -152,8 +176,11 @@ export default function Careers() {
                     <span>{job.type}</span>
                   </div>
                 </div>
-                <div className="job-card-apply">
-                  <button className="btn btn-warning">Apply Now</button>
+                <div className="job-card-apply mt-3 mt-md-0">
+                  {/* <-- 7. Gắn hàm 'handleApplyClick' vào nút */}
+                  <button className="btn btn-warning" onClick={handleApplyClick}>
+                    Apply Now
+                  </button>
                 </div>
               </div>
             ))
@@ -167,14 +194,28 @@ export default function Careers() {
       </div>
       
       {/* 4. GENERAL APPLICATION */}
-      <div className="general-apply-section py-5">
+      {/* <-- 8. Gắn 'ref' vào đây */}
+      <div className="general-apply-section py-5" ref={generalApplyRef}>
         <div className="container text-center p-5 rounded">
           <h3 className="fw-bold mb-3">Don't see a fit?</h3>
           <p className="lead mb-4">
             We are always looking for talented people. Send us your resume and
             we'll contact you if a suitable position opens up.
           </p>
-          <button className="btn btn-outline-warning btn-lg">Submit Your CV</button>
+          
+          {/* <-- 9. Gắn hàm 'handleSubmitCvClick' vào nút */}
+          <button className="btn btn-outline-warning btn-lg" onClick={handleSubmitCvClick}>
+            Submit Your CV
+          </button>
+
+          {/* <-- 10. Thêm thẻ input file bị ẩn */}
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileChange}
+            style={{ display: 'none' }} 
+            accept=".pdf,.doc,.docx" // Giới hạn loại file (tùy chọn)
+          />
         </div>
       </div>
 
