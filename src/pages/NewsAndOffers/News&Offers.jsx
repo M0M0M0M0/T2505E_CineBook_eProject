@@ -119,7 +119,6 @@ const promotionsData = [
   },
 ];
 
-// Component cho mỗi thẻ ưu đãi
 const OfferCard = ({ offer, onClick }) => {
   return (
     <div 
@@ -143,7 +142,6 @@ const OfferCard = ({ offer, onClick }) => {
   );
 };
 
-// Component chính của ứng dụng
 export default function Offers() {
   const [selectedOffer, setSelectedOffer] = useState(null);
 

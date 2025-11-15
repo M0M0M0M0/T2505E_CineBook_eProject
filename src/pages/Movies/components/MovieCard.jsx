@@ -7,7 +7,6 @@ export default function MovieCard({ movie, isComingSoon = false }) {
   const [showTrailer, setShowTrailer] = useState(false);
 
   const handleCardClick = (e) => {
-    // Nếu người dùng click vào nút play hoặc nút mua vé thì không chuyển trang
     if (e.target.closest(".play-btn") || e.target.closest(".buy-btn")) {
       return;
     }
@@ -55,7 +54,7 @@ export default function MovieCard({ movie, isComingSoon = false }) {
         </div>
       </div>
 
-      {/* --- Trailer Modal (iframe đặt ở đây) --- */}
+      {/* --- Trailer Modal  --- */}
       {showTrailer && movie.trailer_link && (
         <div className="trailer-modal" onClick={() => setShowTrailer(false)}>
           <div className="trailer-content" onClick={(e) => e.stopPropagation()}>

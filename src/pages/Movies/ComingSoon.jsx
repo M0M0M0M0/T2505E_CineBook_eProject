@@ -64,8 +64,7 @@ function ComingSoon() {
     fetchCities();
   }, []);
 
-  // 🆕 Static languages
-// 🆕 Languages (từ DB + phổ biến)
+  // languages
 useEffect(() => {
   setLanguages([
     { code: "en", name: "English" },
@@ -95,7 +94,7 @@ useEffect(() => {
     })(),
   });
 
-  // ✅ Fetch movies - Coming Soon (tất cả trừ 20 phim cuối)
+  //  Fetch movies - Coming Soon 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -113,7 +112,7 @@ useEffect(() => {
     fetchMovies();
   }, []);
 
-  // ✅ FILTER LOGIC (đã thêm 3 điều kiện mới)
+  //  FILTER LOGIC 
   useEffect(() => {
     let result = movies;
 
@@ -135,7 +134,7 @@ useEffect(() => {
       result = result.filter((m) => m.cities.includes(selectedCity));
     }
 
-    // 🆕 Language filter
+    //  Language filter
     if (selectedLanguage) {
       result = result.filter(
         (m) =>
@@ -143,12 +142,12 @@ useEffect(() => {
       );
     }
 
-    // 🆕 Rating filter
+    //  Rating filter
     if (selectedRating) {
       result = result.filter((m) => m.vote_average >= Number(selectedRating));
     }
 
-    // 🆕 Date filter
+    //  Date filter
     if (selectedDate) {
       const now = new Date();
       result = result.filter((m) => {
@@ -189,7 +188,7 @@ useEffect(() => {
     movies,
   ]);
 
-  // ✅ Clear filters
+  //  Clear filters
   const handleClearFilters = () => {
     setSelectedGenre("");
     setSelectedCity("");
@@ -198,7 +197,7 @@ useEffect(() => {
     setSelectedDate("");
   };
 
-  // ✅ Handle search results (giữ nguyên logic cũ)
+  //  Handle search results 
   const handleSearchResults = (searchResults) => {
     if (searchResults === null) {
       setFilteredMovies(movies);
@@ -230,7 +229,6 @@ useEffect(() => {
           onSearchResults={handleSearchResults}
         />
 
-        {/* 🆕 Full FilterPanel */}
         <FilterPanel
           genres={genres.map((g) => g.name)}
           cities={cities}
@@ -251,7 +249,6 @@ useEffect(() => {
         />
       </div>
 
-      {/* ✅ Hiển thị số lượng kết quả */}
       {searchTerm && searchTerm.trim().length >= 2 && (
         <div className="container mb-3">
           <p className="text-secondary">

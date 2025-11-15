@@ -1,4 +1,3 @@
-// SearchBar.jsx
 import React, { useState, useEffect, useRef } from "react";
 import "./SearchBar.css";
 
@@ -9,7 +8,6 @@ function SearchBar({ value, onChange, placeholder, onSearchResults }) {
   const searchRef = useRef(null);
   const debounceTimer = useRef(null);
 
-  // Đóng suggestions khi click bên ngoài
   useEffect(() => {
     function handleClickOutside(event) {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -20,7 +18,6 @@ function SearchBar({ value, onChange, placeholder, onSearchResults }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ✅ Unified search - tìm cả movie và cast
   useEffect(() => {
     if (value.trim().length >= 2) {
       if (debounceTimer.current) {
@@ -61,15 +58,12 @@ function SearchBar({ value, onChange, placeholder, onSearchResults }) {
       const allMovies = await moviesResponse.json();
       const castData = await castResponse.json();
 
-      // Tìm movies theo title
       const moviesByTitle = allMovies.filter((movie) =>
         movie.title.toLowerCase().includes(query.toLowerCase())
       );
 
-      // Tìm movies theo cast
       const moviesByCast = castData.movies || [];
 
-      // Gộp kết quả và loại bỏ duplicate
       const allResults = [...moviesByTitle];
       const movieIds = new Set(moviesByTitle.map((m) => m.movie_id));
 
@@ -83,7 +77,7 @@ function SearchBar({ value, onChange, placeholder, onSearchResults }) {
         }
       });
 
-      // ✅ Giới hạn 5 suggestions cho dropdown
+
       const suggestions = allResults.slice(0, 20).map((movie) => ({
         id: movie.movie_id,
         title: movie.title,
@@ -95,7 +89,7 @@ function SearchBar({ value, onChange, placeholder, onSearchResults }) {
       setSuggestions(suggestions);
       setShowSuggestions(true);
 
-      // ✅ Trả về tất cả kết quả để hiển thị cards ở dưới
+
       if (onSearchResults) {
         onSearchResults(allResults);
       }
@@ -127,7 +121,7 @@ function SearchBar({ value, onChange, placeholder, onSearchResults }) {
   return (
     <div className="search-bar-wrapper" ref={searchRef}>
       <div className="search-bar">
-        {/* ✅ Bỏ icon kính lúp */}
+
         <input
           type="text"
           className="search-bar-input"
@@ -149,7 +143,6 @@ function SearchBar({ value, onChange, placeholder, onSearchResults }) {
         )}
       </div>
 
-      {/* ✅ Suggestions dropdown - THU NHỎ */}
       {showSuggestions && suggestions.length > 0 && (
         <div className="search-suggestions">
           {suggestions.map((suggestion) => (
