@@ -66,7 +66,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/movies?filter=coming" className="fc-link">
+                <Link to="/coming-soon" className="fc-link">
                   Coming Soon
                 </Link>
               </li>
