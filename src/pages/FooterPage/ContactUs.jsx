@@ -139,7 +139,7 @@ export default function ContactUs() {
                   
                   {/* Đây là thông báo thành công (chỉ hiện khi isSubmitted = true) */}
                   {isSubmitted && (
-                    <div className="text-success fw-bold">
+                    <div className="text-warning  fw-bold">
                       Message sent successfully!
                     </div>
                   )}

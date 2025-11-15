@@ -47,7 +47,7 @@ export default function Footer() {
               Subscribe
             </button>
             {isSubscribed && (
-              <div className="text-success fw-bold" style={{whiteSpace: "nowrap"}}>
+              <div className="text-warning  fw-bold" style={{whiteSpace: "nowrap"}}>
                 Subscribed!
               </div>
             )}
