@@ -20,7 +20,7 @@ import ForgotPassword from "./pages/Auth/ForgotPassword";
 import PendingBookingDialog from "./components/PendingBookingDialog.jsx";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute.jsx";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard.jsx";
-
+import AboutUs from "./pages/AboutUs/AboutUs.jsx";
 function App() {
   const [count, setCount] = useState(0);
   return (
@@ -34,6 +34,7 @@ function App() {
         <Route path="/movies" element={<Movies />} />
         <Route path="/coming-soon" element={<ComingSoon />} />
         <Route path="/movie/:id" element={<MovieDetail />} />
+        <Route path="/about" element={<AboutUs />} />
         <Route path="/admin" element={<Dashboard />} />
         <Route path="/offers" element={<Offers />} />
         <Route path="/theaters" element={<Theaters />} />
