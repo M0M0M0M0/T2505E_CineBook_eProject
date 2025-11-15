@@ -52,10 +52,8 @@ export default function Register() {
         localStorage.setItem("user", JSON.stringify(res.data.user));
       }
 
-      // ✅ Dispatch event login để Header update ngay
       window.dispatchEvent(new Event("login"));
 
-      // Chuyển trang đến profile hoặc home
       navigate("/profile");
     } catch (err) {
       console.error(err);
