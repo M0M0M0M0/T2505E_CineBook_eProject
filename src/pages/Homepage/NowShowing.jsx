@@ -11,11 +11,9 @@ const NowShowing = () => {
   const navigate = useNavigate();
   const [movies, setMovies] = useState([]);
 
-  // 🟡 State quản lý trailer
   const [showTrailer, setShowTrailer] = useState(false);
   const [trailerLink, setTrailerLink] = useState("");
 
-  // 🟡 Hàm chuyển link YouTube sang dạng embed để nhúng iframe
   const getEmbedUrl = (url) => {
     if (!url) return "";
     const videoId = url.split("v=")[1]?.split("&")[0];
@@ -100,7 +98,6 @@ const NowShowing = () => {
                     }
                   />
 
-                  {/* ✅ Hover hiển thị nút trailer (mở modal chứ không mở tab mới) */}
                   {movie.trailer_link && (
                     <div className="trailer-overlay">
                       <div

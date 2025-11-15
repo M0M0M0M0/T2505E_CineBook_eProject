@@ -4,18 +4,16 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 // import "slick-carousel/slick/slick.css";
 // import "slick-carousel/slick/slick-theme.css";
-import "./ComingSoon.css"; // dùng chung CSS
+import "./ComingSoon.css"; 
 import { PrevArrow, NextArrow } from "../../components/SliderArrow";
 
 const ComingSoon = () => {
   const navigate = useNavigate();
   const [movies, setMovies] = useState([]);
 
-  // ✅ State quản lý trailer modal
   const [showTrailer, setShowTrailer] = useState(false);
   const [trailerLink, setTrailerLink] = useState("");
 
-  // ✅ Hàm chuyển link YouTube sang dạng embed
   const getEmbedUrl = (url) => {
     if (!url) return "";
     const videoId = url.split("v=")[1]?.split("&")[0];
@@ -28,7 +26,7 @@ const ComingSoon = () => {
         const res = await fetch("http://127.0.0.1:8000/api/movies");
         if (!res.ok) throw new Error("Failed to fetch movies");
         const data = await res.json();
-        // ✅ Lấy phim sắp chiếu (ví dụ: loại trừ 20 phim cuối)
+        
         setMovies(data.slice(0, data.length - 20));
       } catch (err) {
         console.error(err);
@@ -103,7 +101,6 @@ const ComingSoon = () => {
                     }
                   />
 
-                  {/* ✅ Hover hiển thị nút trailer (mở modal chứ không mở tab mới) */}
                   {movie.trailer_link && (
                     <div className="trailer-overlay">
                       <div

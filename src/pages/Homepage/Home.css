@@ -5,7 +5,7 @@
   overflow-x: hidden;
 }
 
-/* ===== HERO BANNER ===== */
+/*  HERO BANNER  */
 .homepage_hero_banner {
   position: relative;
   width: 100%;
@@ -55,7 +55,7 @@
   transform: scale(1.2);
 }
 
-/* ===== MOVIE GRID ===== */
+/*  MOVIE GRID  */
 .homepage_movie_section {
   padding: 50px 80px;
   background: #111;
@@ -146,7 +146,7 @@
   background: #ff5500;
 }
 
-/* ===== PROMO BANNER ===== */
+/*  PROMO BANNER  */
 .homepage_promo_banner {
   text-align: center;
   background: #ff7b00;
@@ -155,7 +155,7 @@
   font-weight: bold;
   color: #000;
 }
-/* ===== NOW PLAYING ===== */
+/*  NOW PLAYING  */
 .homepage_now_playing {
   background: none;
   padding: 50px 60px;
@@ -225,7 +225,7 @@
   background: #eee;
 }
 
-/* ===== COMING SOON OVERLAY ===== */
+/*  COMING SOON OVERLAY  */
 .homepage_coming_overlay {
   justify-content: center;
   align-items: center;
@@ -236,7 +236,7 @@
   margin: 4px 0;
 }
 
-/* ===== NEWS SECTION ===== */
+/*  NEWS SECTION  */
 .homepage_news_section {
   background: #111;
   padding: 50px 80px;
