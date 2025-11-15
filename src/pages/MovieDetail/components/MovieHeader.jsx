@@ -1,6 +1,5 @@
-// MovieHeader.jsx
 import React from "react";
-import "./../MovieDetail.css"; // we use single CSS file
+import "./../MovieDetail.css"; 
 
 import { Link } from "react-router-dom";
 

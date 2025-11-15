@@ -1,4 +1,3 @@
-// CastCrewList.jsx — phiên bản rút gọn (không hiển thị ảnh diễn viên)
 import React from "react";
 import "./../MovieDetail.css";
 

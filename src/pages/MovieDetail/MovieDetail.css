@@ -1,7 +1,6 @@
-/* MOVIE DETAIL PAGE - clean & responsive dark theme */
 .movie-detail-page {
   position: relative;
-  min-height: auto; /* ❌ bỏ 100vh để tránh thừa khoảng trống */
+  min-height: auto; 
   color: #f5f5f5;
   background-size: cover;
   background-position: center;
@@ -10,7 +9,7 @@
   font-family: "Inter", "Segoe UI", Roboto, sans-serif;
 }
 
-/* overlay for dark effect */
+
 .movie-detail-overlay {
   background: rgba(0, 0, 0, 0.85);
   width: 100%;
@@ -18,7 +17,7 @@
   padding: 40px 0;
 }
 
-/* container - auto center and flexible height */
+
 .movie-detail-inner.container {
   width: 90%;
   max-width: 1100px;
@@ -31,32 +30,32 @@
 /* HEADER */
 .movie-detail-header {
   display: flex;
-  flex-wrap: nowrap; /* Giữ ảnh và text cùng 1 dòng */
+  flex-wrap: nowrap;
   gap: 24px;
-  align-items: flex-start; /* Căn đỉnh */
-  justify-content: flex-start; /* Căn trái */
+  align-items: flex-start;
+  justify-content: flex-start;
   margin-bottom: 20px;
 }
 
 @media (max-width: 768px) {
   .movie-detail-header {
-    flex-wrap: wrap; /* Cho mobile xuống dòng */
+    flex-wrap: wrap; 
     justify-content: center;
     text-align: center;
   }
 }
 
-/* Poster linh hoạt hơn để tránh tụt */
+
 .md-poster {
   width: 260px;
   max-height: 380px;
-  height: auto; /* để ảnh co giãn theo tỷ lệ */
-  aspect-ratio: 2 / 3; /* đảm bảo giữ tỉ lệ đứng */
+  height: auto; 
+  aspect-ratio: 2 / 3; 
   object-fit: cover;
   border-radius: 10px;
   border: 1px solid #333;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
-  align-self: flex-start; /* ép ảnh luôn bám trên cùng */
+  align-self: flex-start; 
 }
 
 .md-title {
@@ -175,9 +174,8 @@
   z-index: 9999;
 }
 
-/* ✅ make trailer wider, proportional */
+
 .trailer-modal-content {
-  /* width: min(95%, 1080px); */
   width: min(98%, 1200px);
   aspect-ratio: 16 / 9;
   background: #000;
@@ -187,7 +185,7 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* animation */
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -247,7 +245,6 @@
   margin-bottom: 10px;
 }
 
-/* Thông tin chi tiết nhỏ bên phải poster */
 .md-extra-info {
   margin-bottom: 16px;
   line-height: 1.6;
@@ -260,7 +257,7 @@
   color: #ffd54f;
 }
 
-/* ✅ Phần tóm tắt xuống dưới riêng biệt */
+
 .md-synopsis-section {
   margin-top: 30px;
   padding-top: 16px;
@@ -292,7 +289,7 @@
   line-height: 1.6;
 }
 
-/* ✅ Đảm bảo col-md-8 không bị tràn */
+
 .movie-detail-header .col-md-8 {
   max-width: 100%;
   overflow: hidden;
