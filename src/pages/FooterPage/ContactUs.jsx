@@ -1,8 +1,51 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './ContactUs.css'; // Import file CSS
 
 // Component Trang Liên hệ
 export default function ContactUs() {
+  
+  // 1. State cho thông báo thành công
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // 2. State để kiểm soát dữ liệu của form (Controlled Components)
+  const initialFormState = {
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  };
+  const [formData, setFormData] = useState(initialFormState);
+
+  // 3. Hàm 'handleChange' chung để cập nhật state của form
+  const handleChange = (e) => {
+    // 'name' ở đây là thuộc tính 'name' của thẻ input
+    const { name, value } = e.target; 
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  // 4. Cập nhật hàm 'handleSubmit'
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Ngăn trang tải lại
+    
+    // TRONG THỰC TẾ: Đây là nơi bạn sẽ gọi API (fetch, axios...)
+    
+    // GIẢ LẬP GỬI THÀNH CÔNG:
+    
+    // 5. Hiển thị thông báo thành công
+    setIsSubmitted(true);
+    
+    // 6. NGAY LẬP TỨC clear các thông tin đã điền
+    setFormData(initialFormState);
+
+    // 7. (Cải tiến) Tự động ẩn thông báo sau 3 giây
+    setTimeout(() => {
+      setIsSubmitted(false);
+    }, 3000);
+  };
+
   return (
     <div className="contact-page">
       <div className="container py-5">
@@ -20,34 +63,90 @@ export default function ContactUs() {
           {/* CỘT TRÁI: BIỂU MẪU LIÊN HỆ */}
           <div className="col-lg-7">
             <h3 className="fw-bold mb-4">Send Us a Message</h3>
-            <form className="contact-form" onSubmit={(e) => e.preventDefault()}>
+
+            {/* *** THAY ĐỔI LỚN: 
+              Bỏ logic isSubmitted ? ... : ... ở đây. 
+              Form sẽ luôn hiển thị.
+            */}
+            
+            <form className="contact-form" onSubmit={handleSubmit}>
               <div className="row g-3">
+                
                 {/* Tên */}
                 <div className="col-md-6">
                   <label htmlFor="contact-name" className="form-label">Your Name</label>
-                  <input type="text" className="form-control" id="contact-name" placeholder="John Doe" required />
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    id="contact-name" 
+                    name="name" // <-- 8. Thêm 'name'
+                    placeholder="John Doe" 
+                    required 
+                    value={formData.name} // <-- 9. Thêm 'value'
+                    onChange={handleChange} // <-- 10. Thêm 'onChange'
+                  />
                 </div>
+                
                 {/* Email */}
                 <div className="col-md-6">
                   <label htmlFor="contact-email" className="form-label">Your Email</label>
-                  <input type="email" className="form-control" id="contact-email" placeholder="name@example.com" required />
+                  <input 
+                    type="email" 
+                    className="form-control" 
+                    id="contact-email" 
+                    name="email" // <-- 8. Thêm 'name'
+                    placeholder="name@example.com" 
+                    required 
+                    value={formData.email} // <-- 9. Thêm 'value'
+                    onChange={handleChange} // <-- 10. Thêm 'onChange'
+                  />
                 </div>
+                
                 {/* Chủ đề */}
                 <div className="col-12">
                   <label htmlFor="contact-subject" className="form-label">Subject</label>
-                  <input type="text" className="form-control" id="contact-subject" placeholder="Booking Issue, Feedback,..." required />
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    id="contact-subject" 
+                    name="subject" // <-- 8. Thêm 'name'
+                    placeholder="Booking Issue, Feedback,..." 
+                    required 
+                    value={formData.subject} // <-- 9. Thêm 'value'
+                    onChange={handleChange} // <-- 10. Thêm 'onChange'
+                  />
                 </div>
+                
                 {/* Tin nhắn */}
                 <div className="col-12">
                   <label htmlFor="contact-message" className="form-label">Your Message</label>
-                  <textarea className="form-control" id="contact-message" rows="5" placeholder="Tell us more..." required></textarea>
+                  <textarea 
+                    className="form-control" 
+                    id="contact-message" 
+                    name="message" // <-- 8. Thêm 'name'
+                    rows="5" 
+                    placeholder="Tell us more..." 
+                    required 
+                    value={formData.message} // <-- 9. Thêm 'value'
+                    onChange={handleChange} // <-- 10. Thêm 'onChange'
+                  ></textarea>
                 </div>
-                {/* Nút gửi */}
-                <div className="col-12">
+
+                {/* Nút gửi VÀ Thông báo thành công */}
+                {/* 11. Đặt nút và thông báo trong một layout 'd-flex' */}
+                <div className="col-12 d-flex align-items-center gap-3">
                   <button type="submit" className="btn btn-warning btn-lg">Send Message</button>
+                  
+                  {/* Đây là thông báo thành công (chỉ hiện khi isSubmitted = true) */}
+                  {isSubmitted && (
+                    <div className="text-success fw-bold">
+                      Message sent successfully!
+                    </div>
+                  )}
                 </div>
               </div>
             </form>
+
           </div>
 
           {/* CỘT PHẢI: THÔNG TIN LIÊN HỆ */}
