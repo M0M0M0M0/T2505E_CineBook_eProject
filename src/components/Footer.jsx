@@ -1,21 +1,3 @@
-// src/components/Footer.jsx
-/**
- * Footer.jsx
- * - Place file at: src/components/Footer.jsx
- * - CSS file: src/components/Footer.css (should be in same folder)
- *
- * Layout (top → bottom):
- * 1) Optional newsletter / quick search row
- * 2) Link columns (About, Support, Explore)
- * 3) Contact & social
- * 4) Bottom bar: copyright + small links
- *
- * Notes:
- * - Logo is left as placeholder; replace with <img src="/images/logo.png" /> when ready.
- * - Links use <Link> where internal (react-router), <a> for external.
- * - All classNames prefixed footer-cb / fc-*
- * - Mobile: columns collapse into stacked layout.
- */
 
 import React from "react";
 import { Link } from "react-router-dom";
@@ -71,11 +53,6 @@ export default function Footer() {
                   Careers
                 </Link>
               </li>
-              <li>
-                <Link to="/press" className="fc-link">
-                  Press
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -111,48 +88,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/faq" className="fc-link">
-                  FAQ
-                </Link>
-              </li>
-              <li>
                 <a className="fc-link" href="/contact">
                   Contact us
                 </a>
               </li>
             </ul>
-          </div>
-
-          {/* Column D - Contact & Social */}
-          <div className="fc-col">
-            <h4 className="fc-col-title">Contact</h4>
-            <div className="fc-contact">
-              <div className="fc-contact-line">
-                Hotline:{" "}
-                <a href="tel:+840123456789" className="fc-link">
-                  +84 0123 456 789
-                </a>
-              </div>
-              <div className="fc-contact-line">
-                Email:{" "}
-                <a href="mailto:info@cinebook.local" className="fc-link">
-                  info@cinebook.local
-                </a>
-              </div>
-            </div>
-
-            <div className="fc-social">
-              {/* Replace # with real social links */}
-              <a className="fc-social-link" href="#" aria-label="Facebook">
-                Fb
-              </a>
-              <a className="fc-social-link" href="#" aria-label="Instagram">
-                Ig
-              </a>
-              <a className="fc-social-link" href="#" aria-label="Youtube">
-                Yt
-              </a>
-            </div>
           </div>
         </div>
       </div>
