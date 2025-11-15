@@ -18,7 +18,7 @@ const MovieCard = ({ movie, selectedDate }) => {
     <ListGroup.Item className="px-0 py-3" style={{ backgroundColor: '#000000ff' }}>
       <Row className="g-3 align-items-start">
         <Col sm={3} m={2}>
-          {/* THAY ĐỔI 2: Bọc thẻ Image bằng Link */}
+         
           <Link to={`/movie/${movie.id}`}>
             <Image
               src={movie.poster}

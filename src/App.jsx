@@ -34,7 +34,6 @@ function App() {
       <PendingBookingDialog />
       <Header />
 
-      {/* <Dashboard /> */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/movies" element={<Movies />} />

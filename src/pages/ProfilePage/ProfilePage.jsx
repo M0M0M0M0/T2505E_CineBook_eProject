@@ -38,17 +38,17 @@ export default function Profile() {
     if (!dateString || typeof dateString !== "string") return null;
 
     try {
-      // Format: "14/11/2025 05:54" (này là UTC time đã được format)
+      
       const parts = dateString.split(" ");
       if (parts.length !== 2) return null;
 
-      const datePart = parts[0]; // "14/11/2025"
-      const timePart = parts[1]; // "05:54"
+      const datePart = parts[0]; 
+      const timePart = parts[1]; 
 
       const [day, month, year] = datePart.split("/");
       const [hour, minute] = timePart.split(":");
 
-      // ✅ Tạo Date object với UTC time
+      
       const date = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
 
       if (isNaN(date.getTime())) return null;
@@ -76,21 +76,21 @@ export default function Profile() {
       });
 
       setCountdowns(newCountdowns);
-    }, 1000); // Update mỗi 1 giây
+    }, 1000); 
 
     return () => clearInterval(interval);
   }, [tickets]);
-  // ✅ HELPER FUNCTION: Convert UTC time to Vietnam local time
+  
   const formatDateTimeVN = (utcTimeString) => {
     if (!utcTimeString) return "N/A";
 
     try {
-      // ✅ KIỂM TRA: Nếu đã là format DD/MM/YYYY HH:MM thì return luôn
+      
       if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/.test(utcTimeString)) {
-        return utcTimeString; // Backend đã format sẵn rồi
+        return utcTimeString; 
       }
 
-      // Nếu không, parse như bình thường
+      
       const date = new Date(utcTimeString);
 
       if (isNaN(date.getTime())) {
@@ -114,12 +114,12 @@ export default function Profile() {
     }
   };
 
-  // ✅ HELPER FUNCTION: Format only date
+  
   const formatDateVN = (utcTimeString) => {
     if (!utcTimeString) return "N/A";
 
     try {
-      // ✅ KIỂM TRA: Nếu đã là format DD/MM/YYYY
+      
       if (/^\d{2}\/\d{2}\/\d{4}$/.test(utcTimeString)) {
         return utcTimeString;
       }
@@ -143,14 +143,14 @@ export default function Profile() {
     }
   };
 
-  // ✅ HELPER FUNCTION: Calculate remaining time
+  
   const getRemainingTime = (expiresAt) => {
     if (!expiresAt) return null;
 
     try {
       let expiry;
 
-      // ✅ Parse DD/MM/YYYY HH:MM format (UTC từ backend)
+      
       if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/.test(expiresAt)) {
         expiry = parseDDMMYYYY_UTC(expiresAt);
         if (!expiry) return "Invalid date";
@@ -160,7 +160,7 @@ export default function Profile() {
 
       if (isNaN(expiry.getTime())) return "Invalid date";
 
-      // ✅ So sánh với thời gian hiện tại (UTC)
+      
       const now = new Date();
       const diffMs = expiry - now;
 
@@ -175,7 +175,7 @@ export default function Profile() {
       return null;
     }
   };
-  // ✅ THÊM: Đọc query parameter để mở tab
+ 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const tabParam = searchParams.get("tab");
@@ -185,7 +185,7 @@ export default function Profile() {
     }
   }, [location.search]);
 
-  // ✅ Load user profile
+  //  Load user profile
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -209,7 +209,7 @@ export default function Profile() {
       .catch(console.log);
   }, [token]);
 
-  // ✅ Load user bookings
+  //  Load user bookings
   const loadBookings = () => {
     if (!token) return;
 
@@ -234,7 +234,7 @@ export default function Profile() {
     loadBookings();
   }, [token]);
 
-  // ✅ Generate QR Code when viewing ticket details
+  //  Generate QR Code when viewing ticket details
   useEffect(() => {
     if (selectedTicket) {
       const qrData = JSON.stringify({
@@ -327,7 +327,6 @@ export default function Profile() {
     // console.log("🔍 Continuing booking to step:", nextStep);
     // console.log("📦 Ticket data:", ticket);
 
-    // ✅ TÍNH LẠI SEAT TOTAL NẾU = 0
     let seatTotal = ticket.ticket_total || 0;
 
     if (seatTotal === 0 && ticket.seats && ticket.seats.length > 0) {
@@ -336,7 +335,6 @@ export default function Profile() {
       // console.log("✅ Recalculated seat total:", seatTotal);
     }
 
-    // Navigate to movie detail page với thông tin resume
     navigate(`/movie/${ticket.movie_id}`, {
       state: {
         resumeBooking: true,
@@ -344,7 +342,7 @@ export default function Profile() {
         showtimeId: ticket.showtime_id,
         targetStep: nextStep,
         seats: ticket.seats || [],
-        seatTotal: seatTotal, // ✅ SỬ DỤNG GIÁ TRỊ ĐÃ TÍNH
+        seatTotal: seatTotal, 
         foods: ticket.foods || [],
         foodTotal: ticket.food_total || 0,
       },
@@ -394,7 +392,7 @@ export default function Profile() {
     setQrCodeDataUrl("");
   };
 
-  // ✅ Download E-Ticket as image
+  // Download E-Ticket as image
   const handleDownloadTicket = () => {
     if (!qrCodeDataUrl || !selectedTicket) return;
 
@@ -479,7 +477,6 @@ export default function Profile() {
 
         let seatType = SEAT_TYPE_MAP[row];
 
-        // Xử lý các ghế đặc biệt
         if (
           row === "B" &&
           (col === 1 || col === 2 || col === 15 || col === 16)
@@ -506,7 +503,7 @@ export default function Profile() {
     }
   };
 
-  // ✅ CẬP NHẬT: Render ticket card với format thời gian VN
+
   const renderTicketCard = (ticket) => (
     <div key={ticket.booking_id} className="ticket-card">
       <div className="ticket-card-content">
@@ -535,7 +532,7 @@ export default function Profile() {
             >
               {ticket.status === "completed" ? "✅ Confirmed" : "⏳ Pending"}
             </span>
-            {/* ✅ Hiển thị thời gian còn lại với VN timezone */}
+
             {ticket.status === "pending" && ticket.expires_at && (
               <span className="ms-2 text-white small">
                 (Expires:
@@ -548,7 +545,7 @@ export default function Profile() {
             )}
           </p>
 
-          {/* ✅ BUTTONS: Khác nhau tùy theo status */}
+
           <div className="d-flex gap-2 mt-2">
             <button
               className="btn btn-warning btn-sm"
@@ -557,7 +554,7 @@ export default function Profile() {
               View Details
             </button>
 
-            {/* ✅ NÚT CHO PENDING BOOKINGS */}
+
             {ticket.status === "pending" && !ticket.is_expired && (
               <>
                 <button
@@ -791,7 +788,7 @@ export default function Profile() {
         )}
       </div>
 
-      {/* Modal - ✅ CẬP NHẬT với format thời gian VN */}
+
       {selectedTicket && (
         <div className="fade-modal show" onClick={handleCloseModal}>
           <div
@@ -898,7 +895,7 @@ export default function Profile() {
                         {selectedTicket.status === "completed" ? "✅" : "⏳"}{" "}
                         {selectedTicket.status}
                       </p>
-                      {/* ✅ Hiển thị expires_at cho pending bookings */}
+
                       {selectedTicket.status === "pending" &&
                         selectedTicket.expires_at && (
                           <p>
@@ -940,7 +937,7 @@ export default function Profile() {
                   Close
                 </button>
 
-                {/* ✅ BUTTONS TRONG MODAL */}
+                {/*  BUTTONS IN MODAL */}
                 {selectedTicket.status === "pending" &&
                   !selectedTicket.is_expired && (
                     <>

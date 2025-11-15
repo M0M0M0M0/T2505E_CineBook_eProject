@@ -27,18 +27,18 @@
 }
 
 .react-datepicker-wrapper input.form-control.custom-select-dark {
-  background-color: #212529; /* Màu nền tối */
-  color: #ffd27a;           /* Màu chữ */
-  border: 1px solid #ffd27a; /* Màu viền */
+  background-color: #212529; 
+  color: #ffd27a;           
+  border: 1px solid #ffd27a; 
 }
 
-/* Tùy chỉnh popup lịch */
+
 .react-datepicker-popper {
-  z-index: 1050; /* Đảm bảo nó nổi lên trên */
+  z-index: 1050;
 }
 
 .react-datepicker {
-  background-color: #1a1a1a; /* Nền tối cho lịch */
+  background-color: #1a1a1a; 
   border: 1px solid #ffd27a;
   border-radius: 0.375rem;
   color: #fff;
@@ -57,12 +57,12 @@
    background-color: #000; 
 }
 .react-datepicker__day-name {
-  color: #ffd27a; /* Màu chữ header */
+  color: #ffd27a; 
   font-weight: bold;
 }
 
 .react-datepicker__day {
-  color: #e0e0e0; /* Màu chữ ngày */
+  color: #e0e0e0;
 }
 
 .react-datepicker__day:hover {
@@ -81,25 +81,25 @@
   text-decoration: line-through;
 }
 
-/* Tùy chỉnh mũi tên điều hướng */
+
 .react-datepicker__navigation-icon::before {
   border-color: #ffd27a;
 }
 
 .datepicker-wrapper {
   position: relative;
-  width: 100%; /* Đảm bảo nó chiếm toàn bộ Col */
+  width: 100%; 
 }
 
-/* 2. Định vị và tạo kiểu cho icon */
+
 .datepicker-icon {
-  position: absolute;         /* Đặt icon "nổi" lên trên */
-  top: 50%;                   /* Căn giữa theo chiều dọc */
-  right: 15px;                /* Căn lề phải */
+  position: absolute;         
+  top: 50%;                   
+  right: 15px;                
   transform: translateY(-50%);
-  color: #ffd27a;            /* Màu vàng giống theme */
-  font-size: 1rem;          /* Kích cỡ icon (có thể điều chỉnh) */
+  color: #ffd27a;           
+  font-size: 1rem;          
   
-  /* QUAN TRỌNG: Cho phép click "xuyên qua" icon */
+
   pointer-events: none;
 }

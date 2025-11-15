@@ -1,6 +1,4 @@
-/* ==============================
-   GLOBAL / CONTAINER
-============================== */
+/* GLOBAL / CONTAINER */
 .profile-page-container {
   display: flex;
   min-height: 100vh;
@@ -11,9 +9,7 @@
   gap: 30px;
 }
 
-/* ==============================
-   SIDEBAR
-============================== */
+/* SIDEBAR */
 .profile-sidebar {
   width: 250px;
   background-color: #161616;
@@ -50,9 +46,7 @@
   font-weight: 600;
 }
 
-/* ==============================
-   MAIN CONTENT
-============================== */
+/* MAIN CONTENT */
 .profile-content {
   flex: 1;
   display: flex;
@@ -134,9 +128,7 @@
   background-color: #e0a800;
 }
 
-/* ==============================
-   TICKET CARDS
-============================== */
+/* TICKET CARDS */
 .user-dashboard-section h4 {
   color: #ffd27a;
   margin-bottom: 25px;
@@ -177,9 +169,7 @@
   color: #ffd27a;
 }
 
-/* ==============================
-   MODAL DETAIL VIEW
-============================== */
+/* MODAL DETAIL VIEW */
 .fade-modal.show {
   position: fixed;
   top: 0;
