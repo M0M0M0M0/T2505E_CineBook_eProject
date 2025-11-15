@@ -17,7 +17,7 @@ export default function Footer() {
 
   return (
     <footer className="footer-cb">
-      {/* 1) Newsletter */}
+      {/* Newsletter */}
       <div className="footer-cb-newsletter py-4">
         <div className="footer-cb-inner container d-flex align-items-center justify-content-between">
           <div className="fc-news-left d-flex align-items-center gap-3">
@@ -55,7 +55,7 @@ export default function Footer() {
         </div>
       </div>
 
-      
+          {/* About */}
       <div className="footer-cb-links">
         <div className="footer-cb-inner container fc-grid">
           <div className="fc-col">
@@ -74,7 +74,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column B - Explore */}
+          {/* Explore */}
           <div className="fc-col">
             <h4 className="fc-col-title">Explore</h4>
             <ul className="fc-list">
@@ -96,7 +96,7 @@ export default function Footer() {
             </ul>
           </div>
 
-
+            {/* Support */}
           <div className="fc-col">
             <h4 className="fc-col-title">Support</h4>
             <ul className="fc-list">
@@ -112,7 +112,7 @@ export default function Footer() {
               </li>
             </ul>
           </div>
-          
+          {/* Contact */}
           <div className="fc-col">
             <h4 className="fc-col-title">Contact</h4>
             <div className="fc-contact">
@@ -133,7 +133,7 @@ export default function Footer() {
         </div>
       </div>
       
-      {/* 3) Bottom bar */}
+      {/* Bottom bar */}
       <div className="footer-cb-bottom">
         <div className="footer-cb-inner container fc-bottom-row">
           <div className="fc-copyright">
