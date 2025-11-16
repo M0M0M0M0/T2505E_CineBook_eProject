@@ -20,11 +20,10 @@ export default function MovieForm({
       .catch((err) => console.error("Failed to load genres:", err));
   }, []);
 
-  // Normalize genres to array of IDs with null safety
+  
   const normalizedGenres = React.useMemo(() => {
     if (!editForm || !editForm.genres) return [];
 
-    // If genres is array of objects with genre_id
     if (Array.isArray(editForm.genres) && editForm.genres.length > 0) {
       if (
         typeof editForm.genres[0] === "object" &&
@@ -34,7 +33,6 @@ export default function MovieForm({
       }
     }
 
-    // If already array of IDs
     return Array.isArray(editForm.genres) ? editForm.genres : [];
   }, [editForm?.genres]);
 

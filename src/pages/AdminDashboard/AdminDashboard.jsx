@@ -66,14 +66,13 @@ export default function Dashboard() {
 
   const COLORS = ["#FF6B6B", "#4ECDC4", "#FFD93D"];
 
-  // State lưu mục menu đang chọn
   const [activeMenu, setActiveMenu] = useState("Dashboard");
 
-  // Menu items không lưu trạng thái active cứng
+
   const menuItems = [
     { name: "Dashboard", icon: <LayoutDashboard size={18} /> },
     { name: "Movies", icon: <Film size={18} /> },
-    { name: "Theaters", icon: <Building size={18} /> }, // Thêm menu item này
+    { name: "Theaters", icon: <Building size={18} /> }, 
     { name: "Showtimes", icon: <Users size={18} /> },
     { name: "Pricing", icon: <LineChartIcon size={18} /> },
     { name: "Users", icon: <Settings size={18} /> },
@@ -92,7 +91,7 @@ export default function Dashboard() {
   const [pricingEditCommon, pricingSetEditCommon] = useState(false);
   const [pricingEditSeats, pricingSetEditSeats] = useState(false);
 
-  // dữ liệu danh sách user
+  // list data user
   const [usersList, usersSetList] = useState([]);
   const [userSearch, userSetSearch] = useState("");
   const [userFilterStatus, userSetFilterStatus] = useState("all");
@@ -101,7 +100,7 @@ export default function Dashboard() {
   const [userExporting, userSetExporting] = useState(false);
   const [userChangingPassword, userSetChangingPassword] = useState(false);
 
-  // --- Showtime data (from Laravel API) ---
+  //  Showtime data (from Laravel API)
   const [cities, setCities] = useState([]);
   const [theaters, setTheaters] = useState([]);
   const [movies, setMovies] = useState([]);
@@ -112,7 +111,7 @@ export default function Dashboard() {
   const [selectedTheater, setSelectedTheater] = useState("");
   const [selectedMovie, setSelectedMovie] = useState("");
 
-  // State cho edit movie
+  // State  edit movie
   const [editMovie, setEditMovie] = useState(null);
   const [editForm, setEditForm] = useState({
     movieId: "",
@@ -127,15 +126,15 @@ export default function Dashboard() {
     release: "",
   });
   const [editError, setEditError] = useState("");
-  //State cho tìm kiếm trong movie admin dash board
+  //State search movie admin dash board
   const [movieSearch, setMovieSearch] = useState("");
 
-  // State cho add movie
+  // State  add movie
   const [isAddMovie, setIsAddMovie] = useState(false);
 
-  // Xử lý khi nhấn Select
 
-  // State cho theater
+
+  // State  theater
   const [editTheater, setEditTheater] = useState(null);
   const [isAddTheater, setIsAddTheater] = useState(false);
   const [theaterForm, setTheaterForm] = useState({
@@ -147,7 +146,7 @@ export default function Dashboard() {
   });
   const [theaterError, setTheaterError] = useState("");
 
-  // --- Room & Seat Management ---
+  //  Room & Seat Management 
   const [showManageRooms, setShowManageRooms] = useState(false);
   const [selectedTheaterForRooms, setSelectedTheaterForRooms] = useState(null);
 
@@ -162,7 +161,7 @@ export default function Dashboard() {
     seat_type_id: "",
   });
 
-  //Chinh Pricing
+  // Pricing
   const [editingSeats, setEditingSeats] = useState(false);
   const [editingDays, setEditingDays] = useState(false);
   const [editingTimes, setEditingTimes] = useState(false);
@@ -184,7 +183,7 @@ export default function Dashboard() {
   const genTempId = (prefix = "X") =>
     `${prefix}${Date.now().toString().slice(-6)}`;
 
-  // --- DAY MODIFIERS: add / delete ---
+  //  DAY MODIFIERS: add / delete 
   const handleAddDayModifier = () => {
     const newRow = {
       day_modifier_id: genTempId("D"),
@@ -199,20 +198,16 @@ export default function Dashboard() {
   };
 
   const handleDeleteDayModifier = (id) => {
-    // If the row is a temporary new row (__isNew) just remove it,
-    // otherwise remove it locally — later you can call DELETE /api/day-modifiers/:id
+    
     const row = dayModifiers.find((r) => r.day_modifier_id === id);
     if (row?.__isNew) {
       setDayModifiers(dayModifiers.filter((r) => r.day_modifier_id !== id));
-    } else {
-      // remove locally; optionally add to a deleted list to sync with API later
+    } else {     
       setDayModifiers(dayModifiers.filter((r) => r.day_modifier_id !== id));
-      // TODO: call your API to delete immediately, or collect for batch delete
-      // fetch(`/api/day-modifiers/${id}`, { method: 'DELETE' })
     }
   };
 
-  // --- TIME SLOTS: add / delete ---
+  //  TIME SLOTS: add / delete 
   const handleAddTimeSlot = () => {
     const newRow = {
       time_slot_modifier_id: genTempId("TS"),
@@ -234,8 +229,6 @@ export default function Dashboard() {
       setTimeSlots(timeSlots.filter((r) => r.time_slot_modifier_id !== id));
     } else {
       setTimeSlots(timeSlots.filter((r) => r.time_slot_modifier_id !== id));
-      // TODO: optionally call DELETE API here
-      // fetch(`/api/time-slot-modifiers/${id}`, { method: 'DELETE' })
     }
   };
 
@@ -278,7 +271,7 @@ export default function Dashboard() {
   };
 
   const handleDeleteMovie = async (movieId, movieTitle) => {
-    // Confirm trước khi xóa
+    // Confirm before delete
     if (
       !window.confirm(
         `Are you sure you want to delete "${movieTitle}"?\n\nThis action cannot be undone.`
@@ -307,7 +300,7 @@ export default function Dashboard() {
         throw new Error(data.message || data.error || "Failed to delete movie");
       }
 
-      // Refresh movies list sau khi xóa thành công
+      // Refresh movies list after success
       const moviesRes = await fetch("http://127.0.0.1:8000/api/movies");
       const moviesData = await moviesRes.json();
       setMovies(moviesData);
@@ -339,9 +332,9 @@ export default function Dashboard() {
     setEditError("");
   };
 
-  // Khi nhấn Save
+
   const handleEditSave = async () => {
-    // Validate 6 trường bắt buộc
+    // Validate 
     const required = [
       "movie_id",
       "title",
@@ -400,7 +393,7 @@ export default function Dashboard() {
     }
   };
 
-  // Khi nhấn Save ở form Add
+  //  Save form Add
   const handleAddSave = async () => {
     const required = [
       "movie_id",
@@ -492,19 +485,19 @@ export default function Dashboard() {
     }
   };
 
-  // Khi nhấn Cancel
+  //  Cancel
   const handleEditCancel = () => {
     setEditMovie(null);
     setEditError("");
   };
 
-  // Khi nhấn Cancel ở form Add
+  // Cancel form Add
   const handleAddCancel = () => {
     setIsAddMovie(false);
     setEditError("");
   };
 
-  // Khi thay đổi input
+  // Change input
   const handleEditChange = (e) => {
     setEditForm({ ...editForm, [e.target.name]: e.target.value });
   };
@@ -547,9 +540,9 @@ export default function Dashboard() {
     }
   };
 
-  // === ROOM & SEAT REAL-TIME HANDLERS ===
+  //  ROOM & SEAT REAL-TIME HANDLERS 
 
-  // 🔁 Realtime update for theater counts
+  //  Realtime update for theater counts
   const updateTheaterCounts = (theaterId, updatedRooms) => {
     const roomCount = updatedRooms.length;
     const seatCount = updatedRooms.reduce(
@@ -571,7 +564,7 @@ export default function Dashboard() {
     );
   };
 
-  // 🏢 Load rooms when managing
+  //  Load rooms when managing
   const handleManageRooms = async (theater) => {
     setSelectedTheaterForRooms(theater);
     setShowManageRooms(true);
@@ -592,7 +585,7 @@ export default function Dashboard() {
     }
   };
 
-  // 🏢 Auto-generate next available room name
+  //  Auto-generate next available room name
   const getNextRoomName = () => {
     if (rooms.length === 0) return "Room 1";
     const taken = rooms
@@ -603,7 +596,7 @@ export default function Dashboard() {
     return `Room ${next}`;
   };
 
-  // ➕ Add Room
+  //  Add Room
   const handleAddRoom = async () => {
     const customName = newRoom.room_name?.trim();
     const roomName =
@@ -634,7 +627,7 @@ export default function Dashboard() {
     }
   };
 
-  // ❌ Delete Room
+  //  Delete Room
   const handleDeleteRoom = async (room_id) => {
     if (!window.confirm("Delete this room?")) return;
     try {
@@ -657,7 +650,7 @@ export default function Dashboard() {
     }
   };
 
-  // 🎟 Load seats for selected room
+  //  Load seats for selected room
   const handleViewSeats = async (room) => {
     setSelectedRoom(room);
     try {
@@ -676,7 +669,7 @@ export default function Dashboard() {
     }
   };
 
-  // ➕ Add Seat
+  //  Add Seat
   const handleAddSeat = async () => {
     const row = newSeat.seat_row?.trim().toUpperCase();
     const number = parseInt(newSeat.seat_number);
@@ -741,7 +734,7 @@ export default function Dashboard() {
     }
   };
 
-  // ❌ Delete Seat
+  //  Delete Seat
   const handleDeleteSeat = async (seat_id) => {
     if (!window.confirm("Delete this seat?")) return;
     try {
@@ -998,7 +991,7 @@ export default function Dashboard() {
       <main className="flex-grow-1 p-4">
         {/* Header */}
 
-        {/* Nội dung thay đổi theo menu */}
+       
         {activeMenu === "Dashboard" && (
           <DashboardStats
             salesData={salesData}
@@ -1162,11 +1155,11 @@ export default function Dashboard() {
             setDayModifiers={setDayModifiers}
             timeSlots={timeSlots}
             setTimeSlots={setTimeSlots}
-            genTempId={genTempId} // Dùng helper ID từ component cha
+            genTempId={genTempId} 
           />
         )}
 
-        {/* ...existing code... */}
+       
       </main>
     </div>
   );
