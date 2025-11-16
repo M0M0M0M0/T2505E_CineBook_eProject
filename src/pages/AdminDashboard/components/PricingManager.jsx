@@ -12,7 +12,7 @@ import {
 import { label } from "framer-motion/client";
 import "./PricingManager.css";
 
-// --- API Helper Functions ---
+//  API Helper Functions 
 const API_BASE = "http://127.0.0.1:8000/api";
 
 const fetchModifiers = async (endpoint, setState, setLoading) => {
@@ -58,18 +58,18 @@ const handleSave = async (
   const dataToSend = { ...data };
   delete dataToSend.__isNew;
 
-  // ✅ FIX 1: Xóa các trường timestamp (Laravel tự động xử lý)
+
   delete dataToSend.created_at;
   delete dataToSend.updated_at;
 
-  // ✅ FIX 2: Chuyển đổi numeric fields
+
   for (const key in dataToSend) {
     if (key.includes("price") || key.includes("amount")) {
       dataToSend[key] = parseFloat(dataToSend[key]) || 0;
     }
   }
 
-  // ✅ FIX 3: Chuẩn hóa format thời gian (loại bỏ milliseconds)
+  
   if (dataToSend.ts_start_time) {
     dataToSend.ts_start_time = dataToSend.ts_start_time.split(".")[0];
   }
@@ -77,7 +77,7 @@ const handleSave = async (
     dataToSend.ts_end_time = dataToSend.ts_end_time.split(".")[0];
   }
 
-  // Validation cho trường hợp NEW
+
   if (isNew && !dataToSend[idKey]) {
     alert("Error: ID must be filled out!");
     return false;
@@ -150,8 +150,7 @@ const handleDelete = async (id, endpoint, reloadData) => {
   }
 };
 
-// --- Custom Toggle Switch Component ---
-// Đã loại bỏ class 'disabled' khỏi label và chỉ dựa vào thuộc tính disabled của input
+//  Custom Toggle Switch Component 
 const ToggleSwitch = ({ name, checked, onChange, disabled = false }) => (
   <label className="switch">
     <input
@@ -159,13 +158,13 @@ const ToggleSwitch = ({ name, checked, onChange, disabled = false }) => (
       name={name}
       checked={checked}
       onChange={onChange}
-      disabled={disabled} // Dùng disabled trực tiếp trên input
+      disabled={disabled} 
     />
     <span className="slider round"></span>
   </label>
 );
 
-// --- General Pricing Table Component ---
+//  General Pricing Table Component 
 const PricingTable = ({
   title,
   data,
@@ -255,26 +254,26 @@ const PricingTable = ({
     setTempData({});
   };
 
-  // ✨ HÀM MỚI: Xử lý bật/tắt trạng thái is_active ngay trong chế độ xem
+ 
   const handleStatusToggle = async (row) => {
     const currentId = row[idKey];
     const newStatus = !row.is_active;
-    const dataToUpdate = { is_active: newStatus }; // Cập nhật trạng thái tạm thời trên UI trước (Optimistic Update)
+    const dataToUpdate = { is_active: newStatus };
 
     setData((prev) =>
       prev.map((r) =>
         r[idKey] === currentId ? { ...r, is_active: newStatus } : r
       )
-    ); // Gọi hàm save (PUT request)
+    ); 
 
     const success = await handleSave(
       currentId,
-      dataToUpdate, // Chỉ gửi is_active
+      dataToUpdate,
       endpoint,
-      false, // Luôn là update, không phải new
+      false, 
       setData,
       reloadData
-    ); // Nếu save thất bại, rollback lại trạng thái cũ
+    ); 
 
     if (!success) {
       setData((prev) =>
@@ -287,14 +286,14 @@ const PricingTable = ({
 
   const renderEditField = (col) => {
     const name = col.accessor;
-    const value = tempData[name] !== undefined ? tempData[name] : ""; // ✅ Render Toggle Switch cho is_active (trong chế độ Edit)
+    const value = tempData[name] !== undefined ? tempData[name] : ""; 
 
     if (name === "is_active" && col.type === "boolean") {
       return (
         <ToggleSwitch
           name={name}
           checked={tempData[name] || false}
-          onChange={handleInputChange} // Dùng handleInputChange khi Edit
+          onChange={handleInputChange} 
           disabled={false}
         />
       );
@@ -414,7 +413,7 @@ const PricingTable = ({
                         (col.accessor.includes("price") ||
                           col.accessor.includes("amount")) ? (
                         `${(parseFloat(row[col.accessor]) || 0).toFixed(2)}`
-                      ) : // ✅ THÊM PHẦN NÀY - Format thời gian
+                      ) : 
                       col.accessor === "ts_start_time" ||
                         col.accessor === "ts_end_time" ? (
                         row[col.accessor] ? (
@@ -453,7 +452,7 @@ const PricingTable = ({
                           className="btn btn-primary btn-sm me-1"
                           onClick={() => handleEditStart(row)}
                           title="Edit"
-                          disabled={editingId !== null} // Disabled nếu đang edit row khác
+                          disabled={editingId !== null} 
                         >
                           <Pencil size={16} />
                         </button>
@@ -464,7 +463,7 @@ const PricingTable = ({
                             handleDelete(row[idKey], endpoint, reloadData)
                           }
                           title="Delete"
-                          disabled={editingId !== null} // Disabled nếu đang edit row khác
+                          disabled={editingId !== null} 
                         >
                           <Trash2 size={16} />
                         </button>
@@ -481,7 +480,7 @@ const PricingTable = ({
   );
 };
 
-// --- Parent PricingManager Component ---
+//  Parent PricingManager Component 
 export default function PricingManager({
   seatTypes,
   setSeatTypes,

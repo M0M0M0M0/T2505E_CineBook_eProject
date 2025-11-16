@@ -21,7 +21,6 @@ export default function ShowtimeForm({
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Helper function: Parse datetime từ API về form fields
   const parseDateTimeFromAPI = (datetimeString) => {
     if (!datetimeString) return { date: "", time: "" };
 
@@ -38,7 +37,6 @@ export default function ShowtimeForm({
   // Update form when editingShowtime changes
   useEffect(() => {
     if (editingShowtime) {
-      // ✅ Parse start_time từ API (ISO format) thành date + time riêng
       const { date, time } = parseDateTimeFromAPI(editingShowtime.start_time);
 
       setForm({
@@ -51,7 +49,7 @@ export default function ShowtimeForm({
         status: editingShowtime.status || "Available",
       });
 
-      // ✅ Load rooms for the selected theater
+      //  Load rooms for the selected theater
       if (editingShowtime.theater_id) {
         fetch(
           `http://127.0.0.1:8000/api/theaters/${editingShowtime.theater_id}/rooms`
@@ -80,7 +78,6 @@ export default function ShowtimeForm({
   // Load rooms when theater is selected
   useEffect(() => {
     if (form.theater_id && !editingShowtime) {
-      // Chỉ load khi không phải editing (tránh load 2 lần)
       setLoading(true);
       fetch(`http://127.0.0.1:8000/api/theaters/${form.theater_id}/rooms`)
         .then((res) => res.json())
@@ -114,10 +111,8 @@ export default function ShowtimeForm({
       return;
     }
 
-    // ✅ Combine date + time thành ISO datetime string
     const startDateTime = `${form.date}T${form.start_time}`;
 
-    // ✅ Tính end_time dựa vào duration của movie (nếu có)
     let endDateTime = null;
     const selectedMovie = movies.find(
       (m) => m.movie_id === parseInt(form.movie_id)
@@ -132,16 +127,16 @@ export default function ShowtimeForm({
       endDateTime = endDate.toISOString().slice(0, 19).replace("T", " ");
     }
 
-    // ✅ Prepare data for API
+    //  Prepare data for API
     const showtimeData = {
       movie_id: form.movie_id,
       room_id: form.room_id,
-      start_time: startDateTime, // "2025-12-25T14:30:00"
+      start_time: startDateTime, 
       price: form.price,
       status: form.status,
     };
 
-    // ✅ Thêm end_time nếu đã tính được
+    //   end_time 
     if (endDateTime) {
       showtimeData.end_time = endDateTime;
     }
