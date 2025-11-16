@@ -7,7 +7,7 @@ export default function TheaterForm({
   handleTheaterChange,
   setEditTheater,
   setIsAddTheater,
-  onSaved, // callback reload theaters list
+  onSaved, 
   editTheater,
 }) {
   const [loading, setLoading] = useState(false);

@@ -4,7 +4,7 @@ export default function UserTable() {
   const [usersList, setUsersList] = useState([]);
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
-  const [editedUsers, setEditedUsers] = useState({}); // store temporary edits
+  const [editedUsers, setEditedUsers] = useState({}); 
 
   // Fetch all users
   const fetchUsers = async () => {
@@ -70,7 +70,7 @@ export default function UserTable() {
 
   // Delete user
   const handleDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc muốn xóa người dùng này không?")) return;
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
       await fetch(`http://127.0.0.1:8000/api/users/${id}`, { method: "DELETE" });
       setUsersList(usersList.filter((u) => u.web_user_id !== id));
@@ -89,7 +89,7 @@ export default function UserTable() {
   return (
     <div className="card p-4 mt-4 shadow-sm">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h5 className="fw-bold mb-0 text-dark">Quản lý người dùng</h5>
+        <h5 className="fw-bold mb-0 text-dark">User management</h5>
 
         <input
           type="text"
@@ -104,13 +104,13 @@ export default function UserTable() {
         <table className="table table-striped align-middle">
           <thead className="table-dark">
             <tr>
-              <th>Họ tên</th>
+              <th>Full name</th>
               <th>Email</th>
-              <th>Số điện thoại</th>
-              <th>Địa chỉ</th>
-              <th>Ngày sinh</th>
-              <th>Mật khẩu mới</th>
-              <th>Thao tác</th>
+              <th>Phone number</th>
+              <th>Address</th>
+              <th>Date of birth</th>
+              <th>New password</th>
+              <th>Operation</th>
             </tr>
           </thead>
           <tbody>
@@ -202,7 +202,7 @@ export default function UserTable() {
                       <input
                         type="password"
                         className="form-control"
-                        placeholder="Nhập mật khẩu mới"
+                        placeholder="Enter new password"
                         value={edits.password ?? ""}
                         onChange={(e) =>
                           handleLocalChange(
@@ -227,7 +227,7 @@ export default function UserTable() {
                             onClick={() => handleSave(user.web_user_id)}
                             disabled={saving}
                           >
-                            {saving ? "Đang lưu..." : "Lưu"}
+                            {saving ? "Saving..." : "Save"}
                           </button>
                         )}
                       </div>
@@ -238,7 +238,7 @@ export default function UserTable() {
             ) : (
               <tr>
                 <td colSpan="7" className="text-center">
-                  Không có người dùng nào
+                  No users
                 </td>
               </tr>
             )}

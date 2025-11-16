@@ -9,7 +9,6 @@ export default function UserEdit({
   usersList,
 }) {
   const handleSaveChanges = () => {
-    // Lưu thay đổi thông tin người dùng
     usersSetList(
       usersList.map((u) =>
         u.web_user_id === userSelected.web_user_id ? userSelected : u
@@ -21,10 +20,10 @@ export default function UserEdit({
 
   return (
     <div className="border rounded p-3 mt-4">
-      <h6 className="fw-bold mb-3">Chỉnh sửa thông tin người dùng</h6>
+      <h6 className="fw-bold mb-3">Edit user information</h6>
       <div className="row g-3">
         <div className="col-md-4">
-          <label className="form-label">Họ tên</label>
+          <label className="form-label">Full name</label>
           <input
             type="text"
             className="form-control"
@@ -52,7 +51,7 @@ export default function UserEdit({
           />
         </div>
         <div className="col-md-4">
-          <label className="form-label">Điện thoại</label>
+          <label className="form-label">Phone</label>
           <input
             type="tel"
             className="form-control"
@@ -75,17 +74,17 @@ export default function UserEdit({
             userSetSelected(null);
           }}
         >
-          Hủy
+          Cancel
         </button>
         <div className="d-flex gap-2">
           <button
             className="btn btn-outline-info"
             onClick={() => userSetChangingPassword(true)}
           >
-            Đổi mật khẩu
+            Change password
           </button>
           <button className="btn btn-success" onClick={handleSaveChanges}>
-            Lưu thay đổi
+            Save changes
           </button>
         </div>
       </div>
