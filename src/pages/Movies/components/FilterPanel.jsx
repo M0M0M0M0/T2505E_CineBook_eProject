@@ -19,7 +19,7 @@ export default function FilterPanel({
 }) {
   return (
     <div className="filter-panel">
-      {/* City Filter */}
+      {/* City Filter
       <select
         className="filter-select"
         value={selectedCity}
@@ -31,7 +31,7 @@ export default function FilterPanel({
             {city}
           </option>
         ))}
-      </select>
+      </select> */}
 
       {/* Genre Filter */}
       <select

@@ -1,0 +1,134 @@
+.movie-cast-crew-section {
+  margin-top: 50px;
+  padding: 20px 0;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Directors Section */
+.directors-list {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.director-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  min-width: 280px;
+}
+
+.director-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(255, 213, 79, 0.3);
+}
+
+.director-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ffd54f;
+}
+
+.director-info {
+  flex: 1;
+}
+
+.director-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+  margin: 0;
+}
+
+.director-job {
+  font-size: 0.95rem;
+  color: #ffd54f;
+  margin: 5px 0 0 0;
+}
+
+/* Actors Section */
+.actors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 20px;
+}
+
+.actor-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.actor-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+}
+
+.actor-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.actor-info {
+  padding: 12px;
+  text-align: center;
+}
+
+.actor-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 5px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.actor-character {
+  font-size: 0.85rem;
+  color: #aaa;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Loading & Error States */
+.cast-crew-loading,
+.cast-crew-error,
+.cast-crew-empty {
+  padding: 40px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .actors-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+  }
+
+  .director-card {
+    min-width: 100%;
+  }
+
+  .actor-image {
+    height: 160px;
+  }
+}

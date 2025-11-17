@@ -47,9 +47,7 @@ export default function UserTable() {
 
       // update in table
       setUsersList((prev) =>
-        prev.map((u) =>
-          u.web_user_id === id ? { ...u, ...data.user } : u
-        )
+        prev.map((u) => (u.web_user_id === id ? { ...u, ...data.user } : u))
       );
 
       // clear temporary edits
@@ -70,9 +68,11 @@ export default function UserTable() {
 
   // Delete user
   const handleDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc muốn xóa người dùng này không?")) return;
+    if (!window.confirm("Confirm to delete user?")) return;
     try {
-      await fetch(`http://127.0.0.1:8000/api/users/${id}`, { method: "DELETE" });
+      await fetch(`http://127.0.0.1:8000/api/users/${id}`, {
+        method: "DELETE",
+      });
       setUsersList(usersList.filter((u) => u.web_user_id !== id));
     } catch (err) {
       console.error(err);
@@ -89,12 +89,12 @@ export default function UserTable() {
   return (
     <div className="card p-4 mt-4 shadow-sm">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h5 className="fw-bold mb-0 text-dark">Quản lý người dùng</h5>
+        <h5 className="fw-bold mb-0 text-dark">User Management</h5>
 
         <input
           type="text"
           className="form-control w-25"
-          placeholder="Tìm kiếm theo tên hoặc email"
+          placeholder="Search by name or email"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -104,13 +104,13 @@ export default function UserTable() {
         <table className="table table-striped align-middle">
           <thead className="table-dark">
             <tr>
-              <th>Họ tên</th>
+              <th>Name</th>
               <th>Email</th>
-              <th>Số điện thoại</th>
-              <th>Địa chỉ</th>
-              <th>Ngày sinh</th>
-              <th>Mật khẩu mới</th>
-              <th>Thao tác</th>
+              <th>Phone number</th>
+              <th>Address</th>
+              <th>DOB</th>
+              <th>Password</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -123,9 +123,7 @@ export default function UserTable() {
                       <input
                         type="text"
                         className="form-control"
-                        value={
-                          edits.full_name ?? user.full_name ?? ""
-                        }
+                        value={edits.full_name ?? user.full_name ?? ""}
                         onChange={(e) =>
                           handleLocalChange(
                             user.web_user_id,
@@ -153,9 +151,7 @@ export default function UserTable() {
                       <input
                         type="text"
                         className="form-control"
-                        value={
-                          edits.phone_number ?? user.phone_number ?? ""
-                        }
+                        value={edits.phone_number ?? user.phone_number ?? ""}
                         onChange={(e) =>
                           handleLocalChange(
                             user.web_user_id,
@@ -202,7 +198,7 @@ export default function UserTable() {
                       <input
                         type="password"
                         className="form-control"
-                        placeholder="Nhập mật khẩu mới"
+                        placeholder="Change password here"
                         value={edits.password ?? ""}
                         onChange={(e) =>
                           handleLocalChange(
@@ -219,7 +215,7 @@ export default function UserTable() {
                           className="btn btn-sm btn-danger"
                           onClick={() => handleDelete(user.web_user_id)}
                         >
-                          Xóa
+                          Delete
                         </button>
                         {editedUsers[user.web_user_id] && (
                           <button
@@ -227,7 +223,7 @@ export default function UserTable() {
                             onClick={() => handleSave(user.web_user_id)}
                             disabled={saving}
                           >
-                            {saving ? "Đang lưu..." : "Lưu"}
+                            {saving ? "Saving" : "Save"}
                           </button>
                         )}
                       </div>
@@ -248,5 +244,3 @@ export default function UserTable() {
     </div>
   );
 }
-
-

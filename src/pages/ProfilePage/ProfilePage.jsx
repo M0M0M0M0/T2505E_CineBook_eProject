@@ -845,8 +845,7 @@ export default function Profile() {
                         <strong>Theater:</strong> {selectedTicket.theater_name}
                       </p>
                       <p>
-                        <strong>Address:</strong>{" "}
-                        {selectedTicket.theater_address}
+                        <strong></strong> {selectedTicket.theater_address}
                       </p>
                       <p>
                         <strong>Room:</strong> {selectedTicket.room_name}

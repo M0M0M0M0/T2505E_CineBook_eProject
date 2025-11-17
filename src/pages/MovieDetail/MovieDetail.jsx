@@ -8,6 +8,7 @@ import FoodSelection from "../TicketBooking/FoodSelection";
 import TotalSection from "../TicketBooking/TotalSection";
 import PaymentSection from "../TicketBooking/PaymentSection";
 import { useAuth } from "../../contexts/AuthContext";
+import MovieCastCrew from "./components/MovieCastCrew";
 
 export default function MovieDetail() {
   const { id } = useParams();
@@ -419,7 +420,14 @@ export default function MovieDetail() {
                 </div>
               </div>
             )}
-
+            {/* Cast & Crew Section - THÊM PHẦN NÀY */}
+            <div
+              className="cast-crew-section-wrapper"
+              style={{ marginTop: "50px" }}
+            >
+              <hr style={{ borderColor: "#444" }} />
+              <MovieCastCrew movieId={id} />
+            </div>
             {/* ✅ REVIEW SECTION */}
             <div
               className="movie-review-section-wrapper"
