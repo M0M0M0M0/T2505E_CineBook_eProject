@@ -1,4 +1,3 @@
-// src/components/ui/card.jsx
 export function Card({ children, className = "" }) {
   return (
     <div className={`rounded-2xl shadow-md bg-white p-4 border border-gray-200 ${className}`}>

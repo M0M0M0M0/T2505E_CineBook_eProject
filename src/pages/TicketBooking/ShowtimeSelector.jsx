@@ -45,7 +45,7 @@ export default function ShowtimeSelector({ onSelectShowtime }) {
           const cityList = Array.from(allCities).sort();
           setCities(cityList);
 
-          // DON'T auto-select anything - let user choose
+
         }
 
         setLoading(false);

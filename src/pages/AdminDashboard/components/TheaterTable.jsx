@@ -99,7 +99,7 @@ export default function TheaterTable({
                 ))}
               </select>
             </div>
-            {/* ✅ Reload Button */}
+            {/*  Reload Button */}
             <button
               className="btn btn-outline-secondary d-flex align-items-center"
               onClick={handleReload}

@@ -1,4 +1,3 @@
-// src/components/Header.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
@@ -73,7 +72,6 @@ export default function Header() {
     navigate("/");
   }
 
-  // ✅ Function để đánh dấu tất cả là đã đọc
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -89,7 +87,7 @@ export default function Header() {
       );
 
       if (res.ok) {
-        // Cập nhật state: đánh dấu tất cả là đã đọc
+
         setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
       }
     } catch (err) {
@@ -97,7 +95,7 @@ export default function Header() {
     }
   };
 
-  // ✅ Function để đánh dấu 1 thông báo là đã đọc
+
   const markAsRead = async (notificationId) => {
     try {
       const token = localStorage.getItem("token");
@@ -112,7 +110,7 @@ export default function Header() {
         }
       );
 
-      // Cập nhật state
+      // Update state
       setNotifications((prev) =>
         prev.map((n) =>
           n.notification_id === notificationId ? { ...n, is_read: true } : n
@@ -159,12 +157,11 @@ export default function Header() {
       }
     };
 
-    fetchNotifications(); // initial load
-    const interval = setInterval(fetchNotifications, 30000); // 30 seconds
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000); 
     return () => clearInterval(interval);
   }, [user]);
 
-  // ✅ Đếm số thông báo chưa đọc
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
@@ -310,7 +307,6 @@ export default function Header() {
                 }}
               >
                 <FaBell size={20} />
-                {/* ✅ Hiển thị badge CHỈ KHI có thông báo chưa đọc */}
                 {unreadCount > 0 && (
                   <span
                     style={{
@@ -394,7 +390,6 @@ export default function Header() {
                           marginBottom: "6px",
                           borderRadius: "6px",
                           cursor: n.is_read ? "default" : "pointer",
-                          // ✅ Style khác nhau cho đã đọc/chưa đọc
                           backgroundColor: n.is_read ? "#2a2a2a" : "#3a3a3a",
                           borderLeft: n.is_read
                             ? "3px solid transparent"

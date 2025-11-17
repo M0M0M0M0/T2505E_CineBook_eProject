@@ -1,12 +1,23 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Footer.css";
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    setIsSubscribed(true);
+    setEmail("");
+    setTimeout(() => {
+      setIsSubscribed(false);
+    }, 3000);
+  };
+
   return (
     <footer className="footer-cb">
-      {/* 1) Newsletter / quick CTA (optional) */}
+      {/* Newsletter */}
       <div className="footer-cb-newsletter py-4">
         <div className="footer-cb-inner container d-flex align-items-center justify-content-between">
           <div className="fc-news-left d-flex align-items-center gap-3">
@@ -21,25 +32,32 @@ export default function Footer() {
             </div>
           </div>
 
-          <form className="fc-news-form d-flex align-items-center gap-2">
+          <form className="fc-news-form d-flex align-items-center gap-2" onSubmit={handleSubscribe}>
             <input
               type="email"
               className="form-control"
               placeholder="Your email address"
               aria-label="Email"
               style={{ maxWidth: "250px" }}
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
-           <button type="submit" className="btn btn-custom-yellow">
-            Subscribe
-           </button>
+            <button type="submit" className="btn btn-custom-yellow">
+              Subscribe
+            </button>
+            {isSubscribed && (
+              <div className="text-warning  fw-bold" style={{whiteSpace: "nowrap"}}>
+                Subscribed!
+              </div>
+            )}
           </form>
         </div>
       </div>
 
-      {/* 2) Links columns */}
+          {/* About */}
       <div className="footer-cb-links">
         <div className="footer-cb-inner container fc-grid">
-          {/* Column A - About */}
           <div className="fc-col">
             <h4 className="fc-col-title">About CineBook</h4>
             <ul className="fc-list">
@@ -56,7 +74,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column B - Explore (Movies/Theaters) */}
+          {/* Explore */}
           <div className="fc-col">
             <h4 className="fc-col-title">Explore</h4>
             <ul className="fc-list">
@@ -78,7 +96,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column C - Support */}
+            {/* Support */}
           <div className="fc-col">
             <h4 className="fc-col-title">Support</h4>
             <ul className="fc-list">
@@ -94,10 +112,28 @@ export default function Footer() {
               </li>
             </ul>
           </div>
+          {/* Contact */}
+          <div className="fc-col">
+            <h4 className="fc-col-title">Contact</h4>
+            <div className="fc-contact">
+              <div className="fc-contact-line">
+                Hotline:{" "}
+                <a href="tel:+123456789" className="fc-link">
+                  +123 456 789
+                </a>
+                <div className="fc-contact-line">
+                Email:{" "}
+                <a href="mailto:support@cinebook.com" className="fc-link">
+                  support@cinebook.com
+                </a>
+              </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* 3) Bottom bar */}
+      
+      {/* Bottom bar */}
       <div className="footer-cb-bottom">
         <div className="footer-cb-inner container fc-bottom-row">
           <div className="fc-copyright">

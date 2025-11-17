@@ -191,7 +191,6 @@
   font-size: 1.1em;
 }
 
-/* ✅ Đổi màu đỏ khi còn dưới 1 phút */
 .time-countdown.time-critical {
   color: #dc3545;
   animation: pulse 1s infinite;

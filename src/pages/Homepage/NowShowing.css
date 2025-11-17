@@ -1,4 +1,4 @@
-/* === 🧩 Thẻ phim (card ngoài cùng) === */
+/*   Card movie  */
 .movie-card {
   background: #111;
   border-radius: 16px;
@@ -20,7 +20,7 @@
   box-shadow: 0 0 18px rgba(255, 215, 0, 0.25);
 }
 
-/* === 🎞 Poster Container === */
+/*   Poster Container  */
 .poster-wrapper {
   position: relative;
   width: 100%;
@@ -47,8 +47,7 @@
   transform: scale(1.05);
 }
 
-/* === 🎬 Hover Trailer Overlay === */
-/* === 🎬 Hover Trailer Overlay === */
+/*  Hover Trailer Overlay  */
 .trailer-overlay {
   position: absolute;
   inset: 0;
@@ -64,11 +63,11 @@
   opacity: 1;
 }
 
-/* === ▶ Nút play kiểu viền vàng (giống MovieCard) === */
+
 .play-btn-slider {
   background: transparent;
   border: 2px solid #ffd27a;
-  color: transparent; /* ẩn nền xanh hiện tại */
+  color: transparent; 
   width: 72px;
   height: 72px;
   border-radius: 50%;
@@ -91,20 +90,17 @@
   height: 0;
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent;
-  border-left: 16px solid #ffd27a; /* ▶ chỉ là viền vàng */
+  border-left: 16px solid #ffd27a; 
 }
 
-/* Hiệu ứng hover nhẹ nhàng */
+
 .play-btn-slider:hover {
   transform: scale(1.07);
   box-shadow: 0 0 16px rgba(255, 210, 122, 0.4);
   background: rgba(255, 210, 122, 0.1);
 }
 
-/* === 🧾 Phần thông tin phim === */
 
-
-/* === 🎥 Trailer Modal (giống MovieCard.css) === */
 .trailer-modal {
   position: fixed;
   top: 0;
@@ -133,7 +129,6 @@
   border: none;
 }
 
-/* ✨ Hiệu ứng fade-in cho modal */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -160,19 +155,7 @@
   border: none;
 }
 
-/* ✨ Hiệu ứng fade-in cho modal */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* === Custom arrows styles === */
+/*  Custom arrows styles  */
 .custom-arrow {
   position: absolute;
   top: 50%;
@@ -214,7 +197,6 @@
   right: 25px;
 }
 
-/* Dịch nút prev/next ra ngoài 40px cho NowShowing */
 .nowshowing-slider .prev-arrow {
   left: -60px;
   background-color: rgba(255, 255, 255, 0.125);
@@ -225,13 +207,13 @@
   background-color: rgba(255, 255, 255, 0.125);
 }
 
-/* Đảm bảo không ẩn slick-arrow */
+
 .slick-arrow {
   display: block !important;
   opacity: 1 !important;
 }
 
-/* Chỉ ẩn icon mặc định */
+
 .slick-prev:before,
 .slick-next:before {
   display: none !important;

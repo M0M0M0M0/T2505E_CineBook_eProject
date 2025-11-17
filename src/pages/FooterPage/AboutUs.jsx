@@ -1,19 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './AboutUs.css'; // Import file CSS riêng
+import './AboutUs.css'; 
 import AboutUsImage from './AboutUs.webp';
 import { color } from 'framer-motion';
-// "About Us" Page Component
 export default function AboutUs() {
   return (
-    // Thêm class 'about-us-page' để style chung
+    
     <div className="about-us-page">
       {/* Hero/Main Banner Section */}
-      {/* Thêm class 'about-hero' */}
+      
       <div className="about-hero container col-xxl-8 px-4 py-5">
         <div className="row flex-lg-row-reverse align-items-center g-5 py-5">
           <div className="col-10 col-sm-8 col-lg-6">
-            {/* You can replace this with an image of a cinema or the team */}
             <img 
               src={AboutUsImage} 
               className="d-block mx-lg-auto img-fluid rounded shadow-sm" 
@@ -41,7 +39,6 @@ export default function AboutUs() {
       </div>
 
       {/* Mission & Vision Section */}
-      {/* Thêm class 'about-mission' */}
       <div className="about-mission py-5">
         <div className="container px-4 py-5">
           <div className="row justify-content-center">
@@ -56,26 +53,21 @@ export default function AboutUs() {
       </div>
 
       {/* Core Values (Why Choose Us) Section */}
-      {/* Thêm class 'about-values' */}
       <div className="about-values container px-4 py-5" id="featured-3">
         <h2 className="pb-2 border-bottom text-center fw-bold">Core Values</h2>
         <div className="row g-4 py-5 row-cols-1 row-cols-lg-3">
-          {/* Thêm class 'about-value-item' */}
           <div className="about-value-item feature col text-center">
-            {/* You can add an icon here */}
             <h3 className="fs-4 fw-semibold">Fast & Convenient</h3>
             <p>
               Intuitive, easy-to-use interface. Book tickets successfully in just a few clicks, anytime, anywhere, on any device.
             </p>
           </div>
-          {/* Thêm class 'about-value-item' */}
           <div className="about-value-item feature col text-center">
             <h3 className="fs-4 fw-semibold">The Most Options</h3>
             <p>
               We connect with all major theater chains, providing you with the most comprehensive and diverse showtimes all in one place.
             </p>
           </div>
-          {/* Thêm class 'about-value-item' */}
           <div className="about-value-item feature col text-center">
             <h3 className="fs-4 fw-semibold">Safe & Secure</h3>
             <p>
@@ -86,7 +78,6 @@ export default function AboutUs() {
       </div>
 
       {/* Final Call to Action Section */}
-      {/* Thêm class 'about-cta' */}
       <div className="about-cta py-5">
         <div className="container text-center py-5">
           <h2 className="fw-bold mb-3">Ready for your movie?</h2>

@@ -73,7 +73,7 @@
   margin-top: 15px;
   gap: 10px;
 }
-/* --- CSS Gốc của bạn (Giữ nguyên) --- */
+
 .food-selection {
   background-color: #1c1c1c;
   padding: 20px;
@@ -90,29 +90,25 @@
   margin-bottom: 20px;
 }
 
-/* --- CẢI TIẾN: Thay đổi cách hiển thị food-list và food-item --- */
+
 .food-selection .food-list {
   display: flex;
   flex-direction: column;
-  gap: 1px; /* Giảm khoảng cách giữa các mục */
-  border: 1px solid #333; /* Thêm viền chung mờ */
+  gap: 1px; 
+  border: 1px solid #333; 
   border-radius: 8px;
   overflow: hidden;
-  margin-bottom: 20px; /* Thêm khoảng cách dưới food list */
+  margin-bottom: 20px; 
 }
 
-/* Loại bỏ quy tắc .food-item cũ (vì bạn dùng food-item-grid) */
-/* Loại bỏ .food-item input[type="number"] cũ (vì bạn dùng quantity-controls) */
 
-/* Container chính cho mỗi mục đồ ăn - Cải tiến Grid */
 .food-item-grid {
   display: grid;
-  /* Cấu trúc cột: Tên (2.5 phần), Giá (1 phần, căn phải), Bộ đếm (gọn gàng) */
   grid-template-columns: 2.5fr 1fr auto;
   align-items: center;
-  padding: 15px 20px; /* Tăng padding */
-  background-color: #2c2c2c; /* Nền item tối nhẹ hơn */
-  border-bottom: 1px solid #333; /* Đường phân cách mờ */
+  padding: 15px 20px; 
+  background-color: #2c2c2c; 
+  border-bottom: 1px solid #333; 
 }
 
 .food-item-grid:last-child {
@@ -124,28 +120,28 @@
   font-weight: 400;
 }
 
-/* --- Cải tiến Căn chỉnh Giá tiền ($) --- */
+
 .food-price-col {
   text-align: right;
   font-weight: bold;
-  color: #17a2b8; /* Màu xanh ngọc cho giá tiền */
+  color: #17a2b8; 
   font-size: 1.2em;
-  padding-right: 25px; /* Khoảng trống */
+  padding-right: 25px; 
 }
 
-/* --- Cải tiến Bộ đếm Số lượng Ngang (Horizontal Quantity Controls) --- */
+/* --- Horizontal Quantity Controls --- */
 .quantity-controls {
   display: flex;
   align-items: center;
-  border: 1px solid #444; /* Viền mờ */
+  border: 1px solid #444; 
   border-radius: 6px;
   overflow: hidden;
-  height: 35px; /* Chiều cao cố định */
+  height: 35px; 
 }
 
 .quantity-controls button {
-  background-color: #333; /* Nền nút tối */
-  color: #fff; /* Màu chữ trắng */
+  background-color: #333; 
+  color: #fff; 
   border: none;
   padding: 0 12px;
   cursor: pointer;
@@ -157,7 +153,7 @@
 }
 
 .quantity-controls button:hover:not(:disabled) {
-  background-color: #007bff; /* Màu xanh dương khi hover */
+  background-color: #007bff; 
 }
 
 .quantity-controls button:disabled {
@@ -181,17 +177,17 @@
   font-size: 1em;
 }
 
-/* --- CSS Gốc của bạn cho Summary và Buttons (Giữ nguyên) --- */
+
 .food-summary {
   margin-top: 20px;
-  padding-top: 20px; /* Thêm padding và đường kẻ */
+  padding-top: 20px; 
   border-top: 1px solid #333;
   text-align: left;
 }
 
 .food-summary p {
   margin: 6px 0;
-  display: flex; /* Dùng flex để căn chỉnh tổng tiền */
+  display: flex; 
   justify-content: space-between;
 }
 
@@ -217,7 +213,6 @@
 }
 .food-buttons,
 .total-buttons {
-  /* Đảm bảo cả hai class đều được xử lý */
   display: flex;
   justify-content: space-between;
   margin-top: 15px;

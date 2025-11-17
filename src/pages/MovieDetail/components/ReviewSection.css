@@ -1,39 +1,30 @@
-/* Sử dụng theme "dark" của Bootstrap 5.3+ 
-  bằng cách thêm data-bs-theme="dark" vào container,
-  css này chỉ để tinh chỉnh thêm
-*/
-
 .review-list-container {
-  /* Thêm thanh cuộn nếu danh sách quá dài */
   max-height: 600px;
   overflow-y: auto;
-  padding-right: 10px; /* Thêm khoảng trống cho thanh cuộn */
+  padding-right: 10px; 
 }
 
-/* Tùy chỉnh thanh cuộn cho webkit (Chrome, Safari) */
 .review-list-container::-webkit-scrollbar {
   width: 8px;
 }
 .review-list-container::-webkit-scrollbar-track {
-  background: #2c2c2c; /* Màu nền của track */
+  background: #2c2c2c;
   border-radius: 4px;
 }
 .review-list-container::-webkit-scrollbar-thumb {
-  background-color: #555; /* Màu của thanh cuộn */
+  background-color: #555; 
   border-radius: 4px;
-  border: 2px solid #2c2c2c; /* Tạo khoảng cách với track */
+  border: 2px solid #2c2c2c; 
 }
 .review-list-container::-webkit-scrollbar-thumb:hover {
   background-color: #777;
 }
 
-/* Đảm bảo nền của các item trong list group
-   thực sự tối khi dùng data-bs-theme="dark" */
 .list-group-item.list-group-item-dark.bg-dark-subtle {
     background-color: #212529 !important; 
     border-color: #444 !important;
 }
 
 .form-label.text-light {
-    color: #f8f9fa !important; /* Đảm bảo label sáng màu */
+    color: #f8f9fa !important; 
 }

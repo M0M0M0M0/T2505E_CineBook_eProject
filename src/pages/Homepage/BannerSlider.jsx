@@ -11,7 +11,7 @@ const BannerSlider = () => {
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/movies")
       .then((res) => res.json())
-      .then((data) => setMovies(data.slice(-5))) // lấy 5 phim mới nhất
+      .then((data) => setMovies(data.slice(-5))) 
       .catch((err) => console.error(err));
   }, []);
 

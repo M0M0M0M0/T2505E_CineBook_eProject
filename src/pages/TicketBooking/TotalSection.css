@@ -52,7 +52,7 @@
   color: #ffcc00;
 }
 
-/* ===== Buttons Container (dùng chung) ===== */
+/* ===== Buttons Container  ===== */
 .total-buttons,
 .payment-buttons {
   display: flex;

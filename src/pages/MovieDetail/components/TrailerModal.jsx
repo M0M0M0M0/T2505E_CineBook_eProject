@@ -1,4 +1,3 @@
-// TrailerModal.jsx
 import React, { useEffect } from "react";
 import "./../MovieDetail.css";
 

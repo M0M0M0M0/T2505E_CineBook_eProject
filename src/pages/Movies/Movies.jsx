@@ -12,11 +12,9 @@ function Movies() {
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Existing filters
   const [selectedGenre, setSelectedGenre] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
 
-  // 🆕 New filters
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [selectedRating, setSelectedRating] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
@@ -67,8 +65,7 @@ function Movies() {
     fetchCities();
   }, []);
 
-  // 🆕 Languages (có thể tĩnh)
-// 🆕 Languages (từ DB + phổ biến)
+  // Languages 
 useEffect(() => {
   setLanguages([
     { code: "en", name: "English" },
@@ -120,7 +117,7 @@ useEffect(() => {
     fetchMovies();
   }, []);
 
-  // ✅ FILTER LOGIC (đã thêm 3 điều kiện mới)
+  // FILTER LOGIC 
   useEffect(() => {
     let result = movies;
 
@@ -142,19 +139,19 @@ useEffect(() => {
       result = result.filter((m) => m.cities.includes(selectedCity));
     }
 
-    // 🆕 Language filter
+    //  Language filter
     if (selectedLanguage) {
       result = result.filter(
         (m) => m.original_language?.toLowerCase() === selectedLanguage.toLowerCase()
       );
     }
 
-    // 🆕 Rating filter
+    //  Rating filter
     if (selectedRating) {
       result = result.filter((m) => m.vote_average >= Number(selectedRating));
     }
 
-    // 🆕 Date filter
+    //  Date filter
     if (selectedDate) {
       const now = new Date();
       result = result.filter((m) => {
@@ -195,7 +192,7 @@ useEffect(() => {
     movies,
   ]);
 
-  // ✅ Clear All
+  //  Clear All
   const handleClearFilters = () => {
     setSelectedGenre("");
     setSelectedCity("");
@@ -218,8 +215,6 @@ useEffect(() => {
           value={searchTerm}
           onChange={setSearchTerm}
         />
-
-        {/* 🆕 Đã truyền đầy đủ props */}
         <FilterPanel
           genres={genres.map((g) => g.name)}
           cities={cities}

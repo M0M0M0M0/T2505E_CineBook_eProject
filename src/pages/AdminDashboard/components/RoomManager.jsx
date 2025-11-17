@@ -123,7 +123,6 @@ export default function RoomManager({
           </tbody>
         </table>
 
-        {/* Seat Management */}
         {/* Seat Management (visual layout) */}
         {selectedRoom && (
           <SeatLayoutManager

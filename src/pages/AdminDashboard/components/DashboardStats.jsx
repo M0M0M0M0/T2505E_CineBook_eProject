@@ -29,9 +29,9 @@ import {
 const API_BASE = "http://127.0.0.1:8000/api/dashboard";
 
 export default function DashboardStats() {
-  // ✅ State cho các thống kê
+
   const [overview, setOverview] = useState(null);
-  const [salesPeriod, setSalesPeriod] = useState("daily"); // daily, weekly, monthly
+  const [salesPeriod, setSalesPeriod] = useState("daily"); 
   const [salesData, setSalesData] = useState([]);
   const [topMovies, setTopMovies] = useState([]);
   const [revenueByTheater, setRevenueByTheater] = useState([]);
@@ -42,12 +42,12 @@ export default function DashboardStats() {
 
   const COLORS = ["#FF6B6B", "#4ECDC4", "#FFD93D", "#95E1D3", "#F38181"];
 
-  // ✅ Fetch tất cả data khi component mount
+ 
   useEffect(() => {
     fetchAllData();
   }, []);
 
-  // ✅ Fetch lại sales data khi đổi period
+
   useEffect(() => {
     fetchSalesData(salesPeriod);
   }, [salesPeriod]);
@@ -85,7 +85,7 @@ export default function DashboardStats() {
       const res = await fetch(`${API_BASE}/sales/${period}`);
       const data = await res.json();
 
-      // Format data cho chart
+      // Format data to chart
       const formatted = data.map((item) => ({
         name: item.date || item.week_label || item.month_label,
         bookings: parseInt(item.bookings),
@@ -144,16 +144,9 @@ export default function DashboardStats() {
     }
   };
 
-  // ============================================
-  // 📊 EXPORT FUNCTIONS
-  // ============================================
 
-  /**
-   * Export Sales Report (Daily/Weekly/Monthly)
-   */
-  /**
-   * Export Sales Report với dynamic columns
-   */
+  //  EXPORT FUNCTIONS
+
   const exportSalesReport = async (period) => {
     setExporting(true);
     try {
@@ -200,9 +193,7 @@ export default function DashboardStats() {
     }
   };
 
-  /**
-   * Convert JSON to CSV với format đẹp
-   */
+  /* Convert JSON */
   const convertToCSV = (data, columns) => {
     if (!data || data.length === 0) {
       return "No data available";
@@ -264,9 +255,7 @@ export default function DashboardStats() {
     }
   };
 
-  /**
-   * Export Top Movies
-   */
+  /* Export Top Movies  */
   const exportTopMovies = async () => {
     setExporting(true);
     try {
@@ -293,9 +282,7 @@ export default function DashboardStats() {
     }
   };
 
-  /**
-   * Export User Registrations
-   */
+  /* Export User Registrations */
   const exportUserRegistrations = async () => {
     setExporting(true);
     try {
@@ -321,9 +308,7 @@ export default function DashboardStats() {
     }
   };
 
-  /**
-   * Export Active Bookings
-   */
+  /* Export Active Bookings */
   const exportActiveBookings = async () => {
     setExporting(true);
     try {
@@ -349,13 +334,9 @@ export default function DashboardStats() {
     }
   };
 
-  /**
-   * Convert JSON to CSV
-   */
+  /* Convert JSON to CSV */
 
-  /**
-   * Download file
-   */
+  /* Download file */
   const downloadFile = (content, filename) => {
     const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
@@ -383,7 +364,7 @@ export default function DashboardStats() {
 
   return (
     <div className="dashboard-stats">
-      {/* ✅ HEADER WITH EXPORT BUTTONS */}
+      {/*  HEADER WITH EXPORT BUTTONS */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0 text-muted">📊 Dashboard Overview</h2>
 
@@ -483,7 +464,7 @@ export default function DashboardStats() {
         </div>
       </div>
 
-      {/* ✅ 1. STATS CARDS */}
+      {/*  STATS CARDS */}
       <div className="row g-4 mb-4">
         <div className="col-md-3">
           <div className="card shadow-sm border-0 h-100">
@@ -577,7 +558,7 @@ export default function DashboardStats() {
         </div>
       </div>
 
-      {/* ✅ 2. SALES CHART với Period Selector */}
+      {/*  SALES CHART với Period Selector */}
       <div className="row g-4 mb-4">
         <div className="col-lg-8">
           <div className="card shadow-sm border-0">
@@ -659,7 +640,7 @@ export default function DashboardStats() {
           </div>
         </div>
 
-        {/* ✅ 3. USER REGISTRATIONS */}
+        {/*  USER REGISTRATIONS */}
         <div className="col-lg-4">
           <div className="card shadow-sm border-0">
             <div className="card-body">
@@ -689,7 +670,7 @@ export default function DashboardStats() {
         </div>
       </div>
 
-      {/* ✅ 4. TOP MOVIES & REVENUE BY THEATER */}
+      {/* TOP MOVIES & REVENUE BY THEATER */}
       <div className="row g-4 mb-4">
         <div className="col-lg-6">
           <div className="card shadow-sm border-0">
@@ -782,7 +763,7 @@ export default function DashboardStats() {
         </div>
       </div>
 
-      {/* ✅ 5. ACTIVE BOOKINGS */}
+      {/* ACTIVE BOOKINGS */}
       <div className="row g-4">
         <div className="col-12">
           <div className="card shadow-sm border-0">

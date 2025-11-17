@@ -27,8 +27,7 @@ export default function MovieDetail() {
   const [bookingId, setBookingId] = useState(null);
   const { currentUserId, isAuthenticated } = useAuth();
   const [allMovies, setAllMovies] = useState([]);
-  const [isLoadingMovies, setIsLoadingMovies] = useState(true); // ✅ THÊM state loading
-
+  const [isLoadingMovies, setIsLoadingMovies] = useState(true); 
   const showtimeRef = useRef(null);
   const seatRef = useRef(null);
   const foodRef = useRef(null);
@@ -68,10 +67,10 @@ export default function MovieDetail() {
     }
   }, [movie]);
 
-  // ✅ Fetch all movies với loading state
+
   useEffect(() => {
     const fetchAllMovies = async () => {
-      setIsLoadingMovies(true); // ✅ Bắt đầu loading
+      setIsLoadingMovies(true); 
       try {
         const res = await fetch("http://127.0.0.1:8000/api/movies");
         const data = await res.json();
@@ -79,7 +78,7 @@ export default function MovieDetail() {
       } catch (err) {
         console.error("Error fetching all movies:", err);
       } finally {
-        setIsLoadingMovies(false); // ✅ Kết thúc loading
+        setIsLoadingMovies(false); 
       }
     };
     fetchAllMovies();
@@ -220,7 +219,7 @@ export default function MovieDetail() {
     );
 
   const handleBookNow = () => {
-    // ✅ Đọc trực tiếp từ localStorage
+    
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
     const userId = localStorage.getItem("user_id");
@@ -317,7 +316,6 @@ export default function MovieDetail() {
           <div className="col-md-8">
             <h2 className="md-title mb-3">{movie.title}</h2>
 
-            {/* ✅ Chỉ hiển thị badge khi đã load xong */}
             {!isLoadingMovies && isComingSoon() && (
               <span className="badge bg-warning text-dark me-2 mb-2">
                 Coming Soon
@@ -346,7 +344,6 @@ export default function MovieDetail() {
             </div>
 
             <div className="md-actions d-flex gap-3 mt-4">
-              {/* ✅ Chỉ render nút khi đã load xong allMovies */}
               {isLoadingMovies ? (
                 <button className="btn btn-secondary px-4 py-2" disabled>
                   Loading...
@@ -379,7 +376,6 @@ export default function MovieDetail() {
             </div>
           </div>
         </div>
-        {/* Chỉ hiển thị ReviewSection khi đang ở step 'detail' */}
         {step === "detail" && (
           <>
             {/* ✅ TRAILER SECTION */}

@@ -51,8 +51,8 @@ export default function BookingSection({
   const [error, setError] = useState(null);
 
   // Seat data from server
-  const [allReservedSeats, setAllReservedSeats] = useState([]); // All reserved seats from API
-  const [myBookingSeats, setMyBookingSeats] = useState([]); // Seats in current booking
+  const [allReservedSeats, setAllReservedSeats] = useState([]); 
+  const [myBookingSeats, setMyBookingSeats] = useState([]); 
 
   // Pricing
   const [seatPrices, setSeatPrices] = useState({});
@@ -72,7 +72,6 @@ export default function BookingSection({
 
   const [currentUserId, setCurrentUserId] = useState(null);
   useEffect(() => {
-    // ✅ Lấy user_id trực tiếp từ localStorage
     const userId = localStorage.getItem("user_id");
     // console.log("📝 User ID from localStorage:", userId);
     setCurrentUserId(userId);
@@ -258,13 +257,11 @@ export default function BookingSection({
     };
   }, [showPendingDialog, pendingCountdown]);
 
-  // Reset flag khi đổi showtime
   useEffect(() => {
     hasCheckedPendingRef.current = false;
     // console.log("🔄 Reset hasCheckedPendingRef for new showtime:", showtimeId);
   }, [showtimeId]);
 
-  // ✅ CHECK PENDING BOOKING - useEffect DUY NHẤT
   useEffect(() => {
     // console.log("🔍 useEffect check pending triggered", {
     //   showtimeId,
@@ -280,13 +277,11 @@ export default function BookingSection({
 
       // console.log("🚀 Starting pending booking check...");
 
-      // ✅ KIỂM TRA: Nếu đã có bookingId từ localStorage thì validate nó
       const savedBookingId = localStorage.getItem(`booking_${showtimeId}`);
 
       // console.log("💾 Saved bookingId from localStorage:", savedBookingId);
 
       if (savedBookingId) {
-        // Validate booking từ localStorage
         try {
           // console.log("🔄 Validating saved booking...");
           const token = localStorage.getItem("token");
@@ -307,7 +302,6 @@ export default function BookingSection({
             // console.log("✅ Validate result:", result);
 
             if (result.status === "pending" || result.status === "hold") {
-              // Booking còn valid, hiển thị dialog
               const seats = result.seats || result.data?.seats || [];
               const expiresAt = new Date(result.expires_at);
               const now = new Date();
@@ -333,9 +327,9 @@ export default function BookingSection({
               hasCheckedPendingRef.current = true;
 
               // console.log("✅ Dialog should show now");
-              return; // ✅ Đã tìm thấy, không cần check thêm
+              return; 
             } else {
-              // Booking đã hết hạn hoặc không còn pending
+              
               // console.log(
               //   "⚠️ Booking not pending anymore, status:",
               //   result.status
@@ -343,7 +337,7 @@ export default function BookingSection({
               localStorage.removeItem(`booking_${showtimeId}`);
             }
           } else {
-            // Booking không tồn tại
+            
             // console.log("❌ Booking validation failed");
             localStorage.removeItem(`booking_${showtimeId}`);
           }
@@ -353,8 +347,6 @@ export default function BookingSection({
         }
       }
 
-      // ✅ NẾU KHÔNG CÓ localStorage HOẶC VALIDATE THẤT BẠI
-      // Gọi API check-pending để tìm booking từ server
       if (!hasCheckedPendingRef.current) {
         // console.log("🔍 Checking pending booking from server...");
         try {
@@ -378,7 +370,6 @@ export default function BookingSection({
           // console.log("📦 check-pending result:", result);
 
           if (result.success && result.has_pending) {
-            // Tìm thấy pending booking từ server
             console.log(
               "🎉 Found pending booking from server:",
               result.booking
@@ -387,7 +378,6 @@ export default function BookingSection({
             setPendingBooking(result.booking);
             setShowPendingDialog(true);
 
-            // Lưu lại vào localStorage để lần sau dùng
             localStorage.setItem(
               `booking_${showtimeId}`,
               result.booking.booking_id
@@ -544,7 +534,6 @@ export default function BookingSection({
       }
     }
 
-    // ✅ CHỈ UPDATE UI, KHÔNG GỌI API
     setSelectedSeats(newSelectedSeats);
   };
 
@@ -565,16 +554,15 @@ export default function BookingSection({
     try {
       let currentBookingId = bookingId;
 
-      // ✅ TẠO HOẶC CẬP NHẬT BOOKING CHỈ KHI USER CLICK NEXT
       if (!currentBookingId) {
-        // Tạo booking mới
+        
         // console.log("Creating new booking with seats:", selectedSeats);
         currentBookingId = await createBooking(selectedSeats);
         setBookingId(currentBookingId);
         localStorage.setItem(`booking_${showtimeId}`, currentBookingId);
         setMyBookingSeats(selectedSeats);
       } else {
-        // Cập nhật booking hiện tại
+        
         // console.log(
         //   "Updating booking",
         //   currentBookingId,
@@ -597,7 +585,6 @@ export default function BookingSection({
     } catch (err) {
       console.error("Error creating/updating booking:", err);
 
-      // ✅ XỬ LÝ LỖI: Refresh lại danh sách ghế và clear selected seats có vấn đề
       await fetchReservedSeats();
 
       const errorMessage = err.message || "Failed to process booking";
@@ -605,10 +592,8 @@ export default function BookingSection({
       // Show error to user
       alert(errorMessage);
 
-      // ✅ QUAN TRỌNG: Clear selected seats để user chọn lại
       setSelectedSeats([]);
 
-      // Nếu có bookingId nhưng update thất bại, có thể cần cancel booking
       if (bookingId) {
         try {
           await cancelBooking(bookingId);
@@ -658,7 +643,6 @@ export default function BookingSection({
       setShowPendingDialog(false);
       setPendingBooking(null);
 
-      // ✅ Chuyển sang Food step
       onSelectSeats({
         seats: seats,
         total: total,

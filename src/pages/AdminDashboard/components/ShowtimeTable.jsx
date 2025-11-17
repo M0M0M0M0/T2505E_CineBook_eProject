@@ -36,7 +36,7 @@ export default function ShowtimeTable({
     }
   }, [selectedTheater]);
 
-  // ✅ Load showtimes only when theater is selected
+  //  Load showtimes only when theater is selected
   useEffect(() => {
     if (selectedTheater) {
       handleSearch();
@@ -46,7 +46,7 @@ export default function ShowtimeTable({
   }, [selectedTheater, selectedMovie, selectedRoom]);
 
   const handleSearch = async () => {
-    // ✅ Don't search if no theater selected
+    //  Don't search if no theater selected
     if (!selectedTheater) {
       setError("Please select a theater first");
       setLocalShowtimes([]);
@@ -58,7 +58,7 @@ export default function ShowtimeTable({
 
     try {
       const queryParams = new URLSearchParams();
-      queryParams.append("theater_id", selectedTheater); // ✅ Always include theater_id
+      queryParams.append("theater_id", selectedTheater); 
 
       if (selectedMovie) queryParams.append("movie_id", selectedMovie);
       if (selectedRoom) queryParams.append("room_id", selectedRoom);
@@ -196,7 +196,7 @@ export default function ShowtimeTable({
         </div>
       </div>
 
-      {/* ✅ Warning message when no theater selected */}
+      {/*  Warning message when no theater selected */}
       {!selectedTheater && (
         <div
           className="alert alert-info d-flex align-items-center"

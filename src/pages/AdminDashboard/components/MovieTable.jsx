@@ -7,7 +7,7 @@ export default function MovieTable({
   movies,
   handleEdit,
   handleAddMovie,
-  handleDeleteMovie, // ✅ Thêm prop này
+  handleDeleteMovie, 
   movieSearch,
   setMovieSearch,
 }) {
@@ -90,7 +90,7 @@ export default function MovieTable({
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.2 }}
         >
-          {/* Row 1: Search + Genre */}
+          {/* Search + Genre */}
           <div className="d-flex justify-content-between align-items-center flex-wrap mb-3 gap-2">
             {/* Left side: Search + Genre */}
             <div className="d-flex flex-wrap gap-2 align-items-center">
@@ -161,7 +161,7 @@ export default function MovieTable({
             </button>
           </div>
 
-          {/* Row 2: Duration + Release filters */}
+          {/*  Duration + Release filters */}
           <div className="d-flex flex-wrap gap-3 mb-3 align-items-center text-dark">
             {/* Duration */}
             <div className="d-flex align-items-center gap-2">

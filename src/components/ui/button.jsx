@@ -1,4 +1,3 @@
-// src/components/ui/button.jsx
 export function Button({ children, onClick, variant = "default", className = "" }) {
   const base =
     "px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none";

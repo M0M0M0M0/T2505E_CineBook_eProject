@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
-import './Career.css'; // Import file CSS
+import React, { useState, useMemo,useRef} from 'react';
+import './Career.css'; 
 
-// (Dữ liệu giả lập cho các vị trí tuyển dụng)
+
 const allJobs = [
   {
     id: 1,
@@ -40,14 +40,17 @@ const allJobs = [
   },
 ];
 
-// Component Trang Tuyển dụng
+
 export default function Careers() {
   const [filters, setFilters] = useState({
     department: 'All',
     location: 'All',
   });
 
-  // Lọc danh sách công việc dựa trên bộ lọc
+  const generalApplyRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+
   const filteredJobs = useMemo(() => {
     return allJobs.filter(job => {
       const passesDept = filters.department === 'All' || job.department === filters.department;
@@ -61,10 +64,27 @@ export default function Careers() {
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleApplyClick = () => {
+    generalApplyRef.current?.scrollIntoView({
+      behavior: 'smooth', 
+      block: 'start'
+    });
+  };
+const handleSubmitCvClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      console.log("Đã chọn file:", file.name);
+      
+    }
+  };
   return (
     <div className="careers-page">
       
-      {/* 1. HERO SECTION */}
+      {/* HERO SECTION */}
       <div className="careers-hero container text-center py-5">
         <h1 className="display-4 fw-bold">Join Our Team</h1>
         <p className="lead col-lg-8 mx-auto">
@@ -73,7 +93,7 @@ export default function Careers() {
         </p>
       </div>
 
-      {/* 2. WHY WORK WITH US? (Perks & Benefits) */}
+      {/* WHY WORK WITH US? (Perks & Benefits) */}
       <div className="why-work-section container py-5">
         <h2 className="text-center fw-bold mb-5">Perks & Benefits</h2>
         <div className="row g-4 row-cols-1 row-cols-md-3">
@@ -110,7 +130,7 @@ export default function Careers() {
         </div>
       </div>
 
-      {/* 3. OPEN POSITIONS */}
+      {/*  OPEN POSITIONS */}
       <div className="open-positions-section container py-5">
         <h2 className="text-center fw-bold mb-5">Open Positions</h2>
         
@@ -137,11 +157,14 @@ export default function Careers() {
           </div>
         </div>
 
-        {/* Job List */}
         <div className="job-list-container">
           {filteredJobs.length > 0 ? (
             filteredJobs.map(job => (
-              <div className="job-card" key={job.id}>
+              
+              <div 
+                className="job-card d-flex flex-column flex-md-row justify-content-between align-items-md-center" 
+                key={job.id}
+              >
                 <div className="job-card-info">
                   <h5 className="job-title">{job.title}</h5>
                   <div className="job-meta">
@@ -152,8 +175,11 @@ export default function Careers() {
                     <span>{job.type}</span>
                   </div>
                 </div>
-                <div className="job-card-apply">
-                  <button className="btn btn-warning">Apply Now</button>
+                <div className="job-card-apply mt-3 mt-md-0">
+                  
+                  <button className="btn btn-warning" onClick={handleApplyClick}>
+                    Apply Now
+                  </button>
                 </div>
               </div>
             ))
@@ -166,15 +192,26 @@ export default function Careers() {
         </div>
       </div>
       
-      {/* 4. GENERAL APPLICATION */}
-      <div className="general-apply-section py-5">
+      {/*  GENERAL APPLICATION */}
+      <div className="general-apply-section py-5" ref={generalApplyRef}>
         <div className="container text-center p-5 rounded">
           <h3 className="fw-bold mb-3">Don't see a fit?</h3>
           <p className="lead mb-4">
             We are always looking for talented people. Send us your resume and
             we'll contact you if a suitable position opens up.
           </p>
-          <button className="btn btn-outline-warning btn-lg">Submit Your CV</button>
+          
+          <button className="btn btn-outline-warning btn-lg" onClick={handleSubmitCvClick}>
+            Submit Your CV
+          </button>
+
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileChange}
+            style={{ display: 'none' }} 
+            accept=".pdf,.doc,.docx" 
+          />
         </div>
       </div>
 

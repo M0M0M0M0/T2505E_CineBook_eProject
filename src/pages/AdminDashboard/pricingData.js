@@ -1,4 +1,3 @@
-// src/data/pricingData.js
 export const demoMovies = [
   {
     id: 1,

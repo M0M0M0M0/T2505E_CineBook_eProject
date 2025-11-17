@@ -8,7 +8,6 @@ function Offers() {
       <ul className="offers-list">
         <li className="offer-item">50% off on tickets for students</li>
         <li className="offer-item">Buy 1 get 1 free on Tuesdays</li>
-        {/* Thêm ưu đãi khác */}
       </ul>
     </div>
   );

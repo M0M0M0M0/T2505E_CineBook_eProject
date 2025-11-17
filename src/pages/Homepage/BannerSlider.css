@@ -1,7 +1,7 @@
 .banner-slider-container {
   position: relative;
   width: 100%;
-  overflow: hidden; /* chặn tràn nhưng vẫn cho nút nằm đè */
+  overflow: hidden; 
 }
 
 .banner-slider img {
@@ -11,7 +11,7 @@
   display: block;
 }
 
-/* === Custom arrows styles === */
+/*  Custom arrows styles  */
 .custom-arrow {
   position: absolute;
   top: 50%;
@@ -53,7 +53,7 @@
   right: 25px;
 }
 
-/* === Dots chỉnh gọn === */
+
 .banner-slider-container .slick-dots {
   bottom: 20px;
 }

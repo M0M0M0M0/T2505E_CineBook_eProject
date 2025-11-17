@@ -47,36 +47,28 @@
 
 }
 .movie-grid-container {
-    /* Sử dụng Grid để tạo 4 cột với minmax, tự động căn chỉnh */
     display: grid;
-    /* Tạo cột: Tự động lấp đầy, chiều rộng tối thiểu là 240px cho mỗi card */
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    
-    /* Đặt khoảng cách giữa các card */
     gap: 44px; 
-
-    /* Căn lề trái nếu số lượng item ít (mặc định grid đã làm tốt) */
     width: 100%;
     margin: 0;
 }
 
-/* Đảm bảo Movie Card không bị float hoặc position: absolute */
 .movie-card {
-    /* ... (các thuộc tính cũ) ... */
-    width: 100%; /* Đảm bảo card chiếm hết chiều rộng của ô grid */
+    width: 100%; 
 }
 
 
 /* CONTROLS */
 .movies-controls {
   display: flex;
-  justify-content: center; /* Căn giữa theo chiều ngang */
+  justify-content: center; 
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
   margin: 28px auto;
   width: 100%;
-  max-width: 900px; /* Giới hạn chiều rộng tổng */
+  max-width: 900px; 
   text-align: center;
   box-sizing: border-box;
 }
@@ -159,7 +151,7 @@
   box-shadow: 0 0 0 1px #333 inset;
 }
 
-/* Bộ lọc */
+/* filter */
 .filter-panel {
   display: flex;
   justify-content: center;
@@ -168,7 +160,7 @@
   flex-wrap: wrap;
 }
 
-/* Các select box */
+/* select box */
 .filter-panel select {
   padding: 9px 10px;
   border-radius: 8px;

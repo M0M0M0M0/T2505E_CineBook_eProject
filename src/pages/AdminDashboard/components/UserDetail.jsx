@@ -12,7 +12,7 @@ export default function UserDetail({
         <strong>ID:</strong> {userSelected.web_user_id}
       </p>
       <p>
-        <strong>Name:</strong> {userSelected.full_name}
+        <strong>Full name:</strong> {userSelected.full_name}
       </p>
       <p>
         <strong>Email:</strong> {userSelected.email}
@@ -21,6 +21,7 @@ export default function UserDetail({
         <strong>Phone number:</strong> {userSelected.phone_number}
       </p>
       <p>
+        <strong>Address:</strong> {userSelected.address}
         <strong>Address:</strong> {userSelected.address}
       </p>
       <p>
@@ -42,7 +43,7 @@ export default function UserDetail({
           className="btn btn-outline-secondary btn-sm"
           onClick={() => userSetSelected(null)}
         >
-          Đóng
+          Close
         </button>
       </div>
     </div>

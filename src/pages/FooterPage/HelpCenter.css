@@ -1,6 +1,3 @@
-/* src/pages/HelpCenter.css */
-
-/* Biến màu (Color Variables) */
 :root {
   --custom-yellow: #ffd27a;
   --custom-yellow-darker: #e6b86a;
@@ -10,14 +7,14 @@
   --custom-muted-text: #adb5bd;
 }
 
-/* === TỔNG THỂ TRANG === */
+
 .help-center-page {
   background-color: var(--custom-dark-bg);
   color: var(--custom-light-text);
   padding-bottom: 2rem;
 }
 
-/* === TIÊU ĐỀ MÀU VÀNG === */
+
 .help-center-page h1,
 .help-center-page h2,
 .help-center-page h5 {
@@ -29,12 +26,12 @@
   color: var(--custom-muted-text);
 }
 
-/* 1. THANH TÌM KIẾM */
+
 .hero-search-bar {
   border-bottom: 1px solid var(--custom-dark-card);
 }
 
-/* Đổi màu input sang dark mode */
+
 .hero-search-bar .form-control {
   background-color: var(--custom-dark-card);
   border-color: #495057;
@@ -50,7 +47,7 @@
   color: var(--custom-muted-text);
 }
 
-/* Đổi màu nút search */
+
 .hero-search-bar .btn-warning {
   background-color: var(--custom-yellow);
   border-color: var(--custom-yellow);
@@ -64,7 +61,7 @@
 }
 
 
-/* 2. CÁC THẺ CHỦ ĐỀ */
+
 .help-topic-card {
   background-color: var(--custom-dark-card);
   border: 1px solid #495057;
@@ -94,11 +91,6 @@
   color: var(--custom-muted-text);
 }
 
-/* 3. ACCORDION (FAQs) */
-/* Chúng ta dùng data-bs-theme="dark", nhưng nếu muốn tùy chỉnh thêm
-  thì bạn có thể style các class .accordion-item, .accordion-button ở đây.
-  Ví dụ: đổi màu nút khi active.
-*/
 .faq-section .accordion-button:not(.collapsed) {
   background-color: var(--custom-dark-card);
   color: var(--custom-yellow);
@@ -110,7 +102,7 @@
 }
 
 
-/* 4. HỘP LIÊN HỆ */
+
 .contact-box-wrapper {
   background-color: var(--custom-dark-bg);
 }

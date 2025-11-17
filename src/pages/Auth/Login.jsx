@@ -36,18 +36,15 @@ export default function Login() {
 
       // console.log("✅ Login response:", res.data);
 
-      // Lưu token
+
       localStorage.setItem("token", res.data.access_token);
 
-      // ✅ XỬ LÝ ĐÚNG CHO CẢ ADMIN VÀ CUSTOMER
       if (res.data.user) {
         localStorage.setItem("user", JSON.stringify(res.data.user));
 
-        // ✅ ADMIN: Dùng staff_id, CUSTOMER: Dùng user_id
         const userId = res.data.user.staff_id || res.data.user.user_id;
         localStorage.setItem("user_id", userId);
 
-        // ✅ Lưu user_type
         localStorage.setItem("user_type", res.data.user.user_type);
 
         // console.log("✅ Saved user info:", {
@@ -57,10 +54,8 @@ export default function Login() {
         // });
       }
 
-      // Dispatch event login để Header update ngay
       window.dispatchEvent(new Event("login"));
 
-      // Chuyển trang
       if (isAdmin && res.data.user.user_type === "staff") {
         navigate("/admin");
       } else {

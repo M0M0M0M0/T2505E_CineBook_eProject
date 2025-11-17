@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import api from "../../api/config"; // dùng instance từ config.js
+import api from "../../api/config"; 
 import "./Auth.css";
 
 export default function ForgotPassword() {
-  const navigate = useNavigate(); // <--- thêm navigate
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [step, setStep] = useState("email");
   const [password, setPassword] = useState("");
@@ -14,7 +14,7 @@ export default function ForgotPassword() {
   const [msg, setMsg] = useState("");
   const [resetToken, setResetToken] = useState("");
 
-  // --- VERIFY EMAIL ---
+  //  VERIFY EMAIL 
   const handleVerify = async (e) => {
     e.preventDefault();
     if (!email.trim()) return;
@@ -42,7 +42,7 @@ export default function ForgotPassword() {
     }
   };
 
-  // --- RESET PASSWORD ---
+  //  RESET PASSWORD 
   const handleResetPass = async (e) => {
     e.preventDefault();
 
@@ -64,14 +64,12 @@ export default function ForgotPassword() {
 
       setMsg("✅ Đổi mật khẩu thành công! Chuyển về Login...");
 
-      // Xóa form
       setStep("email");
       setEmail("");
       setPassword("");
       setConfirmPass("");
       setResetToken("");
 
-      // Chuyển về login sau 2 giây
       setTimeout(() => {
         navigate("/login");
       }, 2000);

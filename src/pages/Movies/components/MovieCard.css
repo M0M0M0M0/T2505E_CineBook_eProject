@@ -1,4 +1,4 @@
-/* --- Thẻ bao từng MovieCard --- */
+/* --- MovieCard --- */
 .movie-card {
   background: #111;
   border-radius: 16px;
@@ -14,7 +14,6 @@
   overflow: hidden;
   margin: 20px;
   height: 100%;
-  /* padding: 0 15px; */
 }
 
 .movie-card:hover {
@@ -31,7 +30,6 @@
   transition: transform 0.3s ease;
 }
 
-/* Thêm khoảng cách cố định giữa poster và nút */
 .poster-container {
   position: relative;
   width: 100%;
@@ -50,7 +48,7 @@
   transform: scale(1.05);
 }
 
-/* --- Nút Play --- */
+/* --- Button Play --- */
 .play-btn {
   position: absolute;
   top: 50%;
@@ -78,7 +76,7 @@
   visibility: visible;
   pointer-events: auto;
 }
-/* --- Nút Mua vé --- */
+/* --- Button buy ticket --- */
 .buy-btn {
   background: #ffd27a;
   color: #000;
@@ -95,9 +93,9 @@
   background: rgba(255, 211, 122, 0.668);
 }
 
-/* --- Thông tin phim --- */
+/* --- movie info --- */
 .movie-info {
-  min-height: 70px; /* hoặc tuỳ độ cao bạn thấy hợp lý */
+  min-height: 70px; 
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -112,7 +110,7 @@
 .movie-genre {
   color: #ccc;
   font-size: 0.9rem;
-  /* margin-top: 4px; */
+
 }
 
 /* --- Trailer Modal --- */
